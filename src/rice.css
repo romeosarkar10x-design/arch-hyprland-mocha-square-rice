@@ -1,0 +1,11 @@
+/* Global additions on top of the hyprland-ui bundle styles. */
+
+/* <Wallpaper variant="image"> without a src (as <Desktop wallpaper="image"> renders it)
+   shows the wallpaper set by <ThemeProvider>; with none set, a soft accent glow. */
+.hx-wall--image {
+  background-image: var(
+    --hx-wallpaper-image,
+    radial-gradient(ellipse at 18% 85%, color-mix(in srgb, var(--hx-mauve) 30%, transparent), transparent 55%),
+    radial-gradient(ellipse at 85% 12%, color-mix(in srgb, var(--hx-blue) 26%, transparent), transparent 50%)
+  );
+}

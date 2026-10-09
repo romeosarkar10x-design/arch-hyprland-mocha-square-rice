@@ -1,0 +1,663 @@
+{
+  "plugins": [
+    "react",
+    "import"
+  ],
+  "rules": {
+    "react/forbid-elements": [
+      "warn",
+      {
+        "forbid": [
+          {
+            "element": "button",
+            "message": "Use <Button> from the design system instead of <button>."
+          },
+          {
+            "element": "input",
+            "message": "Use <Slider> from the design system instead of <input>."
+          }
+        ]
+      }
+    ],
+    "no-restricted-imports": [
+      "warn",
+      {
+        "patterns": [
+          {
+            "group": [
+              "components/bar/Bar/**",
+              "components/bar/BarSegment/**",
+              "components/bar/Tooltip/**",
+              "components/bar/Workspaces/**",
+              "components/controls/Button/**",
+              "components/controls/IconButton/**",
+              "components/controls/Slider/**",
+              "components/controls/Toggle/**",
+              "components/data/CoreGrid/**",
+              "components/data/Gauge/**",
+              "components/data/Graph/**",
+              "components/data/Meter/**",
+              "components/data/Sparkline/**",
+              "components/data/StackBar/**",
+              "components/data/Stat/**",
+              "components/data/Visualizer/**",
+              "components/desktop/BrowserView/**",
+              "components/desktop/CodeView/**",
+              "components/desktop/Desktop/**",
+              "components/desktop/Terminal/**",
+              "components/desktop/Wallpaper/**",
+              "components/desktop/WindowFrame/**",
+              "components/foundations/Icon/**",
+              "components/foundations/IconTile/**",
+              "components/foundations/Kbd/**",
+              "components/foundations/Shortcut/**",
+              "components/foundations/Surface/**",
+              "components/foundations/Unit/**",
+              "components/overlays/Launcher/**",
+              "components/overlays/PowerMenu/**",
+              "components/overlays/Toast/**",
+              "components/overlays/ToastStack/**",
+              "components/popups/AudioPanel/**",
+              "components/popups/Calendar/**",
+              "components/popups/ClockPanel/**",
+              "components/popups/CpuPanel/**",
+              "components/popups/GpuPanel/**",
+              "components/popups/MediaPlayer/**",
+              "components/popups/MemoryPanel/**",
+              "components/popups/NetworkPanel/**",
+              "components/popups/Panel/**",
+              "components/popups/PanelSection/**",
+              "components/popups/QuickSettings/**"
+            ],
+            "message": "Import design-system components from 'index.js', not component internals."
+          }
+        ]
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      {
+        "selector": "Literal[value=/#[0-9a-fA-F]{3,8}\\b/]",
+        "message": "Raw hex color — use a design-system color token via var()."
+      },
+      {
+        "selector": "Literal[value=/\\b\\d+px\\b/]",
+        "message": "Raw px value — use a design-system spacing token via var()."
+      },
+      {
+        "selector": "Literal[value=/font-family\\s*:\\s*(?!['\\\"]?(?:MonoLisa))/i]",
+        "message": "Font not provided by the design system. Available: MonoLisa."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='AudioPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:outputs|output|volume|muted|micVolume|track|onOutputChange|onVolumeChange|className|key|ref|className|style|children)$/]",
+        "message": "<AudioPanel> doesn't accept that prop. Declared props: outputs, output, volume, muted, micVolume, track, onOutputChange, onVolumeChange, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Bar'] > JSXAttribute > JSXIdentifier[name!=/^(?:left|center|right|className|style|key|ref|className|style|children)$/]",
+        "message": "<Bar> doesn't accept that prop. Declared props: left, center, right, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BarSegment'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|children|accent|level|spark|divider|open|variant|dim|onClick|label|className|key|ref|className|style|children)$/]",
+        "message": "<BarSegment> doesn't accept that prop. Declared props: icon, children, accent, level, spark, divider, open, variant, dim, onClick, label, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BarSegment'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<BarSegment> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BarSegment'] > JSXAttribute[name.name='level'] > Literal[value!=/^(?:ok|warn|crit)$/]",
+        "message": "<BarSegment> level must be one of 'ok' | 'warn' | 'crit'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BarSegment'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:clock|power|plain|launcher|title|media)$/]",
+        "message": "<BarSegment> variant must be one of 'clock' | 'power' | 'plain' | 'launcher' | 'title' | 'media'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='BrowserView'] > JSXAttribute > JSXIdentifier[name!=/^(?:url|tabs|className|key|ref|className|style|children)$/]",
+        "message": "<BrowserView> doesn't accept that prop. Declared props: url, tabs, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|size|accent|icon|kbd|block|children|className|id|style|key|ref|className|style|children)$/]",
+        "message": "<Button> doesn't accept that prop. Declared props: variant, size, accent, icon, kbd, block, children, className, id, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:primary|secondary|ghost|danger)$/]",
+        "message": "<Button> variant must be one of 'primary' | 'secondary' | 'ghost' | 'danger'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md|lg)$/]",
+        "message": "<Button> size must be one of 'sm' | 'md' | 'lg'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Button'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Button> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Calendar'] > JSXAttribute > JSXIdentifier[name!=/^(?:today|month|events|weekNumbers|onSelect|className|key|ref|className|style|children)$/]",
+        "message": "<Calendar> doesn't accept that prop. Declared props: today, month, events, weekNumbers, onSelect, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ClockPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:now|events|zones|className|key|ref|className|style|children)$/]",
+        "message": "<ClockPanel> doesn't accept that prop. Declared props: now, events, zones, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CodeView'] > JSXAttribute > JSXIdentifier[name!=/^(?:file|code|cursorLine|mode|className|key|ref|className|style|children)$/]",
+        "message": "<CodeView> doesn't accept that prop. Declared props: file, code, cursorLine, mode, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CodeView'] > JSXAttribute[name.name='mode'] > Literal[value!=/^(?:NORMAL|INSERT|VISUAL)$/]",
+        "message": "<CodeView> mode must be one of 'NORMAL' | 'INSERT' | 'VISUAL'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CoreGrid'] > JSXAttribute > JSXIdentifier[name!=/^(?:cores|columns|accent|className|key|ref|className|style|children)$/]",
+        "message": "<CoreGrid> doesn't accept that prop. Declared props: cores, columns, accent, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CoreGrid'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<CoreGrid> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='CpuPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:data|paused|onOpenMonitor|className|key|ref|className|style|children)$/]",
+        "message": "<CpuPanel> doesn't accept that prop. Declared props: data, paused, onOpenMonitor, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Desktop'] > JSXAttribute > JSXIdentifier[name!=/^(?:workspace|openPopup|notifications|paused|wallpaper|width|height|className|key|ref|className|style|children)$/]",
+        "message": "<Desktop> doesn't accept that prop. Declared props: workspace, openPopup, notifications, paused, wallpaper, width, height, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Desktop'] > JSXAttribute[name.name='openPopup'] > Literal[value!=/^(?:clock|cpu|gpu|power|launcher|media|mem|net|audio|qs)$/]",
+        "message": "<Desktop> openPopup must be one of 'clock' | 'cpu' | 'gpu' | 'power' | 'launcher' | 'media' | 'mem' | 'net' | 'audio' | 'qs'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Desktop'] > JSXAttribute[name.name='wallpaper'] > Literal[value!=/^(?:image|aurora|tiles)$/]",
+        "message": "<Desktop> wallpaper must be one of 'image' | 'aurora' | 'tiles'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|max|label|unit|sub|accent|warn|crit|size|segments|className|key|ref|className|style|children)$/]",
+        "message": "<Gauge> doesn't accept that prop. Declared props: value, max, label, unit, sub, accent, warn, crit, size, segments, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Gauge'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Gauge> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='GpuPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:data|paused|onOpenMonitor|className|key|ref|className|style|children)$/]",
+        "message": "<GpuPanel> doesn't accept that prop. Declared props: data, paused, onOpenMonitor, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Graph'] > JSXAttribute > JSXIdentifier[name!=/^(?:series|max|capacity|height|format|gridLines|kind|className|key|ref|className|style|children)$/]",
+        "message": "<Graph> doesn't accept that prop. Declared props: series, max, capacity, height, format, gridLines, kind, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Graph'] > JSXAttribute[name.name='kind'] > Literal[value!=/^(?:area|bars)$/]",
+        "message": "<Graph> kind must be one of 'area' | 'bars'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Icon'] > JSXAttribute > JSXIdentifier[name!=/^(?:name|size|color|label|className|style|key|ref|className|style|children)$/]",
+        "message": "<Icon> doesn't accept that prop. Declared props: name, size, color, label, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconButton'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|label|size|variant|accent|active|className|id|style|key|ref|className|style|children)$/]",
+        "message": "<IconButton> doesn't accept that prop. Declared props: icon, label, size, variant, accent, active, className, id, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconButton'] > JSXAttribute[name.name='size'] > Literal[value!=/^(?:sm|md|lg)$/]",
+        "message": "<IconButton> size must be one of 'sm' | 'md' | 'lg'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconButton'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:plain|primary|outline)$/]",
+        "message": "<IconButton> variant must be one of 'plain' | 'primary' | 'outline'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconButton'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<IconButton> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconTile'] > JSXAttribute > JSXIdentifier[name!=/^(?:icon|accent|size|className|key|ref|className|style|children)$/]",
+        "message": "<IconTile> doesn't accept that prop. Declared props: icon, accent, size, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='IconTile'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<IconTile> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Kbd'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|className|key|ref|className|style|children)$/]",
+        "message": "<Kbd> doesn't accept that prop. Declared props: children, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Launcher'] > JSXAttribute > JSXIdentifier[name!=/^(?:items|query|placeholder|onLaunch|onClose|autoFocus|width|className|key|ref|className|style|children)$/]",
+        "message": "<Launcher> doesn't accept that prop. Declared props: items, query, placeholder, onLaunch, onClose, autoFocus, width, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MediaPlayer'] > JSXAttribute > JSXIdentifier[name!=/^(?:track|player|playerIcon|playing|position|onPlayPause|onNext|onPrevious|variant|className|key|ref|className|style|children)$/]",
+        "message": "<MediaPlayer> doesn't accept that prop. Declared props: track, player, playerIcon, playing, position, onPlayPause, onNext, onPrevious, variant, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MediaPlayer'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:full|compact)$/]",
+        "message": "<MediaPlayer> variant must be one of 'full' | 'compact'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='MemoryPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:data|paused|className|key|ref|className|style|children)$/]",
+        "message": "<MemoryPanel> doesn't accept that prop. Declared props: data, paused, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Meter'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|label|readout|accent|cells|peak|levels|height|className|key|ref|className|style|children)$/]",
+        "message": "<Meter> doesn't accept that prop. Declared props: value, label, readout, accent, cells, peak, levels, height, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Meter'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Meter> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='NetworkPanel'] > JSXAttribute > JSXIdentifier[name!=/^(?:data|paused|className|key|ref|className|style|children)$/]",
+        "message": "<NetworkPanel> doesn't accept that prop. Declared props: data, paused, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Panel'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|subtitle|icon|accent|live|headerAside|actions|width|children|className|style|key|ref|className|style|children)$/]",
+        "message": "<Panel> doesn't accept that prop. Declared props: title, subtitle, icon, accent, live, headerAside, actions, width, children, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Panel'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Panel> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='PanelSection'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|aside|children|flush|className|key|ref|className|style|children)$/]",
+        "message": "<PanelSection> doesn't accept that prop. Declared props: label, aside, children, flush, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='PowerMenu'] > JSXAttribute > JSXIdentifier[name!=/^(?:actions|holdMs|onAction|footer|className|key|ref|className|style|children)$/]",
+        "message": "<PowerMenu> doesn't accept that prop. Declared props: actions, holdMs, onAction, footer, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='QuickSettings'] > JSXAttribute > JSXIdentifier[name!=/^(?:tiles|columns|onToggle|bare|className|key|ref|className|style|children)$/]",
+        "message": "<QuickSettings> doesn't accept that prop. Declared props: tiles, columns, onToggle, bare, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Shortcut'] > JSXAttribute > JSXIdentifier[name!=/^(?:keys|className|key|ref|className|style|children)$/]",
+        "message": "<Shortcut> doesn't accept that prop. Declared props: keys, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Slider'] > JSXAttribute > JSXIdentifier[name!=/^(?:value|defaultValue|max|step|onChange|accent|icon|onIconClick|showValue|format|ticks|muted|label|className|key|ref|className|style|children)$/]",
+        "message": "<Slider> doesn't accept that prop. Declared props: value, defaultValue, max, step, onChange, accent, icon, onIconClick, showValue, format, ticks, muted, label, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Slider'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Slider> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Sparkline'] > JSXAttribute > JSXIdentifier[name!=/^(?:data|max|bars|height|className|key|ref|className|style|children)$/]",
+        "message": "<Sparkline> doesn't accept that prop. Declared props: data, max, bars, height, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='StackBar'] > JSXAttribute > JSXIdentifier[name!=/^(?:segments|total|format|hideLegend|className|key|ref|className|style|children)$/]",
+        "message": "<StackBar> doesn't accept that prop. Declared props: segments, total, format, hideLegend, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Stat'] > JSXAttribute > JSXIdentifier[name!=/^(?:label|value|hint|accent|className|key|ref|className|style|children)$/]",
+        "message": "<Stat> doesn't accept that prop. Declared props: label, value, hint, accent, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Stat'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Stat> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Surface'] > JSXAttribute > JSXIdentifier[name!=/^(?:tone|padding|children|className|style|key|ref|className|style|children)$/]",
+        "message": "<Surface> doesn't accept that prop. Declared props: tone, padding, children, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Surface'] > JSXAttribute[name.name='tone'] > Literal[value!=/^(?:crust|mantle|base|wallpaper)$/]",
+        "message": "<Surface> tone must be one of 'crust' | 'mantle' | 'base' | 'wallpaper'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Terminal'] > JSXAttribute > JSXIdentifier[name!=/^(?:lines|cwd|cursor|className|key|ref|className|style|children)$/]",
+        "message": "<Terminal> doesn't accept that prop. Declared props: lines, cwd, cursor, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute > JSXIdentifier[name!=/^(?:app|appIcon|title|body|accent|urgency|time|actions|timeout|onClose|className|key|ref|className|style|children)$/]",
+        "message": "<Toast> doesn't accept that prop. Declared props: app, appIcon, title, body, accent, urgency, time, actions, timeout, onClose, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Toast> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Toast'] > JSXAttribute[name.name='urgency'] > Literal[value!=/^(?:low|normal|critical)$/]",
+        "message": "<Toast> urgency must be one of 'low' | 'normal' | 'critical'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='ToastStack'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|className|style|key|ref|className|style|children)$/]",
+        "message": "<ToastStack> doesn't accept that prop. Declared props: children, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Toggle'] > JSXAttribute > JSXIdentifier[name!=/^(?:checked|defaultChecked|onChange|accent|label|description|disabled|className|key|ref|className|style|children)$/]",
+        "message": "<Toggle> doesn't accept that prop. Declared props: checked, defaultChecked, onChange, accent, label, description, disabled, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Toggle'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Toggle> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Tooltip'] > JSXAttribute > JSXIdentifier[name!=/^(?:title|subtitle|icon|accent|rows|hints|children|className|key|ref|className|style|children)$/]",
+        "message": "<Tooltip> doesn't accept that prop. Declared props: title, subtitle, icon, accent, rows, hints, children, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Tooltip'] > JSXAttribute[name.name='accent'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Tooltip> accent must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Unit'] > JSXAttribute > JSXIdentifier[name!=/^(?:children|key|ref|className|style|children)$/]",
+        "message": "<Unit> doesn't accept that prop. Declared props: children."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Visualizer'] > JSXAttribute > JSXIdentifier[name!=/^(?:bars|count|playing|height|variant|from|to|className|key|ref|className|style|children)$/]",
+        "message": "<Visualizer> doesn't accept that prop. Declared props: bars, count, playing, height, variant, from, to, className."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Visualizer'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:bars|mirror)$/]",
+        "message": "<Visualizer> variant must be one of 'bars' | 'mirror'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Visualizer'] > JSXAttribute[name.name='from'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Visualizer> from must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Visualizer'] > JSXAttribute[name.name='to'] > Literal[value!=/^(?:mauve|pink|yellow|peach|red|green|sky|sapphire|teal|blue|lavender|text)$/]",
+        "message": "<Visualizer> to must be one of 'mauve' | 'pink' | 'yellow' | 'peach' | 'red' | 'green' | 'sky' | 'sapphire' | 'teal' | 'blue' | 'lavender' | 'text'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Wallpaper'] > JSXAttribute > JSXIdentifier[name!=/^(?:variant|src|className|style|key|ref|className|style|children)$/]",
+        "message": "<Wallpaper> doesn't accept that prop. Declared props: variant, src, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Wallpaper'] > JSXAttribute[name.name='variant'] > Literal[value!=/^(?:image|aurora|tiles)$/]",
+        "message": "<Wallpaper> variant must be one of 'image' | 'aurora' | 'tiles'."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='WindowFrame'] > JSXAttribute > JSXIdentifier[name!=/^(?:focused|tag|children|onFocus|className|style|key|ref|className|style|children)$/]",
+        "message": "<WindowFrame> doesn't accept that prop. Declared props: focused, tag, children, onFocus, className, style."
+      },
+      {
+        "selector": "JSXOpeningElement[name.name='Workspaces'] > JSXAttribute > JSXIdentifier[name!=/^(?:workspaces|active|onSelect|showApps|className|key|ref|className|style|children)$/]",
+        "message": "<Workspaces> doesn't accept that prop. Declared props: workspaces, active, onSelect, showApps, className."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/index.js"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    }
+  ],
+  "x-omelette": {
+    "components": {
+      "AudioPanel": {
+        "replaces": []
+      },
+      "Bar": {
+        "replaces": []
+      },
+      "BarSegment": {
+        "replaces": []
+      },
+      "BrowserView": {
+        "replaces": []
+      },
+      "Button": {
+        "replaces": [
+          "button"
+        ]
+      },
+      "Calendar": {
+        "replaces": []
+      },
+      "ClockPanel": {
+        "replaces": []
+      },
+      "CodeView": {
+        "replaces": []
+      },
+      "CoreGrid": {
+        "replaces": []
+      },
+      "CpuPanel": {
+        "replaces": []
+      },
+      "Desktop": {
+        "replaces": []
+      },
+      "Gauge": {
+        "replaces": []
+      },
+      "GpuPanel": {
+        "replaces": []
+      },
+      "Graph": {
+        "replaces": []
+      },
+      "Icon": {
+        "replaces": []
+      },
+      "IconButton": {
+        "replaces": []
+      },
+      "IconTile": {
+        "replaces": []
+      },
+      "Kbd": {
+        "replaces": []
+      },
+      "Launcher": {
+        "replaces": []
+      },
+      "MediaPlayer": {
+        "replaces": []
+      },
+      "MemoryPanel": {
+        "replaces": []
+      },
+      "Meter": {
+        "replaces": []
+      },
+      "NetworkPanel": {
+        "replaces": []
+      },
+      "Panel": {
+        "replaces": []
+      },
+      "PanelSection": {
+        "replaces": []
+      },
+      "PowerMenu": {
+        "replaces": []
+      },
+      "QuickSettings": {
+        "replaces": []
+      },
+      "Shortcut": {
+        "replaces": []
+      },
+      "Slider": {
+        "replaces": [
+          "input[type=range]"
+        ]
+      },
+      "Sparkline": {
+        "replaces": []
+      },
+      "StackBar": {
+        "replaces": []
+      },
+      "Stat": {
+        "replaces": []
+      },
+      "Surface": {
+        "replaces": []
+      },
+      "Terminal": {
+        "replaces": []
+      },
+      "Toast": {
+        "replaces": []
+      },
+      "ToastStack": {
+        "replaces": []
+      },
+      "Toggle": {
+        "replaces": []
+      },
+      "Tooltip": {
+        "replaces": []
+      },
+      "Unit": {
+        "replaces": []
+      },
+      "Visualizer": {
+        "replaces": []
+      },
+      "Wallpaper": {
+        "replaces": []
+      },
+      "WindowFrame": {
+        "replaces": []
+      },
+      "Workspaces": {
+        "replaces": []
+      }
+    },
+    "tokens": [
+      "--hx-acc",
+      "--hx-accent",
+      "--hx-audio",
+      "--hx-bar-ground",
+      "--hx-bar-height",
+      "--hx-base",
+      "--hx-blue",
+      "--hx-border-bar",
+      "--hx-border-inactive",
+      "--hx-border-window",
+      "--hx-cpu",
+      "--hx-crit",
+      "--hx-crust",
+      "--hx-ease",
+      "--hx-ease-overshot",
+      "--hx-fast",
+      "--hx-font",
+      "--hx-gap-in",
+      "--hx-gap-out",
+      "--hx-gpu",
+      "--hx-green",
+      "--hx-hairline",
+      "--hx-lavender",
+      "--hx-mantle",
+      "--hx-mauve",
+      "--hx-med",
+      "--hx-media",
+      "--hx-mem",
+      "--hx-net",
+      "--hx-ok",
+      "--hx-overlay0",
+      "--hx-overlay1",
+      "--hx-peach",
+      "--hx-pink",
+      "--hx-radius",
+      "--hx-red",
+      "--hx-sapphire",
+      "--hx-shadow-popup",
+      "--hx-shadow-window",
+      "--hx-sky",
+      "--hx-slow",
+      "--hx-space-1",
+      "--hx-space-2",
+      "--hx-space-3",
+      "--hx-space-4",
+      "--hx-space-5",
+      "--hx-strip",
+      "--hx-subtext0",
+      "--hx-surface0",
+      "--hx-surface1",
+      "--hx-surface2",
+      "--hx-teal",
+      "--hx-text",
+      "--hx-text-display",
+      "--hx-text-lg",
+      "--hx-text-md",
+      "--hx-text-sm",
+      "--hx-text-xl",
+      "--hx-text-xs",
+      "--hx-title",
+      "--hx-warn",
+      "--hx-yellow"
+    ],
+    "tokenKinds": {
+      "--hx-crust": "color",
+      "--hx-mantle": "color",
+      "--hx-base": "color",
+      "--hx-surface0": "color",
+      "--hx-surface1": "color",
+      "--hx-surface2": "color",
+      "--hx-overlay0": "color",
+      "--hx-overlay1": "color",
+      "--hx-subtext0": "color",
+      "--hx-text": "font",
+      "--hx-mauve": "color",
+      "--hx-pink": "color",
+      "--hx-yellow": "color",
+      "--hx-peach": "color",
+      "--hx-red": "color",
+      "--hx-green": "color",
+      "--hx-sky": "color",
+      "--hx-sapphire": "color",
+      "--hx-teal": "color",
+      "--hx-blue": "color",
+      "--hx-lavender": "color",
+      "--hx-bar-ground": "color",
+      "--hx-border-inactive": "color",
+      "--hx-accent": "color",
+      "--hx-ok": "color",
+      "--hx-warn": "color",
+      "--hx-crit": "color",
+      "--hx-net": "color",
+      "--hx-cpu": "color",
+      "--hx-gpu": "color",
+      "--hx-mem": "color",
+      "--hx-audio": "color",
+      "--hx-media": "color",
+      "--hx-title": "color",
+      "--hx-font": "font",
+      "--hx-text-xs": "font",
+      "--hx-text-sm": "font",
+      "--hx-text-md": "font",
+      "--hx-text-lg": "font",
+      "--hx-text-xl": "font",
+      "--hx-text-display": "font",
+      "--hx-gap-in": "spacing",
+      "--hx-gap-out": "spacing",
+      "--hx-space-1": "spacing",
+      "--hx-space-2": "spacing",
+      "--hx-space-3": "spacing",
+      "--hx-space-4": "spacing",
+      "--hx-space-5": "spacing",
+      "--hx-bar-height": "spacing",
+      "--hx-hairline": "spacing",
+      "--hx-border-window": "spacing",
+      "--hx-border-bar": "spacing",
+      "--hx-strip": "spacing",
+      "--hx-radius": "radius",
+      "--hx-shadow-window": "shadow",
+      "--hx-shadow-popup": "shadow",
+      "--hx-ease": "other",
+      "--hx-ease-overshot": "other",
+      "--hx-fast": "other",
+      "--hx-med": "other",
+      "--hx-slow": "other",
+      "--hx-acc": "color"
+    },
+    "fontFamilies": [
+      "MonoLisa"
+    ]
+  }
+}

@@ -2,4 +2,6 @@
 // time. This must be its own module so it runs before the bundle import (imports hoist).
 import * as React from "react";
 
-window.React = React;
+// A plain copy, not the namespace itself: the bundle's React shim writes jsx/Fragment onto
+// window.React, and in production builds the namespace object's properties are getter-only.
+window.React = { ...React };

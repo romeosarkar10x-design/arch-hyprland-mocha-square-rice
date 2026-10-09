@@ -18,13 +18,13 @@ function Live(props: Omit<ComponentProps<typeof KeystrokeVisualizer>, "strokes">
 const meta = {
   title: "Shell/Overlays/Keystroke Visualizer",
   component: KeystrokeVisualizer,
-  args: { strokes: sample, layout: "stack", linger: 2400, titled: true },
-  argTypes: { layout: { control: "inline-radio", options: ["stack", "line"] }, linger: { control: { type: "range", min: 500, max: 6000, step: 100 } } },
+  args: { strokes: sample, linger: 2400, titled: true },
+  argTypes: { linger: { control: { type: "range", min: 500, max: 6000, step: 100 } } },
   parameters: {
     docs: {
       description: {
         component:
-          "A small window showing the keys you press (like wshowkeys / showmethekey), for screencasts and demos: one combo per line, held repeats count up (×4), older combos fade. Modifiers are named the Hyprland way. **Live** listens to this page; it is also built into **Hyprland → Live Session**.",
+          "A small window showing the keys you press (like wshowkeys / showmethekey), for screencasts and demos: combos run left to right in one row, newest on the right; held repeats count up (×4), older combos fade. Modifiers are named the Hyprland way. **Live** listens to this page; it is also built into **Hyprland → Live Session**.",
       },
     },
   },
@@ -34,13 +34,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Sample: Story = {};
-export const LiveTyping: Story = { name: "Live (type anything)", render: (args) => <Live layout={args.layout} linger={args.linger} titled={args.titled} /> };
-export const Strip: Story = { args: { layout: "line", titled: false } };
+export const LiveTyping: Story = { name: "Live (type anything)", render: (args) => <Live linger={args.linger} titled={args.titled} /> };
+export const Untitled: Story = { args: { titled: false } };
 export const OnScreen: Story = {
   name: "On screen",
   render: (args) => (
     <Stage place="bottom">
-      <Live layout={args.layout} linger={args.linger} titled={args.titled} />
+      <Live linger={args.linger} titled={args.titled} />
     </Stage>
   ),
 };

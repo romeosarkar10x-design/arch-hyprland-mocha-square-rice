@@ -22,6 +22,9 @@ export interface NotificationCenterProps {
   sliders?: boolean;
   width?: number;
   height?: number | string;
+  /** Called with the remaining notifications after a dismiss / clear. */
+  onItemsChange?: (items: Notification[]) => void;
+  onDndChange?: (dnd: boolean) => void;
   className?: string;
 }
 
@@ -32,10 +35,21 @@ export function NotificationCenter({
   sliders = true,
   width = 400,
   height = 720,
+  onItemsChange,
+  onDndChange,
   className,
 }: NotificationCenterProps) {
-  const [items, setItems] = useState(notifications);
-  const [dnd, setDnd] = useState(initialDnd);
+  const [items, setItemsState] = useState(notifications);
+  const [dnd, setDndState] = useState(initialDnd);
+  const setItems = (update: (xs: Notification[]) => Notification[]) => {
+    const next = update(items);
+    setItemsState(next);
+    onItemsChange?.(next);
+  };
+  const setDnd = (on: boolean) => {
+    setDndState(on);
+    onDndChange?.(on);
+  };
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const groups = new Map<string, Notification[]>();
   for (const n of items) groups.set(n.app, [...(groups.get(n.app) ?? []), n]);
@@ -48,7 +62,7 @@ export function NotificationCenter({
           <b>Notifications</b>
           <span className="hx-faint">{items.length ? `${items.length} unread` : "all caught up"}</span>
         </div>
-        <Button size="sm" variant="ghost" icon="close" onClick={() => setItems([])} disabled={!items.length}>
+        <Button size="sm" variant="ghost" icon="close" onClick={() => setItems(() => [])} disabled={!items.length}>
           Clear all
         </Button>
       </header>

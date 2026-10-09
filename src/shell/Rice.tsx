@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import { Desktop } from "../ds";
+import { useCallback, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { BarSegment, Desktop } from "../ds";
 import { TerminalEmulator } from "../terminal/TerminalEmulator";
 import { ScaleToFit } from "../theme/ThemeGenerator";
 import { BatteryPanel } from "./BatteryPanel";
@@ -9,7 +10,7 @@ import { Dmenu } from "./Dmenu";
 import { Greeter } from "./Greeter";
 import { KeybindCheatsheet } from "./KeybindCheatsheet";
 import { LockScreen } from "./LockScreen";
-import { NotificationCenter } from "./NotificationCenter";
+import { demoNotifications, NotificationCenter } from "./NotificationCenter";
 import { Osd } from "./Osd";
 import { Overview } from "./Overview";
 import { PolkitPrompt } from "./PolkitPrompt";
@@ -33,6 +34,18 @@ const W = 1920, H = 1080;
 
 /** The whole rice at 1920×1080: the kit's <Desktop> plus each extension layer where it really appears. */
 export function Rice({ overlay = "none", workspace = 1 }: RiceProps) {
+  // The notification centre is toggled by a bell in the bar, like swaync-client -t.
+  const [ncOpen, setNcOpen] = useState(overlay === "notifications");
+  const [prevOverlay, setPrevOverlay] = useState(overlay);
+  if (prevOverlay !== overlay) {
+    setPrevOverlay(overlay);
+    setNcOpen(overlay === "notifications");
+  }
+  const [notes, setNotes] = useState(demoNotifications);
+  const [dnd, setDnd] = useState(false);
+  const [bellSlot, barRef] = useBarSlot();
+  const layer = ncOpen ? "notifications" : overlay === "notifications" ? "none" : overlay;
+
   const layers: Record<RiceOverlay, ReactNode> = {
     none: null,
     terminal: (
@@ -50,9 +63,12 @@ export function Rice({ overlay = "none", workspace = 1 }: RiceProps) {
     switcher: <div className="rx-rice-center"><WindowSwitcher /></div>,
     overview: <div className="rx-rice-full"><Overview width={W} height={H} active={workspace} /></div>,
     notifications: (
-      <div className="rx-rice-at" style={{ right: 6, top: 42, bottom: 6 }}>
-        <NotificationCenter height="100%" />
-      </div>
+      <>
+        <div className="rx-rice-dismiss" onPointerDown={() => setNcOpen(false)} />
+        <div className="rx-rice-at rx-rice-nc" style={{ right: 6, top: 42, bottom: 6 }}>
+          <NotificationCenter height="100%" notifications={notes} dnd={dnd} onItemsChange={setNotes} onDndChange={setDnd} />
+        </div>
+      </>
     ),
     wifi: <div className="rx-rice-at" style={{ right: 300, top: 42 }}><WifiMenu /></div>,
     bluetooth: <div className="rx-rice-at" style={{ right: 260, top: 42 }}><BluetoothMenu /></div>,
@@ -64,10 +80,53 @@ export function Rice({ overlay = "none", workspace = 1 }: RiceProps) {
   };
   return (
     <ScaleToFit width={W} height={H}>
-      <div className="rx-rice">
+      <div
+        className="rx-rice"
+        ref={barRef}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && ncOpen) setNcOpen(false);
+        }}
+      >
         <Desktop wallpaper="image" workspace={workspace} notifications={overlay === "none"} />
-        {layers[overlay]}
+        {layers[layer]}
+        {bellSlot &&
+          createPortal(
+            <BarSegment
+              icon={dnd ? "bellOff" : "bell"}
+              accent={notes.length && !dnd ? "mauve" : "text"}
+              dim={dnd}
+              divider
+              open={ncOpen}
+              label="Notifications"
+              className="rx-rice-bell"
+              onClick={() => setNcOpen((o) => !o)}
+            >
+              {notes.length > 0 && <span className="rx-rice-bell-n">{notes.length}</span>}
+            </BarSegment>,
+            bellSlot,
+          )}
       </div>
     </ScaleToFit>
   );
+}
+
+/**
+ * The kit's <Desktop> builds its bar internally, so the bell is portalled into a slot
+ * inserted just before the power button.
+ */
+function useBarSlot() {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  const ref = useCallback((root: HTMLDivElement | null) => {
+    const power = root?.querySelector(".hx-bar-right > .hx-seg--power");
+    if (!power) return;
+    const el = document.createElement("span");
+    el.className = "rx-rice-slot";
+    power.before(el);
+    setSlot(el);
+    return () => {
+      el.remove();
+      setSlot(null);
+    };
+  }, []);
+  return [slot, ref] as const;
 }

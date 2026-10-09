@@ -13,7 +13,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "The complete desktop: the kit's live `<Desktop>` (bar, tiled windows, popups, launcher, power menu, toasts) with every extension layered where it appears in the real session. Pick a layer with `overlay`; combine with the **Theme** toolbar to see the whole rice follow a wallpaper.",
+          "The complete desktop: the kit's live `<Desktop>` (bar, tiled windows, popups, launcher, power menu, toasts) with every extension layered where it appears in the real session. The bell before the power button opens the notification centre (click outside or Esc closes it). Empty workspaces are hidden unless focused. Pick a layer with `overlay`; combine with the **Theme** toolbar to see the whole rice follow a wallpaper.",
       },
     },
   },

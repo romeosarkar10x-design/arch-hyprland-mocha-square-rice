@@ -255,23 +255,28 @@
 /* ───────── rice composition ───────── */
 .rx-rice { position: relative; width: 1920px; height: 1080px; }
 .rx-rice-at { position: absolute; z-index: 40; }
+.rx-rice-slot { display: contents; }
+.rx-rice-dismiss { position: absolute; inset: calc(var(--hx-bar-height) + var(--hx-border-bar)) 0 0; z-index: 39; }
+.rx-rice-nc { animation: rx-rice-slide var(--hx-med) var(--hx-ease) both; }
+@keyframes rx-rice-slide { from { opacity: 0; transform: translateX(24px); } }
+.rx-rice-bell-n { min-width: 18px; padding: 0 4px; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; background: var(--hx-mauve); color: var(--hx-crust); }
 .rx-rice-full { position: absolute; inset: 0; z-index: 40; }
 .rx-rice-center { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; }
 .rx-rice-scrim { background: color-mix(in srgb, var(--hx-crust) 50%, transparent); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 
 /* ───────── keystroke visualizer ───────── */
-.rx-ksv { display: inline-flex; flex-direction: column; min-width: 220px; background: color-mix(in srgb, var(--hx-crust) 88%, transparent); box-shadow: 0 0 0 1px var(--hx-surface0), var(--hx-shadow-popup); border-top: 2px solid var(--hx-mauve); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-family: var(--hx-font); color: var(--hx-text); }
+.rx-ksv { display: inline-flex; flex-direction: column; width: 420px; max-width: 100%; background: color-mix(in srgb, var(--hx-crust) 88%, transparent); box-shadow: 0 0 0 1px var(--hx-surface0), var(--hx-shadow-popup); border-top: 2px solid var(--hx-mauve); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-family: var(--hx-font); color: var(--hx-text); }
 .rx-ksv-head { display: flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--hx-overlay1); border-bottom: 1px solid var(--hx-surface0); }
-.rx-ksv-list { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px; min-height: 40px; }
-.rx-ksv--line .rx-ksv-list { flex-direction: row; flex-wrap: nowrap; overflow: hidden; align-items: center; }
-.rx-ksv-none { font-size: 12px; align-self: center; }
+/* One row, newest on the right; older combos overflow off the left edge. */
+.rx-ksv-list { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; align-items: center; gap: 10px; padding: 10px; min-height: 44px; overflow: hidden; }
+.rx-ksv-none { font-size: 12px; margin-right: auto; white-space: nowrap; }
 .rx-ksv-combo { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; animation: rx-ksv-in .14s var(--hx-ease-overshot) both, rx-ksv-out .5s ease-in var(--rx-ksv-linger) forwards; }
 .rx-ksv-combo:last-child { animation-name: rx-ksv-in, none; }
 .rx-ksv-key { display: inline-flex; align-items: center; gap: 4px; }
 .rx-ksv-key i { font-style: normal; color: var(--hx-overlay0); font-size: 11px; }
 .rx-ksv-combo:last-child .hx-kbd { box-shadow: inset 0 -2px 0 var(--hx-mauve); color: var(--hx-text); }
 .rx-ksv-count { font-size: 11px; color: var(--hx-mauve); }
-@keyframes rx-ksv-in { from { opacity: 0; transform: translateY(6px) scale(.96); } }
+@keyframes rx-ksv-in { from { opacity: 0; transform: translateX(8px) scale(.96); } }
 @keyframes rx-ksv-out { to { opacity: .28; } }
 
 /* ───────── clipboard history (Win + V style) ───────── */

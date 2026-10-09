@@ -66,8 +66,6 @@ export interface KeystrokeVisualizerProps {
   strokes: Stroke[];
   /** How long a combo stays before fading, ms. */
   linger?: number;
-  /** `stack`: one combo per line (showmethekey). `line`: a running strip (wshowkeys). */
-  layout?: "stack" | "line";
   /** Show the title bar. */
   titled?: boolean;
   /** Text shown when nothing has been pressed yet. */
@@ -76,10 +74,10 @@ export interface KeystrokeVisualizerProps {
   style?: CSSProperties;
 }
 
-/** A small on-screen window showing the keys being pressed, for screencasts and demos. */
-export function KeystrokeVisualizer({ strokes, linger = 2400, layout = "stack", titled = true, placeholder = "press some keys…", className, style }: KeystrokeVisualizerProps) {
+/** A small on-screen window showing the keys being pressed, one combo after another left to right (newest on the right), for screencasts and demos. */
+export function KeystrokeVisualizer({ strokes, linger = 2400, titled = true, placeholder = "press some keys…", className, style }: KeystrokeVisualizerProps) {
   return (
-    <div className={["rx-ksv", `rx-ksv--${layout}`, className].filter(Boolean).join(" ")} style={{ "--rx-ksv-linger": `${linger}ms`, ...style } as CSSProperties} aria-live="polite">
+    <div className={["rx-ksv", className].filter(Boolean).join(" ")} style={{ "--rx-ksv-linger": `${linger}ms`, ...style } as CSSProperties} aria-live="polite">
       {titled && (
         <header className="rx-ksv-head">
           <Icon name="keyboard" size={12} /> keys

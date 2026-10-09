@@ -9,3 +9,6 @@
     radial-gradient(ellipse at 85% 12%, color-mix(in srgb, var(--hx-blue) 26%, transparent), transparent 50%)
   );
 }
+
+/* Workspaces: hide empty ones unless focused (waybar hyprland/workspaces default). */
+.hx-ws-btn:not(.has-apps):not(.is-active) { display: none; }

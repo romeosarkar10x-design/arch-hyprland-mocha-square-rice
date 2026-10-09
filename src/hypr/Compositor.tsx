@@ -492,7 +492,8 @@ export function Compositor({
   };
 
   const wsList = Array.from({ length: 10 }, (_, i) => i + 1);
-  const occupied = wsList.filter((n) => n <= 5 || n === state.active || Object.values(state.wins).some((w) => w.ws === String(n)));
+  // Like waybar's hyprland/workspaces: only workspaces with windows, plus the focused one even when empty.
+  const occupied = wsList.filter((n) => n === state.active || Object.values(state.wins).some((w) => w.ws === String(n) && !w.closing));
   const step = state.slide;
 
   return (

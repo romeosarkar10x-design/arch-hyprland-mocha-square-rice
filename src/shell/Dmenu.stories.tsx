@@ -7,7 +7,7 @@ const meta = {
   component: Dmenu,
   args: { prompt: "run", query: "" },
   argTypes: { items: { control: "object" }, lines: { control: "number" }, onSelect: { control: false } },
-  parameters: { docs: { description: { component: "dmenu / tofi / fuzzel-style strip (SUPER + D), across the top of the screen where the bar is. Prefix matches first. Arrows / Tab move, Enter runs. Set `lines` for the vertical `-l N` list." } } },
+  parameters: { docs: { description: { component: "dmenu / tofi / fuzzel-style strip (suggested on SUPER + D), across the top of the screen where the bar is. Prefix matches first. Arrows / Tab move, Enter runs. Set `lines` for the vertical `-l N` list." } } },
 } satisfies Meta<typeof Dmenu>;
 
 export default meta;

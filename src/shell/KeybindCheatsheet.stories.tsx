@@ -7,7 +7,7 @@ const meta = {
   component: KeybindCheatsheet,
   args: { query: "", showDispatch: true, width: 1040 },
   argTypes: { groups: { control: "object" } },
-  parameters: { docs: { description: { component: "SUPER + / cheatsheet: every bind from binds.conf, grouped and filterable, with the dispatcher it runs." } } },
+  parameters: { docs: { description: { component: "Keybind cheatsheet overlay (suggested on SUPER + /): the binds from your hyprland.lua, grouped and filterable, with the dispatcher each runs. The full list with flags is in **Hyprland → Keybinds**." } } },
 } satisfies Meta<typeof KeybindCheatsheet>;
 
 export default meta;

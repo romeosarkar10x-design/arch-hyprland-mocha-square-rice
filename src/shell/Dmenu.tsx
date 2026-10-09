@@ -14,11 +14,12 @@ export interface DmenuProps {
   lines?: number;
   onSelect?: (item: string) => void;
   width?: number | string;
+  autoFocus?: boolean;
   className?: string;
 }
 
 /** dmenu / tofi / fuzzel-style launcher strip: prompt, input and fuzzy matches. */
-export function Dmenu({ items = demoCommands, prompt = "run", query: initial = "", lines, onSelect, width = 1280, className }: DmenuProps) {
+export function Dmenu({ items = demoCommands, prompt = "run", query: initial = "", lines, onSelect, width = 1280, autoFocus, className }: DmenuProps) {
   const [query, setQuery] = useState(initial);
   const [sel, setSel] = useState(0);
   const matches = useMemo(() => {
@@ -39,6 +40,7 @@ export function Dmenu({ items = demoCommands, prompt = "run", query: initial = "
           className="rx-dmenu-in"
           value={query}
           aria-label={prompt}
+          autoFocus={autoFocus}
           spellCheck={false}
           onChange={(e) => {
             setQuery(e.target.value);

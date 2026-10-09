@@ -15,61 +15,51 @@ export interface KeybindGroup {
   binds: Keybind[];
 }
 
+/** The binds from ~/.config/hypr/hyprland.lua, with the per-direction loops folded into one row. */
 export const defaultKeybinds: KeybindGroup[] = [
   {
     title: "Apps",
     icon: "app",
     binds: [
-      { keys: ["SUPER", "⏎"], action: "Terminal", dispatch: "exec ghostty" },
-      { keys: ["SUPER", "R"], action: "App launcher", dispatch: "exec rofi -show drun" },
-      { keys: ["SUPER", "D"], action: "dmenu run", dispatch: "exec dmenu_run" },
-      { keys: ["SUPER", "B"], action: "Browser", dispatch: "exec google-chrome" },
-      { keys: ["SUPER", "E"], action: "Files", dispatch: "exec ghostty -e yazi" },
-      { keys: ["SUPER", "V"], action: "Clipboard history", dispatch: "exec cliphist list | rofi" },
+      { keys: ["SUPER", "⏎"], action: "Terminal (ghostty)", dispatch: "exec_cmd(terminal)" },
+      { keys: ["SUPER", "SPACE"], action: "App launcher", dispatch: 'exec_cmd("wofi --show drun")' },
+      { keys: ["SUPER", "E"], action: "Files (dolphin)", dispatch: "exec_cmd(fileManager)" },
     ],
   },
   {
     title: "Windows",
     icon: "monitor",
     binds: [
-      { keys: ["SUPER", "Q"], action: "Close", dispatch: "killactive" },
-      { keys: ["SUPER", "F"], action: "Fullscreen", dispatch: "fullscreen" },
-      { keys: ["SUPER", "SPACE"], action: "Toggle floating", dispatch: "togglefloating" },
-      { keys: ["SUPER", "H J K L"], action: "Move focus", dispatch: "movefocus" },
-      { keys: ["SUPER", "SHIFT", "H J K L"], action: "Move window", dispatch: "movewindow" },
-      { keys: ["ALT", "TAB"], action: "Switch window", dispatch: "cyclenext" },
+      { keys: ["SUPER", "X"], action: "Close", dispatch: "window.close()" },
+      { keys: ["SUPER", "V"], action: "Toggle floating", dispatch: 'window.float({ action = "toggle" })' },
+      { keys: ["SUPER", "H J K L"], action: "Move focus", dispatch: "focus({ direction })" },
+      { keys: ["SUPER", "SHIFT", "H J K L"], action: "Swap window", dispatch: "window.swap({ direction })" },
+      { keys: ["SUPER", "ALT", "H J K L"], action: "Resize (hold)", dispatch: "window.resize({ x, y, relative })" },
+      { keys: ["SUPER", "O"], action: "Next opens below", dispatch: 'layout("preselect d")' },
+      { keys: ["SUPER", "U"], action: "Next opens right", dispatch: 'layout("preselect r")' },
+      { keys: ["SUPER", "LMB / RMB"], action: "Drag / resize", dispatch: "window.drag() / window.resize()" },
     ],
   },
   {
     title: "Workspaces",
     icon: "more",
     binds: [
-      { keys: ["SUPER", "1–9"], action: "Go to workspace", dispatch: "workspace N" },
-      { keys: ["SUPER", "SHIFT", "1–9"], action: "Move to workspace", dispatch: "movetoworkspace N" },
-      { keys: ["SUPER", "TAB"], action: "Overview", dispatch: "hyprexpo:expo toggle" },
-      { keys: ["SUPER", "S"], action: "Scratchpad", dispatch: "togglespecialworkspace" },
+      { keys: ["SUPER", "1…0"], action: "Go to workspace", dispatch: "focus({ workspace = i })" },
+      { keys: ["SUPER", "SHIFT", "1…0"], action: "Move to workspace", dispatch: "window.move({ workspace = i })" },
+      { keys: ["SUPER", "S"], action: "Scratchpad", dispatch: 'workspace.toggle_special("magic")' },
+      { keys: ["SUPER", "SHIFT", "S"], action: "Move to scratchpad", dispatch: 'window.move({ workspace = "special:magic" })' },
+      { keys: ["SUPER", "SCROLL"], action: "Cycle workspaces", dispatch: 'focus({ workspace = "e±1" })' },
     ],
   },
   {
-    title: "System",
-    icon: "settings",
-    binds: [
-      { keys: ["SUPER", "L"], action: "Lock", dispatch: "exec hyprlock" },
-      { keys: ["SUPER", "ESC"], action: "Power menu", dispatch: "exec wlogout" },
-      { keys: ["SUPER", "N"], action: "Notifications", dispatch: "exec swaync-client -t" },
-      { keys: ["PRINT"], action: "Screenshot region", dispatch: "exec hyprshot -m region" },
-      { keys: ["SUPER", "SHIFT", "C"], action: "Pick colour", dispatch: "exec hyprpicker -a" },
-      { keys: ["SUPER", "SHIFT", "W"], action: "Next wallpaper + retheme", dispatch: "exec rice-theme next" },
-    ],
-  },
-  {
-    title: "Media",
+    title: "Media & session",
     icon: "music",
     binds: [
-      { keys: ["XF86AudioRaiseVolume"], action: "Volume up", dispatch: "exec swayosd-client --output-volume +5" },
-      { keys: ["XF86AudioMute"], action: "Mute", dispatch: "exec swayosd-client --output-volume mute-toggle" },
-      { keys: ["XF86AudioPlay"], action: "Play / pause", dispatch: "exec playerctl play-pause" },
-      { keys: ["XF86MonBrightnessUp"], action: "Brightness up", dispatch: "exec swayosd-client --brightness +5" },
+      { keys: ["VOL+ / VOL−"], action: "Volume ±5%", dispatch: "wpctl set-volume" },
+      { keys: ["MUTE"], action: "Mute output", dispatch: "wpctl set-mute @DEFAULT_AUDIO_SINK@" },
+      { keys: ["MIC MUTE"], action: "Mute mic", dispatch: "wpctl set-mute @DEFAULT_AUDIO_SOURCE@" },
+      { keys: ["⏯ ⏭ ⏮"], action: "Media", dispatch: "playerctl" },
+      { keys: ["SUPER", "M"], action: "Exit Hyprland", dispatch: "exit()" },
     ],
   },
 ];
@@ -99,7 +89,7 @@ export function KeybindCheatsheet({ groups = defaultKeybinds, query: initial = "
           <Icon name="search" size={14} />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="filter…" />
         </label>
-        <span className="hx-faint">~/.config/hypr/binds.conf</span>
+        <span className="hx-faint">~/.config/hypr/hyprland.lua</span>
       </header>
       <div className="rx-keys-cols">
         {shown.map((g) => (

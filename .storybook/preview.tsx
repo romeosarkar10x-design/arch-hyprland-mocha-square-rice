@@ -54,10 +54,11 @@ const preview: Preview = {
         order: [
           "Overview", ["Introduction", "Table of Contents"],
           "Theme", ["Dynamic Theme", "Palette", "Wallpapers", "Dotfiles"],
+          "Hyprland", ["Live Session", "Window Look", "Animations", "Keybinds"],
           "Foundations",
           "Controls",
           "Data",
-          "Shell", ["Bar", "Popups", "Launchers", "Overlays"],
+          "Shell", ["Bar", "Popups", "Launchers", "Clipboard", "Screenshot", ["Capture", "Annotate"], "Overlays"],
           "Session",
           "Apps",
           "Desktop",

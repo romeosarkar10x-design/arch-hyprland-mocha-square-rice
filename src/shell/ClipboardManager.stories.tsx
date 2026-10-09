@@ -3,11 +3,11 @@ import { ClipboardManager } from "./ClipboardManager";
 import { Stage } from "./Stage";
 
 const meta = {
-  title: "Shell/Launchers/Clipboard",
+  title: "Shell/Clipboard/cliphist Picker",
   component: ClipboardManager,
   args: { query: "", width: 560 },
   argTypes: { entries: { control: "object" }, onPaste: { control: false } },
-  parameters: { docs: { description: { component: "cliphist picker (SUPER + V): pinned entries first, colour swatches, command / URL / path / image entries. Arrows move, Enter pastes, Delete removes." } } },
+  parameters: { docs: { description: { component: "cliphist picker (suggested on SUPER + C, since SUPER + V toggles floating in your hyprland.lua): pinned entries first, colour swatches, command / URL / path / image entries. Arrows move, Enter pastes, Delete removes." } } },
 } satisfies Meta<typeof ClipboardManager>;
 
 export default meta;

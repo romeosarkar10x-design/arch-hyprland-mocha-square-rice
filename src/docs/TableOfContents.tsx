@@ -20,21 +20,24 @@ interface Node {
 const NOTES: Record<string, string> = {
   Overview: "Start here.",
   Theme: "Wallpaper → palette engine, the palette itself, wallpapers, and dotfile export.",
+  Hyprland: "Your hyprland.lua, live: a keyboard-driven session, window look, animation curves, keybinds.",
   Foundations: "Icons, keys, surfaces and units every other component is built from.",
   Controls: "Buttons, sliders and toggles.",
   Data: "Meters, gauges, graphs and stats for system readouts.",
   Shell: "Everything layer-shell: the bar, its popups, launchers and overlays.",
   "Shell/Bar": "Waybar: the bar, its segments, tooltips and workspaces.",
   "Shell/Popups": "Panels that drop from bar segments: CPU, GPU, memory, network, Wi-Fi, Bluetooth, battery, audio, media, calendar.",
-  "Shell/Launchers": "rofi-style launcher, dmenu strip and clipboard history.",
-  "Shell/Overlays": "Toasts, notification centre, OSD, overview, Alt-Tab, screenshot, keybinds.",
+  "Shell/Launchers": "rofi-style launcher and dmenu strip.",
+  "Shell/Clipboard": "Clipboard history: Win + V-style cards with pins and emoji, and the cliphist picker.",
+  "Shell/Screenshot": "Capture a region / window / output, then annotate it (satty).",
+  "Shell/Overlays": "Toasts, notification centre, OSD, overview, Alt-Tab, keybind cheatsheet, keystroke visualizer.",
   Session: "Lock screen, login greeter, power menu, polkit authentication.",
   Apps: "Terminal emulators (Ghostty, kitty, Alacritty, foot, WezTerm) and their configs, editor, browser.",
   Desktop: "Full 1920×1080 compositions: the live desktop and the whole rice.",
 };
 
 // Sub-groups in desktop order (bar first, then what drops from it, then full-screen layers).
-const SUB_ORDER = ["Bar", "Popups", "Launchers", "Overlays"];
+const SUB_ORDER = ["Bar", "Popups", "Launchers", "Clipboard", "Screenshot", "Overlays", "Live Session", "Window Look", "Animations", "Keybinds"];
 const subRank = (name: string) => SUB_ORDER.indexOf(name) + 1 || SUB_ORDER.length + 1;
 
 const href = (kind: "docs" | "story", id: string) => `./?path=/${kind}/${id}`;

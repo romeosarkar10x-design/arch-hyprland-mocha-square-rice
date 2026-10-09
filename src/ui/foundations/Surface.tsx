@@ -11,7 +11,7 @@ export interface SurfaceProps {
   style?: CSSProperties;
 }
 
-/** Root wrapper. Every hyprland-ui screen is dark: wrap the page or any standalone component in `<Surface>` so it sits on crust with the text colour and MonoLisa applied. */
+/** Root wrapper. Every hyprland-ui screen is dark: wrap the page or any standalone component in `<Surface>` so it sits on crust with the text colour and asiLonoM applied. */
 export function Surface({ tone = "crust", padding = 24, children, className, style }: SurfaceProps) {
   return (
     <div className={cx("hx-surface", `hx-surface--${tone}`, className)} style={{ padding, ...style }}>

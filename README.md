@@ -1,6 +1,6 @@
 # hyprland-ui: conventions
 
-A Hyprland/Waybar desktop UI kit. Catppuccin Mocha, **square corners everywhere** (`--hx-radius: 0`), MonoLisa monospace. Every component is dark-only.
+A Hyprland/Waybar desktop UI kit. Catppuccin Mocha, **square corners everywhere** (`--hx-radius: 0`), asiLonoM monospace. Every component is dark-only.
 
 ## Always wrap in `<Surface>`
 
@@ -64,7 +64,7 @@ The kit lives in `src/ui/`, plain TypeScript + React:
 - `src/ui/<group>/<Name>.tsx` — one component per file with its exported `<Name>Props`, next to `<Name>.stories.tsx`. Groups: `foundations`, `controls`, `data`, `bar`, `popups`, `overlays`, `desktop`.
 - `src/ui/lib.ts` (`Accent`, `cx`, `level`, `bytes`, canvas and timer hooks), `src/ui/icons.ts` (`icons`, `IconName`), `src/ui/stats.ts` (the simulated system behind the live panels).
 - `src/ui/hyprland-ui.css` — tokens and every component's styles.
-- `fonts/` — MonoLisa `@font-face` files.
+- `fonts/` — asiLonoM `@font-face` files.
 - `guidelines/docs/<Name>.md` — usage guidance per component; each story's docs page shows it.
 
 ## Tokens

@@ -3,7 +3,7 @@
 # arch-hyprland-mocha-square-rice
 
 **hyprland-ui** — a Hyprland / Waybar desktop UI kit in React.
-Catppuccin Mocha, square corners everywhere, MonoLisa monospace.
+Catppuccin Mocha, square corners everywhere, asiLonoM monospace.
 
 [![Deploy Storybook](https://github.com/romeosarkar10x-design/arch-hyprland-mocha-square-rice/actions/workflows/storybook-pages.yml/badge.svg)](https://github.com/romeosarkar10x-design/arch-hyprland-mocha-square-rice/actions/workflows/storybook-pages.yml)
 [![Storybook](https://img.shields.io/badge/Storybook-live-ff4785?logo=storybook&logoColor=white)](https://romeosarkar10x-design.github.io/arch-hyprland-mocha-square-rice/)

@@ -1,5 +1,5 @@
 /* Desktop-environment pieces the hyprland-ui kit doesn't ship. Same rules as the kit:
-   square corners, 1px --hx-surface0 hairlines, mantle popups, MonoLisa, accent via --hx-acc. */
+   square corners, 1px --hx-surface0 hairlines, mantle popups, asiLonoM, accent via --hx-acc. */
 
 :where(.rx-lock, .rx-greet, .rx-nc, .rx-ovw, .rx-alt, .rx-clip, .rx-shot, .rx-osd, .rx-polkit, .rx-keys, .rx-dmenu, .rx-netlist, .rx-batt, .rx-profiles) {
   font-family: var(--hx-font); color: var(--hx-text); font-variant-numeric: tabular-nums slashed-zero; box-sizing: border-box;

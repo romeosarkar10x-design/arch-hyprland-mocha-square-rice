@@ -39,7 +39,7 @@ export function BrowserView({
             [
               ["folder", "bash", "Updated prompt"],
               ["folder", "design", "hyprland-ui design system"],
-              ["folder", "ghostty", "MonoLisa 13"],
+              ["folder", "ghostty", "asiLonoM 13"],
               ["folder", "hyprland", "Started using hyprland.lua"],
               ["folder", "nvim", "Disabled neo_tree's new tab mapping"],
               ["folder", "quickshell", "Popups"],

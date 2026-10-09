@@ -1,4 +1,4 @@
-/* hyprland-ui tokens: Catppuccin Mocha, square edges, MonoLisa. */
+/* hyprland-ui tokens: Catppuccin Mocha, square edges, asiLonoM. */
 :root {
   /* palette */
   --hx-crust: #11111b;
@@ -41,7 +41,7 @@
   --hx-title: var(--hx-lavender);
 
   /* type */
-  --hx-font: "MonoLisa", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hx-font: "asiLonoM", ui-monospace, SFMono-Regular, Menlo, monospace;
   --hx-text-xs: 10px;
   --hx-text-sm: 11px;
   --hx-text-md: 12.5px;

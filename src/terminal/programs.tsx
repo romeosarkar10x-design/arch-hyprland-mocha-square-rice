@@ -62,7 +62,7 @@ function Fastfetch({ terminal }: { terminal: string }) {
     ["Display", "2560x1440 @ 165 Hz [DP-1]"],
     ["WM", "Hyprland 0.52.1 (Wayland)"],
     ["Theme", "hyprland-ui [square]"],
-    ["Font", "MonoLisa (12pt)"],
+    ["Font", "asiLonoM (12pt)"],
     ["Terminal", terminal],
     ["CPU", "AMD Ryzen 9 9900X (24) @ 5.66 GHz"],
     ["GPU", "NVIDIA GeForce RTX 3090 Ti"],

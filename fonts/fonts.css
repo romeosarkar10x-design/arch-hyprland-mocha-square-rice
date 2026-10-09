@@ -1,13 +1,13 @@
 @font-face{
-  font-family: "MonoLisa";
-  src: url("./MonoLisa-Variable.woff2") format("woff2");
+  font-family: "asiLonoM";
+  src: url("./asiLonoM-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 @font-face{
-  font-family: "MonoLisa";
-  src: url("./MonoLisa-Variable-Italic.woff2") format("woff2");
+  font-family: "asiLonoM";
+  src: url("./asiLonoM-Variable-Italic.woff2") format("woff2");
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;

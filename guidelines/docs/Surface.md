@@ -2,7 +2,7 @@
 category: Foundations
 ---
 
-Root wrapper. Every hyprland-ui screen is dark: wrap the page or any standalone component in `<Surface>` so it sits on crust with the text colour and MonoLisa applied.
+Root wrapper. Every hyprland-ui screen is dark: wrap the page or any standalone component in `<Surface>` so it sits on crust with the text colour and asiLonoM applied.
 
 ```tsx
 <Surface tone="crust" padding={24}>

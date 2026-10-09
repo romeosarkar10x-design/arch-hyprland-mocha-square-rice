@@ -1,4 +1,4 @@
-// hyprland-ui: a Hyprland / Waybar desktop UI kit. Catppuccin Mocha, square corners, MonoLisa.
+// hyprland-ui: a Hyprland / Waybar desktop UI kit. Catppuccin Mocha, square corners, asiLonoM.
 import "../../fonts/fonts.css";
 import "./hyprland-ui.css";
 

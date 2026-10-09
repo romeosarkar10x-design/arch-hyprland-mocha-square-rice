@@ -33,7 +33,7 @@ export interface TerminalOptions {
 }
 
 const DEFAULTS: Required<TerminalOptions> = {
-  font: "MonoLisa",
+  font: "asiLonoM",
   fontSize: 12,
   opacity: 0.92,
   padding: 12,
@@ -290,7 +290,7 @@ label {
     text = $TIME
     color = ${rgbaHex(p.text)}
     font_size = 96
-    font_family = MonoLisa
+    font_family = asiLonoM
     position = 0, 160
     halign = center
     valign = center

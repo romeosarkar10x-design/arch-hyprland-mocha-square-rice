@@ -5,7 +5,7 @@ import { EMULATORS } from "../theme/exports";
 const meta = {
   title: "Apps/Terminal Config",
   component: TerminalConfig,
-  args: { emulator: "ghostty", font: "MonoLisa", fontSize: 12, opacity: 0.92, padding: 12, cursor: "block", cursorBlink: true, tabStyle: "powerline", maxHeight: 640 },
+  args: { emulator: "ghostty", font: "asiLonoM", fontSize: 12, opacity: 0.92, padding: 12, cursor: "block", cursorBlink: true, tabStyle: "powerline", maxHeight: 640 },
   argTypes: {
     emulator: { control: "inline-radio", options: EMULATORS },
     cursor: { control: "inline-radio", options: ["block", "beam", "underline"] },

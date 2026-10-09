@@ -41,7 +41,7 @@ const DEFAULT_LINES: TerminalLine[] = [
         {"\n"}
         {"      "}
         <span className="hx-sky">font</span>
-        {"    MonoLisa 13"}
+        {"    asiLonoM 13"}
         {"\n"}
         {"      "}
         <span className="hx-crust-bg">{"   "}</span>

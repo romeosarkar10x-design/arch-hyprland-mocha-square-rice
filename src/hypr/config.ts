@@ -213,6 +213,7 @@ export const SUGGESTED_BINDS: HyprBindGroup = {
     { keys: ["SUPER", "N"], action: "Notification centre", dispatch: 'hl.dsp.exec_cmd("swaync-client -t")' },
     { keys: ["SUPER", "SLASH"], action: "Keybind cheatsheet", dispatch: 'hl.dsp.exec_cmd("rice-keybinds")' },
     { keys: ["SUPER", "TAB"], action: "Workspace overview", dispatch: 'hl.dsp.exec_cmd("hyprctl dispatch hyprexpo:expo toggle")' },
+    { keys: ["CTRL", "SHIFT", "ESCAPE"], action: "Task manager", dispatch: 'hl.dsp.exec_cmd("missioncenter")' },
     { keys: ["SUPER", "F9"], action: "Keystroke visualizer", dispatch: 'hl.dsp.exec_cmd("pkill wshowkeys || wshowkeys -a bottom")' },
   ],
 };

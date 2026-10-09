@@ -32,7 +32,7 @@ const NOTES: Record<string, string> = {
   "Shell/Screenshot": "Capture a region / window / output, then annotate it (satty).",
   "Shell/Overlays": "Toasts, notification centre, OSD, overview, Alt-Tab, keybind cheatsheet, keystroke visualizer.",
   Session: "Lock screen, login greeter, power menu, polkit authentication.",
-  Apps: "Terminal emulators (Ghostty, kitty, Alacritty, foot, WezTerm) and their configs, editor, browser.",
+  Apps: "Terminal emulators (Ghostty, kitty, Alacritty, foot, WezTerm) and their configs, and a full task manager (process tree, signals, services).",
   Desktop: "Full 1920×1080 compositions: the live desktop and the whole rice.",
 };
 

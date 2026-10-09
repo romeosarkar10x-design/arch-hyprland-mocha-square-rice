@@ -12,3 +12,17 @@
 
 /* Workspaces: hide empty ones unless focused (waybar hyprland/workspaces default). */
 .hx-ws-btn:not(.has-apps):not(.is-active) { display: none; }
+
+/* Scrollbars: square, hairline-thin at rest, mauve while dragged. Follows the live palette. */
+* { scrollbar-width: thin; scrollbar-color: var(--hx-surface1) transparent; }
+@supports selector(::-webkit-scrollbar) {
+  /* Chromium / WebKit: the pseudo-elements give square ends and hover states; scrollbar-color would override them. */
+  *, .hx-launch-list { scrollbar-width: auto; scrollbar-color: auto; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--hx-surface1); border: 3px solid transparent; background-clip: padding-box; border-radius: 0; min-height: 32px; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--hx-surface2); border-width: 2px; }
+  ::-webkit-scrollbar-thumb:active { background-color: var(--hx-mauve); border-width: 2px; }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-button { display: none; }
+}

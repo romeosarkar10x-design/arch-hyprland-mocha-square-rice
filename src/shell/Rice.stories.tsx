@@ -24,6 +24,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 export const Terminal: Story = { args: { overlay: "terminal" } };
+export const TaskManager: Story = { name: "Task manager", args: { overlay: "taskmanager" } };
 export const Dmenu: Story = { args: { overlay: "dmenu" } };
 export const Keybinds: Story = { args: { overlay: "keybinds" } };
 export const Overview: Story = { args: { overlay: "overview" } };

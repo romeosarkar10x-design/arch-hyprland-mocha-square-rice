@@ -1,6 +1,7 @@
 import { useCallback, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { BarSegment, Desktop } from "../ds";
+import { TaskManager } from "../taskmgr/TaskManager";
 import { TerminalEmulator } from "../terminal/TerminalEmulator";
 import { ScaleToFit } from "../theme/ThemeGenerator";
 import { BatteryPanel } from "./BatteryPanel";
@@ -18,7 +19,7 @@ import { WindowSwitcher } from "./WindowSwitcher";
 import "./shell.css";
 
 export const RICE_OVERLAYS = [
-  "none", "terminal", "dmenu", "clipboard", "keybinds", "switcher", "overview", "notifications",
+  "none", "terminal", "taskmanager", "dmenu", "clipboard", "keybinds", "switcher", "overview", "notifications",
   "wifi", "bluetooth", "battery", "osd", "polkit", "lock", "greeter",
 ] as const;
 export type RiceOverlay = (typeof RICE_OVERLAYS)[number];
@@ -51,6 +52,11 @@ export function Rice({ overlay = "none", workspace = 1 }: RiceProps) {
     terminal: (
       <div className="rx-rice-at" style={{ left: 560, top: 200 }}>
         <TerminalEmulator backdrop={false} width={800} height={540} program="fastfetch" tabs={["zsh"]} />
+      </div>
+    ),
+    taskmanager: (
+      <div className="rx-rice-at" style={{ left: 260, top: 110 }}>
+        <TaskManager width={1400} height={860} />
       </div>
     ),
     dmenu: (

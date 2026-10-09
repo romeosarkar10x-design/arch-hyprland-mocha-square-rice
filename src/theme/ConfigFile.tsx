@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Button, Icon } from "../ds";
+import { Button, Icon } from "../ui";
 import { terminalConfig, CONFIG_PATHS, type Emulator, type TerminalOptions } from "./exports";
 import { useCssPalette } from "./useCssPalette";
 import "./theme.css";

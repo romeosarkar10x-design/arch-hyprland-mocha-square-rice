@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Icon, Wallpaper, WindowFrame } from "../ds";
+import { Icon, Wallpaper, WindowFrame } from "../ui";
 import type { CursorShape, Emulator, TerminalOptions } from "../theme/exports";
 import { renderProgram, type Program } from "./programs";
 import "./terminal.css";

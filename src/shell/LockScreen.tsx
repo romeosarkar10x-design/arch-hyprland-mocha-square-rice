@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Icon, Wallpaper } from "../ds";
+import { Icon, Wallpaper } from "../ui";
 import "./shell.css";
 
 export interface LockScreenProps {

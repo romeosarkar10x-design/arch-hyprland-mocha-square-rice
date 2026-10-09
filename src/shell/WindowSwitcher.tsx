@@ -1,4 +1,4 @@
-import { IconTile, Kbd } from "../ds";
+import { IconTile, Kbd } from "../ui";
 import { usePropState } from "../usePropState";
 import { demoWorkspaces, type DemoWindow } from "./windows";
 import "./shell.css";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Icon, IconButton, Meter, Panel, PanelSection, Toggle, type IconName } from "../ds";
+import { Button, Icon, IconButton, Meter, Panel, PanelSection, Toggle, type IconName } from "../ui";
 import "./shell.css";
 
 /** Four signal bars, `level` 0-4 lit. */

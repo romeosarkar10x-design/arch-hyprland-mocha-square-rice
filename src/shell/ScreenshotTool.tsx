@@ -1,5 +1,5 @@
 import { useRef, useState, type PointerEvent } from "react";
-import { Button, Desktop, Icon } from "../ds";
+import { Button, Desktop, Icon } from "../ui";
 import "./shell.css";
 
 type Mode = "region" | "window" | "output";

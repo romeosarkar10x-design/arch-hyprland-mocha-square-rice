@@ -1,4 +1,4 @@
-import { Button, Graph, Icon, IconButton, StackBar } from "../ds";
+import { Button, Graph, Icon, IconButton, StackBar } from "../ui";
 import type { Ask } from "./dialogs";
 import { MACHINE } from "./demo";
 import {

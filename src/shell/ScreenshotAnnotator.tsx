@@ -1,5 +1,5 @@
 import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
-import { Button, Desktop, Icon } from "../ds";
+import { Button, Desktop, Icon } from "../ui";
 import type { AccentSlot } from "../theme/palette";
 import "./shell.css";
 

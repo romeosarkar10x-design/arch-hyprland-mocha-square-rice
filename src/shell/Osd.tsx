@@ -1,4 +1,4 @@
-import { Icon, type Accent, type IconName } from "../ds";
+import { Icon, type Accent, type IconName } from "../ui";
 import "./shell.css";
 
 export type OsdKind = "volume" | "brightness" | "mic" | "capslock" | "layout" | "keyboard-light";

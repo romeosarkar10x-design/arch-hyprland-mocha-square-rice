@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useRef, useState, type AnimationEvent, type CSSProperties, type KeyboardEvent } from "react";
-import { Icon, Wallpaper, Workspaces } from "../ds";
+import { Icon, Wallpaper, Workspaces } from "../ui";
 import { Dmenu } from "../shell/Dmenu";
 import { comboFromEvent, KeystrokeVisualizer, pushStroke, type Stroke } from "../shell/KeystrokeVisualizer";
 import { Osd } from "../shell/Osd";

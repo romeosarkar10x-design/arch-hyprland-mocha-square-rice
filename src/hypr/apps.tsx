@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { Icon, type Accent, type IconName } from "../ds";
+import { Icon, type Accent, type IconName } from "../ui";
 import { renderProgram, type Program } from "../terminal/programs";
 import "../terminal/terminal.css";
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
-import { Button, Desktop, Icon, Panel, PanelSection, Toggle } from "../ds";
+import { Button, Desktop, Icon, Panel, PanelSection, Toggle } from "../ui";
 import { wallpapers } from "../wallpapers/wallpapers";
 import { ConfigFile } from "./ConfigFile";
 import { DOTFILES } from "./exports";

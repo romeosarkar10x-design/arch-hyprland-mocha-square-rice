@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Icon, IconTile } from "../ds";
+import { Button, Icon, IconTile } from "../ui";
 import "./shell.css";
 
 export interface PolkitPromptProps {

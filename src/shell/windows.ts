@@ -1,4 +1,4 @@
-import type { Accent, IconName } from "../ds";
+import type { Accent, IconName } from "../ui";
 
 export interface DemoWindow {
   id: string;

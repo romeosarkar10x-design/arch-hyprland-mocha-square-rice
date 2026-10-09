@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Icon, Wallpaper } from "../ds";
+import { Icon, Wallpaper } from "../ui";
 import { demoWorkspaces, type DemoWorkspace } from "./windows";
 import "./shell.css";
 

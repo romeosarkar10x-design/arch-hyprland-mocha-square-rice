@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState, type CSSProperties } from "react";
-import { Button, Icon, IconButton } from "../ds";
+import { Button, Icon, IconButton, type IconName } from "../ui";
 import { PolkitPrompt } from "../shell/PolkitPrompt";
 import { usePropState } from "../usePropState";
 import { ConfirmDialog, needsConfirm, ReniceDialog, SignalDialog, type Ask } from "./dialogs";
@@ -13,7 +13,7 @@ import "./taskmgr.css";
 
 export type Page = "processes" | "performance" | "users" | "services" | "startup";
 
-const PAGES: { id: Page; label: string; icon: string }[] = [
+const PAGES: { id: Page; label: string; icon: IconName }[] = [
   { id: "processes", label: "Processes", icon: "app" },
   { id: "performance", label: "Performance", icon: "chart" },
   { id: "users", label: "Users", icon: "account" },
@@ -38,7 +38,7 @@ export interface TaskManagerProps {
 
 type Dialog = { kind: "signal"; pids: number[]; sig?: number } | { kind: "renice"; pid: number } | { kind: "confirm"; pids: number[]; sig: number; tree: boolean };
 
-const TONE_ICON: Record<LogEntry["tone"], string> = { ok: "checkCircle", info: "info", warn: "alert", err: "alert" };
+const TONE_ICON: Record<LogEntry["tone"], IconName> = { ok: "checkCircle", info: "info", warn: "alert", err: "alert" };
 
 /**
  * A Linux task manager: process tree with clubbed children, grouping, per-process

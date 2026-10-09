@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Icon, IconButton, Wallpaper } from "../ds";
+import { Button, Icon, IconButton, Wallpaper } from "../ui";
 import "./shell.css";
 
 export interface GreeterUser {

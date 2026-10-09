@@ -1,0 +1,101 @@
+import { Button } from "../controls/Button";
+import { CoreGrid } from "../data/CoreGrid";
+import { Gauge } from "../data/Gauge";
+import { Graph } from "../data/Graph";
+import { Meter } from "../data/Meter";
+import { Panel } from "./Panel";
+import { PanelSection } from "./PanelSection";
+import { useSystemStats, type CpuStats } from "../stats";
+
+export interface CpuPanelProps {
+  /** Live stats. Omit to run on the built-in simulation. */
+  data?: CpuStats;
+  /** Freeze the simulation (ignored when `data` is passed). */
+  paused?: boolean;
+  onOpenMonitor?: () => void;
+  className?: string;
+}
+
+/** CPU popup: load/temp/power gauges, 60 s history, per-thread heatmap, clock meter. Live-simulated unless `data` is passed. */
+export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelProps) {
+  const sim = useSystemStats(paused || !!data);
+  const c = data ?? sim.cpu;
+  return (
+    <Panel
+      className={className}
+      icon="cpu"
+      accent="sky"
+      title="Processor"
+      subtitle={`${c.model} · ${c.cores.length} threads`}
+      live={!paused}
+      actions={
+        <>
+          <Button icon="chart" accent="sky" onClick={onOpenMonitor} kbd="B">
+            btop
+          </Button>
+          <span className="hx-spacer" />
+          <span className="hx-faint hx-small">
+            {"governor "}
+            <span className="hx-dim">schedutil</span>
+          </span>
+        </>
+      }
+    >
+      <PanelSection>
+        <div className="hx-gauges">
+          <Gauge value={c.usage} label="load" accent="sky" />
+          <Gauge value={c.temp} max={100} unit="°" label="temp" accent="teal" warn={75} crit={85} sub="k10temp" />
+          {c.watts == null ? (
+            <Gauge value={0} label="power" unit="W" accent="peach" sub="RAPL locked" />
+          ) : (
+            <Gauge value={c.watts} max={170} unit="W" label="power" accent="peach" warn={70} crit={90} sub="of 170 W" />
+          )}
+        </div>
+      </PanelSection>
+      <PanelSection
+        label="load · 60 s"
+        aside={
+          <span className="hx-dim">
+            {"avg "}
+            {Math.round(avg(c.history))}%
+          </span>
+        }
+      >
+        <Graph series={[{ label: "cpu", data: c.history, accent: "sky" }]} max={100} />
+      </PanelSection>
+      <PanelSection
+        label="threads"
+        aside={
+          <span className="hx-dim">
+            {"peak "}
+            {Math.round(Math.max(...c.cores))}%
+          </span>
+        }
+      >
+        <CoreGrid cores={c.cores} columns={6} />
+      </PanelSection>
+      <PanelSection>
+        <Meter
+          label="clock"
+          readout={
+            <>
+              <b>{(c.mhz / 1000).toFixed(2)}</b>{" "}
+              <span className="hx-faint">
+                {"/ "}
+                {(c.maxMhz / 1000).toFixed(2)}
+                {" GHz"}
+              </span>
+            </>
+          }
+          value={(c.mhz / c.maxMhz) * 100}
+          accent="sky"
+          levels={false}
+        />
+      </PanelSection>
+    </Panel>
+  );
+}
+
+function avg(a: number[]) {
+  return a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0;
+}

@@ -39,4 +39,4 @@ pnpm check            # typecheck + lint
 
 - [`README.md`](../README.md) — design-system conventions (surfaces, accents, levels, tokens, composition)
 - [`guidelines/`](../guidelines/) — per-component usage guidance
-- [`components/`](../components/) — types, prompts and variant grids for each component
+- [`src/ui/`](../src/ui/) — the components, one `.tsx` and `.stories.tsx` per component

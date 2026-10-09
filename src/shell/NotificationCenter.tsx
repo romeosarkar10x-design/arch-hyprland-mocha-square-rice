@@ -1,6 +1,5 @@
 import { useState } from "react";
-import type { ToastProps } from "../../components/overlays/Toast/Toast";
-import { Button, Icon, IconButton, Slider, Toast, Toggle } from "../ds";
+import { Button, Icon, IconButton, Slider, Toast, Toggle, type ToastProps } from "../ui";
 import "./shell.css";
 
 export type Notification = Omit<ToastProps, "onClose" | "timeout"> & { id: number };

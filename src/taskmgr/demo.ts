@@ -2,6 +2,7 @@
 // greetd → Hyprland session with its clients, terminals with jobs, Firefox / Electron
 // helper trees, a Postgres container, a zombie, a stopped job and a runaway script.
 
+import type { IconName } from "../ui/icons";
 import type { Machine, Proc, ProcState, Unit } from "./procs.ts";
 
 export const ME = "romeo";
@@ -186,7 +187,7 @@ export function demoProcs(): Proc[] {
   return procs.map((x) => (x.state === "Z" ? { ...x, uss: 0, shared: 0, pss: 0, vsz: 0, threads: 1 } : x));
 }
 
-function electron(pid: number, name: string, app: string, icon: string, mib: number, cpu: number): Proc[] {
+function electron(pid: number, name: string, app: string, icon: IconName, mib: number, cpu: number): Proc[] {
   const bin = name === "Discord" ? "/opt/discord/Discord" : "/opt/spotify/spotify";
   return [
     p(pid, 1102, name, { ...sess, cmd: `${bin} --ozone-platform=wayland`, mib, sharedMib: 110, threads: 40, cpu, withParent: true, app, icon, start: 600 + pid / 10 }),

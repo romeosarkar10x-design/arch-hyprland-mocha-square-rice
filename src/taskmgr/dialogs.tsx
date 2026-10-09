@@ -1,5 +1,5 @@
 import { useState, type KeyboardEvent } from "react";
-import { Button, Icon } from "../ds";
+import { Button, Icon } from "../ui";
 import { ME } from "./demo";
 import { PRIORITIES, SIGNALS, descendants, sendSignal, signalByNum, type Proc } from "./procs";
 

@@ -12,11 +12,8 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
-    // The synced components/**/*.d.ts reference shared types (Track, Workspace, ...)
-    // that the design system doesn't export. Skipping lib checks lets them resolve
-    // to `any` instead of failing the build.
     "skipLibCheck": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src", "stories", "scripts", ".storybook"]
+  "include": ["src", ".storybook"]
 }

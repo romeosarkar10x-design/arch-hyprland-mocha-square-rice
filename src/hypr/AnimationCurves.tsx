@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from "react";
-import { Button } from "../ds";
+import { Button } from "../ui";
 import { ANIMATIONS, CURVES, resolveAnim, type AnimLeaf, type Bezier } from "./config";
 import "./hypr.css";
 

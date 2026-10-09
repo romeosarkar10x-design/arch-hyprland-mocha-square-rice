@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Icon, Shortcut, type IconName } from "../ds";
+import { Icon, Shortcut, type IconName } from "../ui";
 import "./shell.css";
 
 export interface Keybind {

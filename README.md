@@ -7,7 +7,7 @@ A Hyprland/Waybar desktop UI kit. Catppuccin Mocha, **square corners everywhere*
 Components assume a dark ground. Put a design's root in `Surface`, or ghost buttons and hairlines vanish on white:
 
 ```jsx
-const { Surface, Panel, PanelSection, Meter, Button } = window.HyprlandUI;
+import { Surface, Panel, PanelSection, Meter, Button } from "./src/ui";
 
 <Surface tone="crust" padding={24}>
   <Panel icon="disk" accent="blue" title="Storage" subtitle="990 PRO · btrfs"
@@ -56,48 +56,20 @@ Data components (`Meter`, `Gauge`, `CoreGrid`, `BarSegment level`) colour by thr
 - Popups are `Panel` + `PanelSection`s; footers go in `actions`.
 - Full screens: `<Desktop />` renders a 1920×1080 working desktop (bar, tiled windows, popups, launcher, power menu). Use `workspace` and `openPopup` to pick the state.
 
-# HyprlandUI (hyprland-ui@0.1.0)
+# Source layout
 
-This design system is the published hyprland-ui React library, bundled as a single
-browser global. All 43 components are the real upstream code.
+The kit lives in `src/ui/`, plain TypeScript + React:
 
-## Where things are
-
-- `_ds_bundle.js` — the whole-DS bundle at the project root; loads every component to `window.HyprlandUI`. First line is a `/* @ds-bundle: … */` metadata header.
-- `styles.css` — the single stylesheet entry: it `@import`s the tokens, fonts, and component styles (`_ds_bundle.css`). Link this one file.
-- `components/<group>/<Name>/<Name>.prompt.md` (example JSX + variants), `<Name>.d.ts` (types), `<Name>.html` (variant grid).
-- `tokens/*.css` — CSS custom properties, names verbatim from upstream.
-- `fonts/` — `@font-face` files + `fonts.css` (when the package ships fonts).
-- `guidelines/` — the design system's own usage guidance (43 doc(s), see `guidelines/index.md`). Read these before composing larger layouts.
-
-For a specific component, `read_file("components/<group>/<Name>/<Name>.prompt.md")`.
-
-## Loading
-
-Add these two lines to your page once (React must be on the page first):
-
-```html
-<link rel="stylesheet" href="styles.css">
-<script src="_ds_bundle.js"></script>
-```
-
-Components are then available at `window.HyprlandUI.*`. Mount into a dedicated child node (e.g. `<div id="ds-root">`), not the host page's own React root, so the two trees don't collide:
-
-```jsx
-const { AudioPanel } = window.HyprlandUI;
-ReactDOM.createRoot(document.getElementById('ds-root')).render(<AudioPanel />);
-```
-
-Wrap the tree in the provider — most components read theme/i18n from context:
-
-```jsx
-<Surface padding={24}>{children}</Surface>
-```
+- `src/ui/index.ts` — the entry point. Import components from here; it also pulls in the fonts and `hyprland-ui.css`.
+- `src/ui/<group>/<Name>.tsx` — one component per file with its exported `<Name>Props`, next to `<Name>.stories.tsx`. Groups: `foundations`, `controls`, `data`, `bar`, `popups`, `overlays`, `desktop`.
+- `src/ui/lib.ts` (`Accent`, `cx`, `level`, `bytes`, canvas and timer hooks), `src/ui/icons.ts` (`icons`, `IconName`), `src/ui/stats.ts` (the simulated system behind the live panels).
+- `src/ui/hyprland-ui.css` — tokens and every component's styles.
+- `fonts/` — MonoLisa `@font-face` files.
+- `guidelines/docs/<Name>.md` — usage guidance per component; each story's docs page shows it.
 
 ## Tokens
 
-63 CSS custom properties from hyprland-ui. Names are
-preserved verbatim from upstream. They are declared inside `_ds_bundle.css` (this DS ships one compiled stylesheet rather than separate token files).
+63 CSS custom properties, declared at the top of `src/ui/hyprland-ui.css`.
 
 - **color** (12): `--hx-surface0`, `--hx-surface1`, `--hx-surface2`, …
 - **spacing** (7): `--hx-gap-in`, `--hx-gap-out`, `--hx-space-1`, …

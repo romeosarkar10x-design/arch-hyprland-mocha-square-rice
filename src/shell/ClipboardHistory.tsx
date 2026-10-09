@@ -1,5 +1,5 @@
 import { useState, type KeyboardEvent } from "react";
-import { Icon } from "../ds";
+import { Icon } from "../ui";
 import { wallpaper } from "../wallpapers/wallpapers";
 import "./shell.css";
 

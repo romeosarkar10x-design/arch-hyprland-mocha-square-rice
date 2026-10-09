@@ -1,5 +1,5 @@
 import { useRef, useState, type ClipboardEvent, type KeyboardEvent } from "react";
-import { Icon, Kbd } from "../ds";
+import { Icon, Kbd } from "../ui";
 import { clipKind, ClipboardHistory, demoClipItems, type ClipItem } from "./ClipboardHistory";
 import "./shell.css";
 

@@ -1,5 +1,6 @@
 import type { Decorator, Preview } from "@storybook/react-vite";
-import { Surface } from "../src/ds";
+import { Surface } from "../src/ui";
+import "../src/rice.css";
 import { ThemeProvider } from "../src/theme/ThemeProvider";
 import type { Vibrancy } from "../src/theme/palette";
 import { wallpapers } from "../src/wallpapers/wallpapers";

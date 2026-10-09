@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Icon, Kbd, type IconName } from "../ds";
+import { Icon, Kbd, type IconName } from "../ui";
 import "./shell.css";
 
 export interface ClipEntry {

@@ -5,7 +5,6 @@
   "description": "Storybook for the hyprland-ui design system (Catppuccin Mocha, square corners).",
   "type": "module",
   "scripts": {
-    "stories": "node scripts/gen-stories.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",

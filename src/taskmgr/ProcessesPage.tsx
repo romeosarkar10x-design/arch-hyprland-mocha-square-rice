@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
-import { Button, Icon } from "../ds";
+import { Button, Icon, type IconName } from "../ui";
 import type { Ask } from "./dialogs";
 import { MACHINE, ME } from "./demo";
 import { ProcessDetails } from "./ProcessDetails";
@@ -471,7 +471,7 @@ function ContextMenu({ x, y, row, targets, tagged, ask, onClose, onToggle, onTag
   const p = row.proc;
   const n = targets.length;
   const what = tagged ? `${n} tagged` : n > 1 ? `${n} processes` : "";
-  const item = (label: ReactNode, run: () => void, o: { kbd?: string; icon?: string; danger?: boolean; disabled?: boolean } = {}) => (
+  const item = (label: ReactNode, run: () => void, o: { kbd?: string; icon?: IconName; danger?: boolean; disabled?: boolean } = {}) => (
     <button type="button" role="menuitem" className={o.danger ? "is-danger" : undefined} disabled={o.disabled} onClick={() => (onClose(), run())}>
       <Icon name={o.icon ?? "minus"} size={13} />
       <span>{label}</span>

@@ -3,6 +3,8 @@
 // delivery with real Linux semantics (permissions, handlers, reparenting to subreapers,
 // zombies), renice, systemd units and a small simulation tick.
 
+import type { IconName } from "../ui/icons";
+
 export type ProcState = "R" | "S" | "D" | "Z" | "T" | "I";
 
 export const STATE_LABEL: Record<ProcState, string> = {
@@ -56,7 +58,7 @@ export interface Proc {
   unit: string;
   /** Friendly app name for "group by app"; inherited by descendants. */
   app?: string;
-  icon?: string;
+  icon?: IconName;
   kernel?: boolean;
   /** PR_SET_CHILD_SUBREAPER: orphaned descendants are reparented here, not to PID 1. */
   subreaper?: boolean;
@@ -331,7 +333,7 @@ export interface Row {
   kind: "proc" | "group";
   proc?: Proc;
   label: string;
-  icon?: string;
+  icon?: IconName;
   depth: number;
   /** Tree guide prefix, one entry per ancestor level: does a line continue down? */
   guides: boolean[];

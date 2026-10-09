@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { CoreGrid, Graph, Icon, Sparkline, StackBar, type GraphSeries } from "../ds";
+import { CoreGrid, Graph, Icon, Sparkline, StackBar, type GraphSeries } from "../ui";
 import type { Ask } from "./dialogs";
 import { MACHINE } from "./demo";
 import { fmtCpu, fmtDuration, fmtKiB, fmtRate, summarise, type Proc } from "./procs";

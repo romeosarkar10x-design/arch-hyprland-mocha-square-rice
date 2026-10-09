@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { Icon, Kbd } from "../ds";
+import { Icon, Kbd } from "../ui";
 import "./shell.css";
 
 export interface Stroke {

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Wallpaper } from "../ds";
+import { Wallpaper } from "../ui";
 import "./shell.css";
 
 export interface StageProps {

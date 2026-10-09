@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Icon, Shortcut } from "../ds";
+import { Icon, Shortcut } from "../ui";
 import { BINDS, SUGGESTED_BINDS, type HyprBindGroup } from "./config";
 import "./hypr.css";
 

@@ -1,12 +1,6 @@
 import { useState } from "react";
-import type { SparklineProps } from "../../components/data/Sparkline/Sparkline";
-import type { StatProps } from "../../components/data/Stat/Stat";
-import { Icon, Panel, PanelSection, Toggle, type Accent, type IconName } from "../ds";
-import { ui } from "../hyprland-ui";
+import { Icon, Panel, PanelSection, Sparkline, Stat, Toggle, type Accent, type IconName } from "../ui";
 import "./shell.css";
-
-const Sparkline = ui<SparklineProps & { accent?: Accent }>("Sparkline");
-const Stat = ui<StatProps>("Stat");
 
 export type PowerProfile = "power-saver" | "balanced" | "performance";
 
@@ -69,7 +63,7 @@ export function BatteryPanel({
             <span>%</span>
           </div>
         </div>
-        <Sparkline data={history} max={100} height={36} accent={accent} />
+        <Sparkline data={history} max={100} height={36} />
       </PanelSection>
       <PanelSection label="power profile">
         <div className="rx-profiles" role="radiogroup">

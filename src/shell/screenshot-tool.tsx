@@ -1,6 +1,5 @@
 import { useRef, useState, type PointerEvent } from "react";
-import { Button, Desktop, Icon } from "../ui";
-import "./shell.css";
+import { Button, Desktop, Icon, cx } from "../ui";
 
 type Mode = "region" | "window" | "output";
 type Rect = { x: number; y: number; w: number; h: number };
@@ -45,9 +44,9 @@ export function ScreenshotTool({
   };
 
   return (
-    <div className={["rx-shot", className].filter(Boolean).join(" ")} style={{ width }}>
+    <div data-component="ScreenshotTool" className={cx("kit-type flex max-w-full flex-col text-text ring ring-surface0", className)} style={{ width }}>
       <div
-        className="rx-shot-screen"
+        className="relative cursor-crosshair touch-none overflow-hidden select-none"
         style={{ height: SCREEN.h * scale }}
         onPointerDown={(e) => {
           if (mode !== "region") return;
@@ -62,39 +61,31 @@ export function ScreenshotTool({
         }}
         onPointerUp={() => (drag.current = null)}
       >
-        <div className="rx-shot-frozen" style={{ width: SCREEN.w, height: SCREEN.h, transform: `scale(${scale})` }}>
+        <div className="pointer-events-none absolute top-0 left-0 origin-top-left" style={{ width: SCREEN.w, height: SCREEN.h, transform: `scale(${scale})` }}>
           <Desktop paused notifications={false} wallpaper="image" />
         </div>
-        <div
-          className={`rx-shot-sel${flash ? " is-flash" : ""}`}
-          style={{ left: shown.x * scale, top: shown.y * scale, width: shown.w * scale, height: shown.h * scale }}
-        >
-          <i className="tl" /><i className="tr" /><i className="bl" /><i className="br" />
-          <span className="rx-shot-size">
-            {shown.w} × {shown.h}
-          </span>
-        </div>
+        <SelectionBox rect={shown} scale={scale} flash={flash} />
       </div>
-      <div className="rx-shot-bar">
-        <div className="rx-seg">
+      <div className="flex flex-wrap items-center gap-2.5 border-t border-surface0 bg-mantle px-2.5 py-2">
+        <div>
           {(["region", "window", "output"] as const).map((m) => (
             <Button key={m} size="sm" variant={m === mode ? "primary" : "ghost"} accent="peach" icon={m === "region" ? "plus" : m === "window" ? "app" : "monitor"} onClick={() => setMode(m)}>
               {m}
             </Button>
           ))}
         </div>
-        <span className="rx-shot-div" />
-        <span className="hx-caps">
+        <span className="w-px self-stretch bg-surface0" />
+        <span className="caps">
           <Icon name="timer" size={12} /> delay
         </span>
-        <div className="rx-seg">
+        <div>
           {([0, 3, 5] as const).map((d) => (
             <Button key={d} size="sm" variant={d === delay ? "primary" : "ghost"} accent="peach" onClick={() => setDelay(d)}>
               {d ? `${d}s` : "off"}
             </Button>
           ))}
         </div>
-        <span className="hx-spacer" />
+        <span className="flex-1" />
         <Button size="sm" variant="ghost" icon="palette" kbd="E" onClick={() => capture("edit")}>
           Annotate
         </Button>
@@ -105,6 +96,30 @@ export function ScreenshotTool({
           Copy
         </Button>
       </div>
+    </div>
+  );
+}
+
+const handle = "absolute size-[13px] border-0 border-solid border-peach";
+
+/** The region outline: peach hairline, corner handles, dimmed surroundings and a size readout. */
+function SelectionBox({ rect, scale, flash }: { rect: Rect; scale: number; flash: boolean }) {
+  return (
+    <div
+      data-component="SelectionBox"
+      className={cx(
+        "pointer-events-none absolute shadow-[0_0_0_9999px_color-mix(in_srgb,var(--hx-crust)_62%,transparent)] ring ring-peach",
+        flash && "animate-[rx-flash_.26s]",
+      )}
+      style={{ left: rect.x * scale, top: rect.y * scale, width: rect.w * scale, height: rect.h * scale }}
+    >
+      <i className={cx(handle, "-top-[3px] -left-[3px] border-t-3 border-l-3")} />
+      <i className={cx(handle, "-top-[3px] -right-[3px] border-t-3 border-r-3")} />
+      <i className={cx(handle, "-bottom-[3px] -left-[3px] border-b-3 border-l-3")} />
+      <i className={cx(handle, "-right-[3px] -bottom-[3px] border-r-3 border-b-3")} />
+      <span className="absolute right-0 -bottom-[22px] bg-peach px-1.5 py-0.5 font-hx text-[10.5px] font-bold whitespace-nowrap text-crust">
+        {rect.w} × {rect.h}
+      </span>
     </div>
   );
 }

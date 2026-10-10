@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Icon, Wallpaper } from "../ui";
-import "./shell.css";
+import { Icon, cx } from "../ui";
+import { BlurredWallpaper, PasswordField, UserAvatar } from "./password-field";
 
 export interface LockScreenProps {
   user?: string;
@@ -69,47 +69,41 @@ export function LockScreen({
   };
 
   const fieldState = phase === "unlocked" ? "ok" : phase === "checking" ? "check" : phase === "failed" ? "fail" : caps ? "caps" : "idle";
-  const date = clock.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <div
-      className={["rx-lock", phase === "unlocked" && "is-unlocked", className].filter(Boolean).join(" ")}
+      data-component="LockScreen"
+      className={cx("kit-type relative max-w-full overflow-hidden bg-crust text-text", className)}
       style={{ width, height }}
       onClick={() => input.current?.focus()}
     >
-      <Wallpaper variant="image" className="rx-lock-wall" />
-      <div className="rx-lock-scrim" />
-      <div className="rx-lock-center">
-        <div className="rx-lock-time">
-          {pad(clock.getHours())}
-          <span>:</span>
-          {pad(clock.getMinutes())}
-        </div>
-        <div className="rx-lock-date">{date}</div>
-        <div className="rx-lock-user">
-          <span className="rx-lock-avatar">
-            <Icon name="account" size={30} />
-          </span>
+      <BlurredWallpaper />
+      <div
+        className={cx(
+          "absolute inset-0 flex flex-col items-center justify-center gap-2.5 transition-[opacity,scale] duration-(--hx-slow) ease-hx",
+          phase === "unlocked" && "scale-[1.04] opacity-0",
+        )}
+      >
+        <LockClock clock={clock} />
+        <div className="mb-1.5 flex flex-col items-center gap-2 font-bold">
+          <UserAvatar />
           {user}
         </div>
-        <label className={`rx-lock-field is-${fieldState}`} key={attempts}>
-          <input
-            ref={input}
-            type="password"
-            value={value}
-            autoComplete="off"
-            aria-label="password"
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={onKey}
-            onKeyUp={(e) => setCaps(e.getModifierState("CapsLock"))}
-            disabled={phase === "checking" || phase === "unlocked"}
-          />
-          <span className="rx-lock-dots" aria-hidden>
-            {value ? Array.from(value, (_, i) => <i key={i} />) : <em>{phase === "failed" ? "wrong password" : "password"}</em>}
-          </span>
-          <Icon name={fieldState === "ok" ? "check" : fieldState === "fail" ? "alert" : "lock"} size={16} className="rx-lock-icon" />
-        </label>
-        <div className="rx-lock-hint">
+        <PasswordField
+          key={attempts}
+          inputRef={input}
+          state={fieldState}
+          value={value}
+          placeholder={phase === "failed" ? "wrong password" : "password"}
+          icon={fieldState === "ok" ? "check" : fieldState === "fail" ? "alert" : "lock"}
+          autoComplete="off"
+          aria-label="password"
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={onKey}
+          onKeyUp={(e) => setCaps(e.getModifierState("CapsLock"))}
+          disabled={phase === "checking" || phase === "unlocked"}
+        />
+        <div className="h-4 text-[11px] text-overlay1">
           {phase === "checking"
             ? "checking…"
             : phase === "failed"
@@ -119,23 +113,45 @@ export function LockScreen({
                 : `enter to unlock · try “${password}”`}
         </div>
       </div>
-      <div className="rx-lock-foot">
-        <span>
-          <Icon name="flash" size={14} /> {battery}%
-        </span>
-        <span>
-          <Icon name="wifi" size={14} /> home-5G
-        </span>
-        <span>
-          <Icon name="keyboard" size={14} /> us
-        </span>
-        <span className="hx-spacer" />
-        {media && (
-          <span className="rx-lock-media">
-            <Icon name="music" size={14} /> {media.title} <span className="hx-faint">· {media.artist}</span>
-          </span>
-        )}
+      <LockStatus battery={battery} media={media} />
+    </div>
+  );
+}
+
+function LockClock({ clock }: { clock: Date }) {
+  const date = clock.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  return (
+    <>
+      <div data-component="LockClock" className="text-[128px] leading-[.9] font-bold tracking-[-.05em]">
+        {pad(clock.getHours())}
+        <span className="animate-caret text-mauve">:</span>
+        {pad(clock.getMinutes())}
       </div>
+      <div className="mb-[34px] text-[15px] tracking-[.3em] text-subtext0 lowercase">{date}</div>
+    </>
+  );
+}
+
+/** Bottom strip: battery, network, layout, now playing. */
+function LockStatus({ battery, media }: { battery: number; media: LockScreenProps["media"] }) {
+  const item = "inline-flex items-center gap-1.5";
+  return (
+    <div data-component="LockStatus" className="absolute inset-x-0 bottom-0 flex gap-[22px] px-[22px] py-3.5 text-[12px] text-subtext0">
+      <span className={item}>
+        <Icon name="flash" size={14} /> {battery}%
+      </span>
+      <span className={item}>
+        <Icon name="wifi" size={14} /> home-5G
+      </span>
+      <span className={item}>
+        <Icon name="keyboard" size={14} /> us
+      </span>
+      <span className={cx(item, "flex-1")} />
+      {media && (
+        <span className={item}>
+          <Icon name="music" size={14} className="text-green" /> {media.title} <span className="text-overlay1">· {media.artist}</span>
+        </span>
+      )}
     </div>
   );
 }

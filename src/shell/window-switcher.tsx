@@ -1,7 +1,6 @@
-import { IconTile, Kbd } from "../ui";
+import { IconTile, Kbd, cx } from "../ui";
 import { usePropState } from "../use-prop-state";
 import { demoWorkspaces, type DemoWindow } from "./windows";
-import "./shell.css";
 
 export interface WindowSwitcherProps {
   windows?: (DemoWindow & { workspace: number })[];
@@ -20,7 +19,8 @@ export function WindowSwitcher({ windows = allWindows, selected: initial = 1, on
   return (
     <div
       tabIndex={0}
-      className={["rx-alt", className].filter(Boolean).join(" ")}
+      data-component="WindowSwitcher"
+      className={cx("kit-type inline-flex max-w-full flex-col bg-mantle text-text shadow-popup ring ring-surface0 outline-none", className)}
       onKeyDown={(e) => {
         const n = windows.length;
         if (e.key === "Tab" || e.key === "ArrowRight") setSel((s) => (s + (e.shiftKey ? n - 1 : 1)) % n);
@@ -30,21 +30,31 @@ export function WindowSwitcher({ windows = allWindows, selected: initial = 1, on
         e.preventDefault();
       }}
     >
-      <div className="rx-alt-row">
+      <div className="flex gap-1 overflow-x-auto p-3.5">
         {windows.map((w, i) => (
-          <button key={w.id} type="button" className={i === sel ? "is-active" : undefined} onClick={() => (setSel(i), pick(i))} onMouseEnter={() => setSel(i)}>
+          <button
+            key={w.id}
+            type="button"
+            className={cx(
+              "unbutton flex w-28 cursor-pointer flex-col items-center gap-2 bg-transparent px-1.5 pt-3.5 pb-2.5 font-hx text-[11px] text-subtext0",
+              "inset-ring inset-ring-transparent transition-[background-color] hover:bg-surface0",
+              i === sel && "bg-mauve/12 text-text inset-ring-2 inset-ring-mauve hover:bg-mauve/12",
+            )}
+            onClick={() => (setSel(i), pick(i))}
+            onMouseEnter={() => setSel(i)}
+          >
             <IconTile icon={w.icon} accent={w.accent} size={56} />
-            <span className="rx-alt-cls">{w.cls}</span>
-            <span className="rx-alt-ws">ws {w.workspace}</span>
+            <span className="max-w-full truncate">{w.cls}</span>
+            <span className="text-[10px] text-overlay1">ws {w.workspace}</span>
           </button>
         ))}
       </div>
-      <div className="rx-alt-title">
-        <span>{windows[sel]?.title}</span>
-        <span className="hx-spacer" />
+      <div className="flex items-center gap-1.5 border-t border-surface0 bg-crust px-3.5 py-2.5 text-[12px]">
+        <span className="truncate text-lavender italic">{windows[sel]?.title}</span>
+        <span className="flex-1" />
         <Kbd>ALT</Kbd>
         <Kbd>TAB</Kbd>
-        <span className="hx-faint">cycle</span>
+        <span className="text-overlay1">cycle</span>
       </div>
     </div>
   );

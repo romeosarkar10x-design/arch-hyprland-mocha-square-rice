@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { WifiMenu } from "./connections";
+import { WifiMenu } from "./wifi-menu";
 
 const meta = {
   title: "Shell/Popups/Wi-Fi",

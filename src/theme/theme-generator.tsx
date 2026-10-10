@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from "react";
-import { Button, Desktop, Icon, Panel, PanelSection, Toggle } from "../ui";
+import { Button, Desktop, Icon, Panel, PanelSection, Toggle, cx } from "../ui";
+import { galleryTile, WallpaperGallery } from "../wallpapers/wallpaper-gallery";
 import { wallpapers } from "../wallpapers/wallpapers";
 import { ConfigFile } from "./config-file";
 import { DOTFILES } from "./exports";
@@ -7,7 +8,6 @@ import { usePropState } from "../use-prop-state";
 import { MOCHA, type Theme, type Vibrancy } from "./palette";
 import { PaletteView, SwatchStrip } from "./palette-view";
 import { resolveWallpaper, ThemeProvider, useWallpaperTheme } from "./theme-provider";
-import "./theme.css";
 
 /** Scale a fixed-size child (e.g. the 1920×1080 Desktop) to the width of its box. */
 export function ScaleToFit({ width, height, children }: { width: number; height: number; children: ReactNode }) {
@@ -21,8 +21,10 @@ export function ScaleToFit({ width, height, children }: { width: number; height:
     return () => ro.disconnect();
   }, [width]);
   return (
-    <div ref={box} className="rx-fit" style={{ aspectRatio: `${width} / ${height}` }}>
-      <div style={{ width, height, transform: `scale(${scale})` }}>{children}</div>
+    <div ref={box} data-component="ScaleToFit" className="relative w-full overflow-hidden shadow-[0_0_0_1px_var(--hx-surface0)]" style={{ aspectRatio: `${width} / ${height}` }}>
+      <div className="absolute top-0 left-0 origin-top-left" style={{ width, height, transform: `scale(${scale})` }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -41,6 +43,26 @@ export interface ThemeGeneratorProps {
 }
 
 const VIBRANCIES: Vibrancy[] = ["muted", "balanced", "vivid"];
+
+/** A column of panel sections; the last one drops its divider. */
+const column = "flex min-w-0 flex-col [&>[data-component~=PanelSection]:last-child]:border-b-0";
+
+/** Last gallery tile: pick your own image. */
+function UploadTile({ onFile }: { onFile: (file: File | undefined) => void }) {
+  return (
+    <label
+      data-component="UploadTile"
+      className={cx(
+        galleryTile,
+        "grid place-content-center justify-items-center gap-0.5 bg-transparent text-overlay1 shadow-[inset_0_0_0_1px_var(--hx-surface1)] hover:text-mauve hover:shadow-[inset_0_0_0_1px_var(--hx-mauve)]",
+      )}
+    >
+      <Icon name="plus" size={20} />
+      <span>your image</span>
+      <input type="file" accept="image/*" className="absolute size-px opacity-0" onChange={(e) => onFile(e.target.files?.[0])} />
+    </label>
+  );
+}
 
 /**
  * Pick or drop a wallpaper; the extractor derives a full palette from it and the whole UI
@@ -88,6 +110,7 @@ export function ThemeGenerator({
   return (
     <ThemeProvider palette={palette} wallpaper={src} scope={global ? "global" : "local"}>
       <Panel
+        data-component="ThemeGenerator"
         icon="palette"
         accent="mauve"
         title="Wallpaper theme"
@@ -100,7 +123,7 @@ export function ThemeGenerator({
         }
         width={width}
         headerAside={
-          <div className="rx-seg" role="radiogroup" aria-label="vibrancy">
+          <div className="flex gap-1" role="radiogroup" aria-label="vibrancy">
             {VIBRANCIES.map((v) => (
               <Button key={v} size="sm" variant={v === vibrancy ? "primary" : "ghost"} onClick={() => setVibrancy(v)}>
                 {v}
@@ -111,18 +134,21 @@ export function ThemeGenerator({
         actions={
           <>
             <Toggle checked={global} onChange={setGlobal} label="Apply to everything" description="write the palette to <html>, not just this panel" />
-            <span className="hx-spacer" />
+            <span className="flex-1" />
             <Button variant="ghost" icon="reboot" onClick={() => setSrc(wallpaper)}>
               Reset
             </Button>
           </>
         }
       >
-        <div className="rx-gen">
-          <div className="rx-gen-col">
-            <PanelSection label="wallpaper" aside={<span className="hx-faint">drop an image or pick one</span>}>
+        <div className="grid grid-cols-2 border-b border-surface0">
+          <div className={column}>
+            <PanelSection label="wallpaper" aside={<span className="text-overlay1">drop an image or pick one</span>}>
               <div
-                className={`rx-gen-image${dragging ? " is-drag" : ""}`}
+                className={cx(
+                  "relative aspect-video overflow-hidden bg-crust",
+                  dragging ? "shadow-[0_0_0_2px_var(--hx-mauve)]" : "shadow-[0_0_0_1px_var(--hx-surface0)]",
+                )}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setDragging(true);
@@ -130,65 +156,55 @@ export function ThemeGenerator({
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
               >
-                <img src={resolveWallpaper(src)} alt="" />
+                <img src={resolveWallpaper(src)} alt="" className="block size-full object-cover" />
                 {dragging && (
-                  <div className="rx-gen-drop">
+                  <div className="absolute inset-0 grid place-content-center justify-items-center gap-2 bg-crust/75 text-mauve">
                     <Icon name="image" size={28} /> drop to extract
                   </div>
                 )}
               </div>
-              <div className="rx-gal">
-                {wallpapers().map((w) => (
-                  <button key={w.id} type="button" className={w.id === src ? "is-active" : undefined} onClick={() => setSrc(w.id)} title={w.description}>
-                    <img src={w.url} alt="" />
-                    <span>{w.name}</span>
-                  </button>
-                ))}
-                <label className="rx-gal-upload">
-                  <Icon name="plus" size={20} />
-                  <span>your image</span>
-                  <input type="file" accept="image/*" onChange={(e) => pickFile(e.target.files?.[0])} />
-                </label>
-              </div>
+              <WallpaperGallery size="compact" selected={src} onSelect={setSrc}>
+                <UploadTile onFile={pickFile} />
+              </WallpaperGallery>
             </PanelSection>
-            <PanelSection label="image colours" aside={<span className="hx-faint">ringed: picked seeds</span>}>
+            <PanelSection label="image colours" aside={<span className="text-overlay1">ringed: picked seeds</span>}>
               {theme && <SwatchStrip swatches={theme.swatches} seeds={seeds} />}
             </PanelSection>
           </div>
-          <div className="rx-gen-col">
-            <PanelSection label="seeds" aside={<span className="hx-faint">image colour → theme colour</span>}>
-              <div className="rx-seeds">
+          <div className={cx(column, "border-l border-surface0")}>
+            <PanelSection label="seeds" aside={<span className="text-overlay1">image colour → theme colour</span>}>
+              <div className="grid gap-2">
                 {theme &&
                   ([
                     ["primary", theme.seeds.primary.hex, palette.mauve, "mauve · lavender · borders"],
                     ["secondary", theme.seeds.secondary.hex, palette.pink, "pink · gradients"],
                     ["tertiary", theme.seeds.tertiary.hex, null, "pulls the nearest accent"],
                   ] as const).map(([role, from, to, use]) => (
-                    <div key={role}>
-                      <i style={{ background: from }} />
-                      {to && <i style={{ background: to }} />}
-                      <span>
-                        <b>{role}</b>
-                        <span className="hx-faint">{use}</span>
+                    <div key={role} className="flex items-center">
+                      <i className="size-[30px] flex-none" style={{ background: from }} />
+                      {to && <i className="size-[30px] flex-none shadow-[-1px_0_0_var(--hx-mantle)]" style={{ background: to }} />}
+                      <span className="ml-3 flex flex-col text-[11px]">
+                        <b className="text-[12px]">{role}</b>
+                        <span className="text-overlay1">{use}</span>
                       </span>
                     </div>
                   ))}
               </div>
             </PanelSection>
-            <PanelSection label="palette" aside={<span className="hx-faint">contrast vs base</span>}>
+            <PanelSection label="palette" aside={<span className="text-overlay1">contrast vs base</span>}>
               <PaletteView palette={palette} />
             </PanelSection>
           </div>
         </div>
         {preview && (
-          <PanelSection label="live preview" aside={<span className="hx-faint">click the bar, press / for the launcher</span>}>
+          <PanelSection label="live preview" aside={<span className="text-overlay1">click the bar, press / for the launcher</span>}>
             <ScaleToFit width={1920} height={1080}>
               <Desktop wallpaper="image" />
             </ScaleToFit>
           </PanelSection>
         )}
         <PanelSection label="export">
-          <div className="rx-seg rx-seg--wrap">
+          <div className="flex flex-wrap gap-1">
             {Object.keys(DOTFILES).map((k) => (
               <Button key={k} size="sm" variant={k === target ? "primary" : "ghost"} onClick={() => setTarget(k)}>
                 {k}

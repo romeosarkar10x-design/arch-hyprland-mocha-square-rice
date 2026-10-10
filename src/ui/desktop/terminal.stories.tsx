@@ -30,7 +30,7 @@ export const Short: Story = {
     <div style={{ width: 560, background: "var(--hx-base)" }}>
       <Terminal
         cwd="~/.config/hypr"
-        lines={[{ cmd: "hyprctl reload" }, { out: "ok" }, { cmd: "hyprctl configerrors" }, { out: <span className="hx-green">no errors</span> }]}
+        lines={[{ cmd: "hyprctl reload" }, { out: "ok" }, { cmd: "hyprctl configerrors" }, { out: <span className="text-green">no errors</span> }]}
       />
     </div>
   ),

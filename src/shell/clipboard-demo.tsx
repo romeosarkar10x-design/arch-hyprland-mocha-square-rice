@@ -1,7 +1,6 @@
 import { useRef, useState, type ClipboardEvent, type KeyboardEvent } from "react";
 import { Icon, Kbd } from "../ui";
 import { clipKind, ClipboardHistory, demoClipItems, type ClipItem } from "./clipboard-history";
-import "./shell.css";
 
 const SOURCE = `Copy anything from here (select + Ctrl+C):
 
@@ -58,27 +57,37 @@ export function ClipboardDemo() {
     }
   };
 
+  const textarea = "w-full resize-y border-0 bg-mantle p-3 font-hx text-[13px] leading-[1.5] text-text ring ring-surface0 outline-none focus:ring-mauve";
   return (
-    <div className="rx-cbd" onCopy={onCopy}>
-      <section>
-        <h3 className="hx-caps">
+    <div data-component="ClipboardDemo" className="grid max-w-[1100px] grid-cols-2 gap-5 font-hx max-[760px]:grid-cols-1" onCopy={onCopy}>
+      <section className="relative flex flex-col gap-2">
+        <h3 className="caps m-0 flex items-center gap-1.5 text-subtext0">
           <Icon name="note" size={12} /> source
         </h3>
-        <textarea defaultValue={SOURCE} spellCheck={false} rows={10} aria-label="source text" />
+        <textarea className={textarea} defaultValue={SOURCE} spellCheck={false} rows={10} aria-label="source text" />
       </section>
-      <section className="rx-cbd-target">
-        <h3 className="hx-caps">
+      <section className="relative flex flex-col gap-2">
+        <h3 className="caps m-0 flex items-center gap-1.5 text-subtext0">
           <Icon name="code" size={12} /> editor
-          <span className="hx-spacer" />
-          <button type="button" className="rx-cbd-open" onClick={openPanel}>
+          <span className="flex-1" />
+          <button type="button" className="unbutton inline-flex cursor-pointer items-center gap-1 tracking-normal text-subtext0 normal-case" onClick={openPanel}>
             <Kbd>CTRL</Kbd>
             <Kbd>SHIFT</Kbd>
             <Kbd>V</Kbd> history
           </button>
         </h3>
-        <textarea ref={editor} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onEditorKey} spellCheck={false} rows={10} aria-label="editor" />
+        <textarea
+          ref={editor}
+          className={textarea}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={onEditorKey}
+          spellCheck={false}
+          rows={10}
+          aria-label="editor"
+        />
         {open && (
-          <div className="rx-cbd-pop">
+          <div className="absolute top-[34px] right-0 z-5 animate-[hx-drop_.18s_var(--hx-ease)_both]">
             <ClipboardHistory items={items} onChange={setItems} onPaste={(v) => paste(v)} onClose={() => (setOpen(false), editor.current?.focus())} autoFocus />
           </div>
         )}

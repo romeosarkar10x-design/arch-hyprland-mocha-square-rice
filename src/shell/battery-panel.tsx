@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Icon, Panel, PanelSection, Sparkline, Stat, Toggle, type Accent, type IconName } from "../ui";
-import "./shell.css";
+import { Icon, Panel, PanelSection, Sparkline, Stat, StatGrid, Toggle, cx, type Accent, type IconName } from "../ui";
 
 export type PowerProfile = "power-saver" | "balanced" | "performance";
 
@@ -44,6 +43,7 @@ export function BatteryPanel({
   const time = `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, "0")}m`;
   return (
     <Panel
+      data-component="BatteryPanel"
       className={className}
       icon="flash"
       accent={accent}
@@ -53,46 +53,70 @@ export function BatteryPanel({
       live
     >
       <PanelSection>
-        <div className="rx-batt">
-          <div className="rx-batt-cell" style={{ ["--hx-acc" as string]: `var(--hx-${accent})` }}>
-            <i style={{ width: `${level}%` }} />
-            {charging && <Icon name="bolt" size={18} className="rx-batt-bolt" />}
-          </div>
-          <div className="rx-batt-pct">
+        <div className="kit-type flex items-center gap-[18px] text-text">
+          <BatteryCell level={level} charging={charging} accent={accent} />
+          <div className="text-display leading-none font-bold tracking-[-.04em]">
             {level}
-            <span>%</span>
+            <span className="ml-0.5 text-[18px] text-overlay1">%</span>
           </div>
         </div>
         <Sparkline data={history} max={100} height={36} />
       </PanelSection>
       <PanelSection label="power profile">
-        <div className="rx-profiles" role="radiogroup">
-          {PROFILES.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="radio"
-              aria-checked={p.id === profile}
-              className={p.id === profile ? "is-on" : undefined}
-              style={{ ["--hx-acc" as string]: `var(--hx-${p.accent})` }}
-              onClick={() => setProfile(p.id)}
-            >
-              <Icon name={p.icon} size={18} />
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <ProfilePicker value={profile} onChange={setProfile} />
       </PanelSection>
       <PanelSection flush>
-        <div className="hx-stats">
+        <StatGrid>
           <Stat label={charging ? "in" : "draw"} value={rate.toFixed(1)} hint="W" accent={accent} />
           <Stat label="health" value={health} hint="%" accent="sky" />
           <Stat label="cycles" value={cycles} accent="mauve" />
-        </div>
+        </StatGrid>
       </PanelSection>
       <PanelSection>
         <Toggle checked={limit} onChange={setLimit} accent="green" label="Charge limit 80%" description="keeps the cell healthy when docked" />
       </PanelSection>
     </Panel>
+  );
+}
+
+/** Battery outline with a terminal nub, filled to `level` in the accent; a bolt while charging. */
+function BatteryCell({ level, charging, accent }: { level: number; charging: boolean; accent: Accent }) {
+  return (
+    <div
+      data-component="BatteryCell"
+      className="relative h-[54px] w-32 p-1 inset-ring-2 inset-ring-surface2 after:absolute after:top-3.5 after:-right-[7px] after:h-[18px] after:w-[5px] after:bg-surface2"
+      style={{ ["--hx-acc" as string]: `var(--hx-${accent})` }}
+    >
+      <i className="block h-full bg-acc" style={{ width: `${level}%` }} />
+      {charging && <Icon name="bolt" size={18} className="absolute top-1/2 left-1/2 -translate-1/2 text-crust" />}
+    </div>
+  );
+}
+
+/** power-profiles-daemon switcher; the active profile floods with its accent. */
+function ProfilePicker({ value, onChange }: { value: PowerProfile; onChange: (p: PowerProfile) => void }) {
+  return (
+    <div data-component="ProfilePicker" className="kit-type grid grid-cols-3 gap-px bg-surface0 text-text" role="radiogroup">
+      {PROFILES.map((p) => {
+        const on = p.id === value;
+        return (
+          <button
+            key={p.id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            className={cx(
+              "unbutton flex cursor-pointer flex-col items-start gap-2 p-3 font-hx text-[11.5px] font-bold transition-[background-color]",
+              on ? "bg-acc text-crust" : "bg-mantle text-text hover:bg-base",
+            )}
+            style={{ ["--hx-acc" as string]: `var(--hx-${p.accent})` }}
+            onClick={() => onChange(p.id)}
+          >
+            <Icon name={p.icon} size={18} className={on ? "text-crust" : "text-acc"} />
+            {p.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

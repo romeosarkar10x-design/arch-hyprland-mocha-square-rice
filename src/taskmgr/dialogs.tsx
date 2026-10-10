@@ -1,7 +1,8 @@
 import { useState, type KeyboardEvent } from "react";
-import { Button, Icon } from "../ui";
+import { Button, Icon, Kbd, cx } from "../ui";
 import { ME } from "./demo";
 import { PRIORITIES, SIGNALS, descendants, sendSignal, signalByNum, type Proc } from "./procs";
+import { check, dialog, dialogFooter, dialogHeader, tag } from "./styles";
 
 /** What pages can ask the shell for: dialogs and confirmed signal delivery. */
 export interface Ask {
@@ -59,7 +60,8 @@ export function SignalDialog({ procs, pids, sig = 15, onSend, onClose }: { procs
   const s = SIGNALS[i]!;
   return (
     <div
-      className="rx-tm-dialog"
+      data-component="SignalDialog"
+      className={dialog}
       role="dialog"
       aria-label="Send signal"
       tabIndex={-1}
@@ -78,30 +80,37 @@ export function SignalDialog({ procs, pids, sig = 15, onSend, onClose }: { procs
         }
       }}
     >
-      <header>
+      <header className={dialogHeader}>
         <Icon name="flash" size={16} />
         <b>Send signal</b>
-        <span className="hx-faint">to {who(procs, pids)}</span>
+        <span className="text-overlay1">to {who(procs, pids)}</span>
       </header>
-      <ul className="rx-tm-siglist" role="listbox">
+      <ul className="m-0 list-none overflow-auto p-1" role="listbox">
         {SIGNALS.map((x, n) => (
-          <li key={x.num} role="option" aria-selected={n === i} className={n === i ? "is-active" : undefined} onMouseEnter={() => setI(n)} onClick={() => pick(n)}>
-            <span className="rx-tm-signum">{x.num}</span>
+          <li
+            key={x.num}
+            role="option"
+            aria-selected={n === i}
+            className={cx("grid h-7 cursor-pointer grid-cols-[28px_92px_auto_1fr] items-center gap-2.5 px-2.5", n === i && "bg-surface0 shadow-[inset_2px_0_0_var(--hx-mauve)]")}
+            onMouseEnter={() => setI(n)}
+            onClick={() => pick(n)}
+          >
+            <span className="text-right text-overlay1 tabular-nums">{x.num}</span>
             <b>{x.name}</b>
-            {x.uncatchable && <span className="rx-tm-tag">uncatchable</span>}
-            <span className="rx-tm-sigact">{x.action === "core" ? "term + core" : x.action}</span>
+            {x.uncatchable && <span className={tag()}>uncatchable</span>}
+            <span className="justify-self-end text-[11px] text-overlay1">{x.action === "core" ? "term + core" : x.action}</span>
           </li>
         ))}
       </ul>
-      <p className="rx-tm-sigdesc">{s.desc}</p>
-      <footer>
+      <p className="m-0 min-h-[2.6em] border-t border-surface0 px-3.5 py-2.5 text-subtext0">{s.desc}</p>
+      <footer className={dialogFooter}>
         {hasKids && (
-          <label className="rx-tm-check">
-            <input type="checkbox" checked={tree} onChange={(e) => setTree(e.target.checked)} /> Whole process tree <kbd className="hx-kbd">T</kbd>
+          <label className={check}>
+            <input type="checkbox" checked={tree} onChange={(e) => setTree(e.target.checked)} /> Whole process tree <Kbd>T</Kbd>
           </label>
         )}
-        <span className="hx-spacer" />
-        <span className="hx-faint">type a number · ↑↓ · ⏎</span>
+        <span className="flex-1" />
+        <span className="text-overlay1">type a number · ↑↓ · ⏎</span>
         <Button size="sm" variant="ghost" onClick={onClose}>
           Cancel
         </Button>
@@ -118,7 +127,8 @@ export function ReniceDialog({ proc, as, onApply, onClose }: { proc: Proc; as: s
   const needsRoot = as !== "root" && (nice < proc.nice || proc.user !== as);
   return (
     <form
-      className="rx-tm-dialog rx-tm-renice"
+      data-component="ReniceDialog"
+      className={dialog}
       aria-label="Change priority"
       onSubmit={(e) => {
         e.preventDefault();
@@ -126,38 +136,43 @@ export function ReniceDialog({ proc, as, onApply, onClose }: { proc: Proc; as: s
       }}
       onKeyDown={(e) => e.key === "Escape" && onClose()}
     >
-      <header>
+      <header className={dialogHeader}>
         <Icon name="gauge" size={16} />
         <b>Change priority</b>
-        <span className="hx-faint">
+        <span className="text-overlay1">
           {proc.name} ({proc.pid}) · now nice {proc.nice}
         </span>
       </header>
-      <div className="rx-tm-renice-body">
-        <div className="rx-tm-renice-val">
-          <b>{nice > 0 ? `+${nice}` : nice}</b>
-          <span className="hx-faint">{PRIORITIES.reduce((a, b) => (Math.abs(b.nice - nice) < Math.abs(a.nice - nice) ? b : a)).label}</span>
+      <div className="flex flex-col gap-2.5 p-3.5 [&_p]:m-0 [&_p]:leading-normal">
+        <div className="flex items-baseline gap-2.5">
+          <b className="text-[28px] text-mauve tabular-nums">{nice > 0 ? `+${nice}` : nice}</b>
+          <span className="text-overlay1">{PRIORITIES.reduce((a, b) => (Math.abs(b.nice - nice) < Math.abs(a.nice - nice) ? b : a)).label}</span>
         </div>
-        <input type="range" min={-20} max={19} value={nice} autoFocus onChange={(e) => setNice(Number(e.target.value))} aria-label="nice" />
-        <div className="rx-tm-renice-scale hx-faint">
+        <input type="range" className="w-full accent-mauve" min={-20} max={19} value={nice} autoFocus onChange={(e) => setNice(Number(e.target.value))} aria-label="nice" />
+        <div className="flex justify-between text-[11px] text-overlay1">
           <span>-20 · more CPU</span>
           <span>19 · less CPU</span>
         </div>
-        <div className="rx-tm-presets">
+        <div className="flex flex-wrap gap-1">
           {PRIORITIES.map((p) => (
-            <button key={p.nice} type="button" className={p.nice === nice ? "is-active" : undefined} onClick={() => setNice(p.nice)}>
+            <button
+              key={p.nice}
+              type="button"
+              className={cx("unbutton flex cursor-pointer flex-col items-start border border-surface0 px-2 py-1 text-[11.5px]", p.nice === nice && "border-mauve text-mauve")}
+              onClick={() => setNice(p.nice)}
+            >
               {p.label}
-              <small>{p.hint}</small>
+              <small className="text-overlay1">{p.hint}</small>
             </button>
           ))}
         </div>
-        <p className="hx-faint">
+        <p className="text-overlay1">
           The scheduler gives lower nice values a bigger share of CPU time. Anyone can lower their own processes' priority; raising it (a lower nice value) needs root.
-          {needsRoot && <b className="rx-tm-warn"> This change will ask for authentication.</b>}
+          {needsRoot && <b className="text-peach"> This change will ask for authentication.</b>}
         </p>
       </div>
-      <footer>
-        <span className="hx-spacer" />
+      <footer className={dialogFooter}>
+        <span className="flex-1" />
         <Button size="sm" variant="ghost" onClick={onClose}>
           Cancel
         </Button>
@@ -182,44 +197,44 @@ export function ConfirmDialog({ procs, pids, sig, tree: initialTree, onConfirm, 
   const hasKids = pids.some((pid) => descendants(procs, pid).length > 0);
   const verb = sig === 9 ? "Kill" : "End";
   return (
-    <div className="rx-tm-dialog rx-tm-confirm" role="alertdialog" aria-label="Confirm" tabIndex={-1} ref={(el) => el?.focus()} onKeyDown={(e) => e.key === "Escape" && onClose()}>
-      <header>
-        <Icon name="alert" size={16} className="hx-red" />
+    <div data-component="ConfirmDialog" className={cx(dialog, "border-t-red")} role="alertdialog" aria-label="Confirm" tabIndex={-1} ref={(el) => el?.focus()} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <header className={dialogHeader}>
+        <Icon name="alert" size={16} className="text-red" />
         <b>
           {verb} {targets.length === 1 ? targets[0]!.name : `${targets.length} processes`}?
         </b>
-        <span className="hx-faint">{s.name}</span>
+        <span className="text-overlay1">{s.name}</span>
       </header>
-      <div className="rx-tm-confirm-body">
-        <ul>
+      <div className="flex flex-col gap-2.5 p-3.5 [&_p]:m-0 [&_p]:leading-normal">
+        <ul className="m-0 flex list-none flex-col gap-[3px] p-0">
           {targets.slice(0, 6).map((p) => (
             <li key={p.pid}>
-              <b>{p.name}</b> <span className="hx-faint">PID {p.pid} · {p.user}</span>
+              <b>{p.name}</b> <span className="text-overlay1">PID {p.pid} · {p.user}</span>
             </li>
           ))}
-          {targets.length > 6 && <li className="hx-faint">+ {targets.length - 6} more</li>}
+          {targets.length > 6 && <li className="text-overlay1">+ {targets.length - 6} more</li>}
         </ul>
         {collateral.length > 0 && (
           <p>
             <b>{collateral.length}</b> other process{collateral.length > 1 ? "es" : ""} will exit with {targets.length > 1 ? "them" : "it"} ({[...new Set(collateral.map((c) => c.name))].slice(0, 5).join(", ")}…): helpers and terminal jobs don't outlive their parent.
           </p>
         )}
-        {dry.results.some((r) => r.outcome === "handled") && <p className="hx-faint">Some targets handle {s.name} themselves and may keep running: {dry.results.filter((r) => r.outcome === "handled").map((r) => r.name).join(", ")}.</p>}
-        {targets.some((p) => p.name === "Hyprland") && <p className="rx-tm-warn">This ends your Hyprland session: every window closes and you're back at the greeter.</p>}
-        {targets.some((p) => CRITICAL.has(p.name) && p.name !== "Hyprland") && <p className="rx-tm-warn">This is a core system / session process; things will break until it restarts.</p>}
-        {foreign.length > 0 && <p className="hx-faint">Owned by {[...new Set(foreign.map((p) => p.user))].join(", ")}: you'll be asked to authenticate.</p>}
-        <p className="hx-faint">Unsaved work in {total > 1 ? `these ${total} processes` : "this process"} will be lost.</p>
+        {dry.results.some((r) => r.outcome === "handled") && <p className="text-overlay1">Some targets handle {s.name} themselves and may keep running: {dry.results.filter((r) => r.outcome === "handled").map((r) => r.name).join(", ")}.</p>}
+        {targets.some((p) => p.name === "Hyprland") && <p className="text-peach">This ends your Hyprland session: every window closes and you're back at the greeter.</p>}
+        {targets.some((p) => CRITICAL.has(p.name) && p.name !== "Hyprland") && <p className="text-peach">This is a core system / session process; things will break until it restarts.</p>}
+        {foreign.length > 0 && <p className="text-overlay1">Owned by {[...new Set(foreign.map((p) => p.user))].join(", ")}: you'll be asked to authenticate.</p>}
+        <p className="text-overlay1">Unsaved work in {total > 1 ? `these ${total} processes` : "this process"} will be lost.</p>
       </div>
-      <footer>
+      <footer className={dialogFooter}>
         {hasKids && (
-          <label className="rx-tm-check">
+          <label className={check}>
             <input type="checkbox" checked={tree} onChange={(e) => setTree(e.target.checked)} /> Whole process tree
           </label>
         )}
-        <label className="rx-tm-check">
+        <label className={check}>
           <input type="checkbox" checked={skip} onChange={(e) => setSkip(e.target.checked)} /> Don't ask again
         </label>
-        <span className="hx-spacer" />
+        <span className="flex-1" />
         <Button size="sm" variant="ghost" onClick={onClose}>
           Cancel
         </Button>

@@ -65,8 +65,8 @@ export function Visualizer({
     [v, variant, from, to],
   );
   return (
-    <div className={cx("hx-viz", className)} style={{ height }}>
-      <canvas ref={ref} />
+    <div data-component="Visualizer" className={cx("kit-type relative overflow-hidden bg-crust text-text", className)} style={{ height }}>
+      <canvas ref={ref} className="absolute inset-0 block size-full" />
     </div>
   );
 }

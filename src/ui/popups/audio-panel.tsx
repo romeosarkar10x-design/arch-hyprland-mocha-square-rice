@@ -58,6 +58,7 @@ export function AudioPanel({
   const volIcon = mute || vol === 0 ? "volumeOff" : vol < 34 ? "volumeLow" : vol < 67 ? "volumeMedium" : "volumeHigh";
   return (
     <Panel
+      data-component="AudioPanel"
       className={className}
       icon="volumeHigh"
       accent="yellow"
@@ -68,12 +69,12 @@ export function AudioPanel({
           <Button icon="settings" accent="yellow">
             pavucontrol
           </Button>
-          <span className="hx-spacer" />
-          <span className="hx-faint hx-small">scroll on bar ±2%</span>
+          <span className="flex-1" />
+          <span className="text-overlay1 text-sm">scroll on bar ±2%</span>
         </>
       }
     >
-      <PanelSection label="output" aside={<span className={mute ? "hx-faint" : "hx-yellow"}>{mute ? "muted" : `${vol}%`}</span>}>
+      <PanelSection label="output" aside={<span className={mute ? "text-overlay1" : "text-yellow"}>{mute ? "muted" : `${vol}%`}</span>}>
         <Slider
           label="Output volume"
           icon={volIcon}
@@ -94,28 +95,14 @@ export function AudioPanel({
         <MediaPlayer track={track} playing={playing} position={97} onPlayPause={setPlaying} />
       </PanelSection>
       <PanelSection label="devices">
-        <div className="hx-list" role="radiogroup" aria-label="Output device">
-          {outputs.map((o) => (
-            <button
-              key={o.id}
-              type="button"
-              role="radio"
-              aria-checked={o.id === sel}
-              className={cx("hx-li", o.id === sel && "is-selected")}
-              onClick={() => {
-                setSel(o.id);
-                onOutputChange?.(o.id);
-              }}
-            >
-              <span className="hx-radio" />
-              <Icon name={o.icon} className="hx-li-icon" />
-              <span className="hx-li-main">
-                <span className="hx-li-title">{o.name}</span>
-                {o.detail && <span className="hx-li-detail">{o.detail}</span>}
-              </span>
-            </button>
-          ))}
-        </div>
+        <DeviceList
+          devices={outputs}
+          selected={sel}
+          onSelect={(id) => {
+            setSel(id);
+            onOutputChange?.(id);
+          }}
+        />
       </PanelSection>
       <PanelSection label="microphone">
         <Slider
@@ -130,5 +117,38 @@ export function AudioPanel({
         />
       </PanelSection>
     </Panel>
+  );
+}
+
+/** Radio list of output devices; the selected row tints with the panel accent. */
+function DeviceList({ devices, selected, onSelect }: { devices: AudioDevice[]; selected?: string; onSelect: (id: string) => void }) {
+  return (
+    <div data-component="DeviceList" className="-mx-2 flex flex-col gap-0.5" role="radiogroup" aria-label="Output device">
+      {devices.map((o) => {
+        const on = o.id === selected;
+        return (
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            className={cx(
+              "unbutton flex cursor-pointer items-center gap-2.5 bg-transparent px-2 py-[7px] text-left transition-[background-color] hover:bg-surface0",
+              on && "bg-acc/10 hover:bg-acc/10",
+            )}
+            onClick={() => onSelect(o.id)}
+          >
+            <span
+              className={cx("grid size-3 flex-none place-items-center inset-ring", on ? "inset-ring-acc after:size-1.5 after:bg-acc" : "inset-ring-overlay0")}
+            />
+            <Icon name={o.icon} className={cx("text-[17px]", on ? "text-acc" : "text-subtext0")} />
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[12.5px]">{o.name}</span>
+              {o.detail && <span className="text-[10.5px] text-overlay1">{o.detail}</span>}
+            </span>
+          </button>
+        );
+      })}
+    </div>
   );
 }

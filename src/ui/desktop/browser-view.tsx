@@ -14,27 +14,33 @@ export function BrowserView({
   className,
 }: BrowserViewProps) {
   return (
-    <div className={cx("hx-browser", className)}>
-      <div className="hx-browser-tabs">
+    <div data-component="BrowserView" className={cx("kit-type absolute inset-0 flex flex-col text-[12px] text-text", className)}>
+      <div className="flex items-end gap-px bg-crust px-1.5 pt-1.5">
         {tabs.map((t, i) => (
-          <span key={t} className={cx("hx-browser-tab", i === 0 && "is-active")}>
+          <span
+            key={t}
+            className={cx(
+              "flex max-w-[220px] items-center gap-2 overflow-hidden px-3 py-[7px] text-ellipsis whitespace-nowrap",
+              i === 0 ? "bg-base text-text shadow-[inset_0_2px_0_var(--hx-blue)]" : "bg-mantle text-subtext0",
+            )}
+          >
             <Icon name={i === 0 ? "github" : i === 1 ? "globe" : "palette"} />
             {t}
           </span>
         ))}
-        <Icon name="plus" className="hx-faint" />
+        <Icon name="plus" className="mx-2 mb-2 text-overlay1" />
       </div>
-      <div className="hx-browser-bar">
-        <Icon name="lock" className="hx-green" />
+      <div className="mx-2 my-1.5 flex items-center gap-2 bg-mantle px-2.5 py-1.5 text-subtext0">
+        <Icon name="lock" className="text-green" />
         <span>{url}</span>
       </div>
-      <div className="hx-browser-page">
-        <div className="hx-browser-repo">
-          <Icon name="branch" /> <b className="hx-blue">romeosarkar10x</b>
+      <div className="flex flex-1 flex-col gap-3.5 px-[26px] py-[18px]">
+        <div className="flex items-center gap-1.5 text-[15px]">
+          <Icon name="branch" /> <b className="text-blue">romeosarkar10x</b>
           {" / "}
-          <b className="hx-blue">dotfiles</b> <span className="hx-browser-pill">Public</span>
+          <b className="text-blue">dotfiles</b> <span className="px-[7px] py-px text-[10px] text-subtext0 inset-ring inset-ring-surface1">Public</span>
         </div>
-        <div className="hx-browser-files">
+        <div className="ring ring-surface0">
           {(
             [
               ["folder", "bash", "Updated prompt"],
@@ -47,10 +53,10 @@ export function BrowserView({
               ["note", "README.md", "Initial commit"],
             ] as const
           ).map(([ic, n, m]) => (
-            <div key={n} className="hx-browser-file">
-              <Icon name={ic} className={ic === "folder" ? "hx-blue" : "hx-faint"} />
+            <div key={n} className="grid grid-cols-[18px_160px_1fr] items-center gap-2.5 border-surface0 px-3 py-2 not-first:border-t">
+              <Icon name={ic} className={ic === "folder" ? "text-blue" : "text-overlay1"} />
               <span>{n}</span>
-              <span className="hx-faint">{m}</span>
+              <span className="text-overlay1">{m}</span>
             </div>
           ))}
         </div>

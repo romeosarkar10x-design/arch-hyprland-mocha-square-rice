@@ -28,9 +28,9 @@ export function ClockPanel({
   useInterval(() => setT(new Date()), now ? null : 1000);
   const evs = events ?? demoEvents(t);
   const upcoming = evs.filter((e) => e.date >= iso(t)).slice(0, 3);
-  const hh = t.getHours() % 12 || 12;
   return (
     <Panel
+      data-component="ClockPanel"
       className={className}
       width={400}
       accent="mauve"
@@ -39,37 +39,62 @@ export function ClockPanel({
       icon="clock"
     >
       <PanelSection>
-        <div className="hx-bigtime">
-          {String(hh).padStart(2, "0")}:{String(t.getMinutes()).padStart(2, "0")}
-          <span className="hx-bigtime-s">{String(t.getSeconds()).padStart(2, "0")}</span>
-          <span className="hx-bigtime-ap">{t.getHours() < 12 ? "AM" : "PM"}</span>
-        </div>
-        <div className="hx-zones">
-          {zones.map(([name, tz]) => (
-            <span key={tz}>
-              <span className="hx-faint">{name}</span> {t.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" })}
-            </span>
-          ))}
-        </div>
+        <BigTime t={t} />
+        <WorldClocks t={t} zones={zones} />
       </PanelSection>
       <PanelSection>
         <Calendar today={t} events={evs} />
       </PanelSection>
       <PanelSection label="up next">
-        <div className="hx-agenda">
-          {upcoming.length === 0 && <span className="hx-faint">nothing scheduled</span>}
-          {upcoming.map((e) => (
-            <div key={e.date + e.title} className="hx-agenda-row" style={{ ["--hx-acc" as string]: accentVar(e.accent, "peach") }}>
-              <span className="hx-agenda-when">
-                {e.date === iso(t) ? "today" : new Date(e.date + "T00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}
-              </span>
-              <span className="hx-agenda-title">{e.title}</span>
-              <span className="hx-faint">{e.time}</span>
-            </div>
-          ))}
-        </div>
+        <Agenda t={t} events={upcoming} />
       </PanelSection>
     </Panel>
+  );
+}
+
+/** 12-hour time with small seconds and AM/PM. */
+function BigTime({ t }: { t: Date }) {
+  const hh = t.getHours() % 12 || 12;
+  return (
+    <div data-component="BigTime" className="flex items-start gap-1 text-[52px] leading-none font-bold tracking-[-.04em]">
+      {String(hh).padStart(2, "0")}:{String(t.getMinutes()).padStart(2, "0")}
+      <span className="mt-1 text-[22px] font-normal tracking-normal text-mauve">{String(t.getSeconds()).padStart(2, "0")}</span>
+      <span className="mt-2 text-[12px] font-medium tracking-[.1em] text-overlay1">{t.getHours() < 12 ? "AM" : "PM"}</span>
+    </div>
+  );
+}
+
+function WorldClocks({ t, zones }: { t: Date; zones: [string, string][] }) {
+  return (
+    <div data-component="WorldClocks" className="flex flex-wrap gap-4 text-[11.5px]">
+      {zones.map(([name, tz]) => (
+        <span key={tz}>
+          <span className="text-overlay1">{name}</span> {t.toLocaleTimeString("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit" })}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** Upcoming events, each with an accent strip on the left. */
+function Agenda({ t, events }: { t: Date; events: CalendarEvent[] }) {
+  return (
+    <div data-component="Agenda" className="flex flex-col gap-0.5">
+      {events.length === 0 && <span className="text-overlay1">nothing scheduled</span>}
+      {events.map((e) => (
+        <div
+          key={e.date + e.title}
+          className="grid grid-cols-[58px_1fr_auto] gap-2.5 bg-base px-2.5 py-[7px] text-[12px] shadow-[inset_2px_0_0_var(--hx-acc)]"
+          style={{ ["--hx-acc" as string]: accentVar(e.accent, "peach") }}
+        >
+          <span className="text-acc">
+            {e.date === iso(t) ? "today" : new Date(e.date + "T00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}
+          </span>
+          <span>{e.title}</span>
+          <span className="text-overlay1">{e.time}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 

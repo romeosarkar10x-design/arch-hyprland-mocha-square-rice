@@ -20,7 +20,7 @@ export const LabelledAndFlush: Story = {
   ...fixed,
   render: () => (
     <Panel icon="cpu" accent="sky" title="Sections" subtitle="label row · aside · flush">
-      <PanelSection label="threads" aside={<span className="hx-dim">peak 95%</span>}>
+      <PanelSection label="threads" aside={<span className="text-subtext0">peak 95%</span>}>
         <CoreGrid cores={[12, 40, 8, 95, 33, 61, 20, 18, 5, 72, 44, 10]} columns={6} />
       </PanelSection>
       <PanelSection flush>

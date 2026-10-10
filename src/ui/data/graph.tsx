@@ -126,9 +126,9 @@ export function Graph({
         });
   const ago = hover == null ? 0 : Math.round((1 - hover) * (capacity - 1));
   return (
-    <div className={cx("hx-graph", className)}>
+    <div data-component="Graph" className={cx("kit-type flex flex-col gap-1.5 text-text", className)}>
       <div
-        className="hx-graph-box"
+        className="relative cursor-crosshair overflow-hidden bg-crust inset-ring inset-ring-surface0"
         style={{ height }}
         onPointerMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
@@ -136,11 +136,13 @@ export function Graph({
         }}
         onPointerLeave={() => setHover(null)}
       >
-        <canvas ref={canvas} />
-        <span className="hx-graph-scale">{format(scale)}</span>
+        <canvas ref={canvas} className="absolute inset-0 block size-full" />
+        <span className="pointer-events-none absolute top-1 left-1.5 text-[9.5px] text-overlay0">{format(scale)}</span>
         {readout && hover != null && (
-          <span className="hx-graph-tip" style={{ left: `${Math.min(80, Math.max(20, hover * 100))}%` }}>
-            <span className="hx-faint">-{ago}s</span>
+          <span
+            className="pointer-events-none absolute bottom-1.5 flex -translate-x-1/2 gap-2 bg-surface0 px-[7px] py-[3px] text-[11px] whitespace-nowrap ring ring-surface1"
+            style={{ left: `${Math.min(80, Math.max(20, hover * 100))}%` }}>
+            <span className="text-overlay1">-{ago}s</span>
             {readout.map(({ s, v }) => (
               <span key={s.label} style={{ color: accentVar(s.accent) }}>
                 {s.label} {v == null ? "—" : format(v)}

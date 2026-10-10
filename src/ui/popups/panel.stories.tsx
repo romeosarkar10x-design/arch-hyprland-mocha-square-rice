@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { accents, iconNames } from "../storybook";
-import { Button, Meter, PanelSection, Stat, Toggle } from "..";
+import { Button, Meter, PanelSection, Stat, StatGrid, Toggle } from "..";
 import { Panel } from "./panel";
 
 const meta = {
@@ -31,16 +31,16 @@ export const Composed: Story = {
           <Button icon="folder" accent="blue">
             Open /
           </Button>
-          <span className="hx-spacer" />
-          <span className="hx-faint hx-small">last scrub 2d ago</span>
+          <span className="flex-1" />
+          <span className="text-overlay1 text-sm">last scrub 2d ago</span>
         </>
       }
     >
       <PanelSection>
-        <div className="hx-stats">
+        <StatGrid>
           <Stat label="used" value="1.34" hint="TiB" accent="blue" />
           <Stat label="free" value="0.52" hint="TiB" />
-        </div>
+        </StatGrid>
       </PanelSection>
       <PanelSection label="subvolumes">
         <Meter label="@" value={22} readout="412 GiB" accent="blue" />

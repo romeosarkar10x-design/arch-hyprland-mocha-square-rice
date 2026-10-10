@@ -22,6 +22,7 @@ export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelPro
   const c = data ?? sim.cpu;
   return (
     <Panel
+      data-component="CpuPanel"
       className={className}
       icon="cpu"
       accent="sky"
@@ -33,16 +34,16 @@ export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelPro
           <Button icon="chart" accent="sky" onClick={onOpenMonitor} kbd="B">
             btop
           </Button>
-          <span className="hx-spacer" />
-          <span className="hx-faint hx-small">
+          <span className="flex-1" />
+          <span className="text-overlay1 text-sm">
             {"governor "}
-            <span className="hx-dim">schedutil</span>
+            <span className="text-subtext0">schedutil</span>
           </span>
         </>
       }
     >
       <PanelSection>
-        <div className="hx-gauges">
+        <div className="grid grid-cols-3 justify-items-center">
           <Gauge value={c.usage} label="load" accent="sky" />
           <Gauge value={c.temp} max={100} unit="°" label="temp" accent="teal" warn={75} crit={85} sub="k10temp" />
           {c.watts == null ? (
@@ -55,7 +56,7 @@ export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelPro
       <PanelSection
         label="load · 60 s"
         aside={
-          <span className="hx-dim">
+          <span className="text-subtext0">
             {"avg "}
             {Math.round(avg(c.history))}%
           </span>
@@ -66,7 +67,7 @@ export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelPro
       <PanelSection
         label="threads"
         aside={
-          <span className="hx-dim">
+          <span className="text-subtext0">
             {"peak "}
             {Math.round(Math.max(...c.cores))}%
           </span>
@@ -80,7 +81,7 @@ export function CpuPanel({ data, paused, onOpenMonitor, className }: CpuPanelPro
           readout={
             <>
               <b>{(c.mhz / 1000).toFixed(2)}</b>{" "}
-              <span className="hx-faint">
+              <span className="text-overlay1">
                 {"/ "}
                 {(c.maxMhz / 1000).toFixed(2)}
                 {" GHz"}

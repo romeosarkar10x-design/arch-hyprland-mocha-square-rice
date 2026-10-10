@@ -11,10 +11,10 @@ export interface ShortcutProps {
 /** Key combination drawn as keycaps joined by +. */
 export function Shortcut({ keys, className }: ShortcutProps) {
   return (
-    <span className={cx("hx-shortcut", className)}>
+    <span data-component="Shortcut" className={cx("kit-type inline-flex items-center gap-[3px] text-text", className)}>
       {keys.map((k, i) => (
         <Fragment key={i}>
-          {i > 0 && <span className="hx-shortcut-plus">+</span>}
+          {i > 0 && <span className="text-[10px] text-overlay0">+</span>}
           <Kbd>{k}</Kbd>
         </Fragment>
       ))}

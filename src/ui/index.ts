@@ -18,6 +18,7 @@ export * from "./controls/toggle";
 export * from "./data/core-grid";
 export * from "./data/gauge";
 export * from "./data/graph";
+export * from "./data/key-value-list";
 export * from "./data/meter";
 export * from "./data/sparkline";
 export * from "./data/stack-bar";

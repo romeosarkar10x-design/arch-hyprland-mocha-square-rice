@@ -1,24 +1,13 @@
-import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
-import { Button, Icon, type IconName } from "../ui";
+import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { Button, Icon, cx } from "../ui";
 import type { Ask } from "./dialogs";
 import { MACHINE, ME } from "./demo";
 import { ProcessDetails } from "./process-details";
-import {
-  buildRows,
-  fmtCpu,
-  fmtDuration,
-  fmtKiB,
-  fmtRate,
-  STATE_LABEL,
-  summarise,
-  type GroupBy,
-  type MemMetric,
-  type Proc,
-  type Row,
-  type SortKey,
-  type ViewMode,
-} from "./procs";
+import { ContextMenu } from "./process-menu";
+import { columns, HeadCell, METRIC_HELP, ProcRow, TableHead } from "./process-table";
+import { buildRows, fmtRate, summarise, type GroupBy, type MemMetric, type Row, type SortKey, type ViewMode } from "./procs";
 import type { Action, TM } from "./store";
+import { check, menu as menuCls, search, seg, segButton, select, toolbar } from "./styles";
 
 export type ColId = "pid" | "ppid" | "user" | "state" | "cpu" | "mem" | "shared" | "swap" | "vsz" | "threads" | "disk" | "nice" | "start" | "time" | "tty" | "unit" | "cmd";
 
@@ -49,55 +38,6 @@ export const DEFAULT_VIEW: ProcView = {
   query: "",
   columns: ["pid", "user", "state", "cpu", "mem", "threads", "disk", "nice", "cmd"],
 };
-
-const METRIC_HELP: Record<MemMetric, string> = {
-  pss: "PSS: private memory plus a fair share of pages shared with other processes. Sums add up correctly — best for clubbing children.",
-  uss: "USS: only this process's private pages — what you'd get back by ending it.",
-  rss: "RSS: everything resident, shared libraries counted in full for every process. Summing RSS over-counts.",
-};
-
-interface Col {
-  id: ColId;
-  label: string;
-  title?: string;
-  sort?: SortKey;
-  width: number | string;
-  right?: boolean;
-  cell: (r: Row, p: Proc | undefined) => ReactNode;
-  heat?: (r: Row) => number;
-}
-
-const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
-
-function columns(v: ProcView, uptime: number): Col[] {
-  const cpu = (r: Row) => (v.cpuScale === "total" ? r.shown.cpu / MACHINE.threads : r.shown.cpu);
-  return [
-    { id: "pid", label: "PID", sort: "pid", width: 64, right: true, cell: (_, p) => p?.pid },
-    { id: "ppid", label: "PPID", width: 64, right: true, cell: (_, p) => p?.ppid },
-    { id: "user", label: "User", sort: "user", width: 96, cell: (_, p) => p && <span className={p.user === ME ? undefined : p.user === "root" ? "rx-tm-root" : "hx-faint"}>{p.user}</span> },
-    {
-      id: "state",
-      label: "S",
-      title: "State: R running, S sleeping, D disk wait, T stopped, Z zombie, I idle",
-      sort: "state",
-      width: 34,
-      cell: (_, p) => p && <span className={`rx-tm-state rx-tm-state--${p.state}`} title={STATE_LABEL[p.state]}>{p.state}</span>,
-    },
-    { id: "cpu", label: "CPU", title: v.cpuScale === "total" ? "% of all 16 threads" : "% of one core (htop / Irix mode)", sort: "cpu", width: 72, right: true, cell: (r) => `${fmtCpu(cpu(r))}%`, heat: (r) => clamp01((r.shown.cpu / MACHINE.threads) / 25) },
-    { id: "mem", label: v.metric.toUpperCase(), title: METRIC_HELP[v.metric], sort: "mem", width: 92, right: true, cell: (r) => fmtKiB(r.shown.mem), heat: (r) => clamp01((r.shown.mem / MACHINE.memTotal) * 10) },
-    { id: "shared", label: "Shared", title: "Resident shared pages (libraries, shmem)", width: 84, right: true, cell: (r) => fmtKiB(r.shown.rss - r.shown.uss) },
-    { id: "swap", label: "Swap", sort: "swap", width: 72, right: true, cell: (r) => (r.shown.swap ? fmtKiB(r.shown.swap) : "—") },
-    { id: "vsz", label: "Virtual", sort: "vsz", width: 84, right: true, cell: (r) => fmtKiB(r.shown.vsz) },
-    { id: "threads", label: "Thr", title: "Threads", sort: "threads", width: 50, right: true, cell: (r) => r.shown.threads },
-    { id: "disk", label: "Disk", title: "Read + write", sort: "disk", width: 84, right: true, cell: (r) => fmtRate(r.shown.read + r.shown.write), heat: (r) => clamp01((r.shown.read + r.shown.write) / (8 * 1024 * 1024)) },
-    { id: "nice", label: "NI", title: "Nice: -20 highest priority … 19 lowest", sort: "nice", width: 40, right: true, cell: (_, p) => p && <span className={p.nice < 0 ? "rx-tm-hi" : p.nice > 0 ? "rx-tm-lo" : undefined}>{p.nice}</span> },
-    { id: "start", label: "Started", sort: "start", width: 72, right: true, cell: (_, p) => p && `${fmtDuration(uptime - p.start)} ago` },
-    { id: "time", label: "CPU time", sort: "time", width: 76, right: true, cell: (_, p) => p && fmtDuration(p.cputime) },
-    { id: "tty", label: "TTY", width: 56, cell: (_, p) => p?.tty ?? "?" },
-    { id: "unit", label: "Unit / cgroup", width: 200, cell: (_, p) => p && <span className="hx-faint">{p.unit}</span> },
-    { id: "cmd", label: "Command", width: "minmax(220px, 1fr)", cell: (_, p) => p && <span className="rx-tm-cmd">{p.state === "Z" ? `[${p.name}] <defunct>` : p.cmd}</span> },
-  ];
-}
 
 const ALL_COLS: ColId[] = ["pid", "ppid", "user", "state", "cpu", "mem", "shared", "swap", "vsz", "threads", "disk", "nice", "start", "time", "tty", "unit", "cmd"];
 
@@ -216,7 +156,7 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
       const pk = parentKey(row!);
       if (pk) setSel(pk);
     } else if (k === "ContextMenu" || (k === "F10" && e.shiftKey)) {
-      const el = tableRef.current?.querySelector(".rx-tm-row.is-sel")?.getBoundingClientRect();
+      const el = tableRef.current?.querySelector('[role="row"][aria-selected="true"]')?.getBoundingClientRect();
       if (el) openMenu({ clientX: el.left + 120, clientY: el.bottom });
     } else if (k === "Escape") {
       if (tagged.size) setTagged(new Set());
@@ -229,80 +169,23 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
   const sortBy = (key?: SortKey) => key && set(v.sort === key ? { desc: !v.desc } : { sort: key, desc: !["name", "user", "pid", "state", "start"].includes(key) });
 
   return (
-    <div className="rx-tm-procs" ref={rootRef} onKeyDown={onKeyDown} onClick={() => (setMenu(null), setColsOpen(false))}>
-      <div className="rx-tm-toolbar">
-        <label className="rx-tm-search">
-          <Icon name="search" size={14} />
-          <input ref={searchRef} value={v.query} placeholder="Name, PID, user, command…  ( / )" onChange={(e) => set({ query: e.target.value })} onKeyDown={(e) => {
-            if (e.key === "Escape" || e.key === "Enter") {
-              if (e.key === "Escape") set({ query: "" });
-              tableRef.current?.focus();
-            }
-          }} />
-        </label>
-        <div className="rx-tm-seg" role="radiogroup" aria-label="View">
-          {(["tree", "list", "group"] as const).map((m) => (
-            <button key={m} type="button" role="radio" aria-checked={v.mode === m} className={v.mode === m ? "is-active" : undefined} onClick={() => set({ mode: m })} title={m === "tree" ? "Process tree (t / F5)" : m === "list" ? "Flat list (t)" : "Grouped (g)"}>
-              {m === "tree" ? "Tree" : m === "list" ? "List" : "Grouped"}
-            </button>
-          ))}
-        </div>
-        {v.mode === "group" && (
-          <select className="rx-tm-select" value={v.groupBy} onChange={(e) => set({ groupBy: e.target.value as GroupBy })} aria-label="Group by">
-            <option value="app">by app</option>
-            <option value="name">by name</option>
-            <option value="user">by user</option>
-            <option value="unit">by systemd unit</option>
-          </select>
-        )}
-        <Chip on={v.club} disabled={v.mode === "group"} onClick={() => set({ club: !v.club })} title="Club children: each row shows itself plus all its descendants (c)">
-          Σ Club children
-        </Chip>
-        <Chip on={!v.hideKernel} onClick={() => set({ hideKernel: !v.hideKernel })} title="Show kernel threads (K)">
-          Kernel threads
-        </Chip>
-        <Chip on={v.onlyMine} onClick={() => set({ onlyMine: !v.onlyMine })} title={`Only ${ME}'s processes`}>
-          Only mine
-        </Chip>
-        <select className="rx-tm-select" value={v.metric} onChange={(e) => set({ metric: e.target.value as MemMetric })} title={METRIC_HELP[v.metric]} aria-label="Memory metric">
-          <option value="pss">Memory: PSS</option>
-          <option value="uss">Memory: USS</option>
-          <option value="rss">Memory: RSS</option>
-        </select>
-        <select className="rx-tm-select" value={v.cpuScale} onChange={(e) => set({ cpuScale: e.target.value as ProcView["cpuScale"] })} aria-label="CPU scale">
-          <option value="total">CPU: % of total</option>
-          <option value="core">CPU: % of a core</option>
-        </select>
-        <span className="hx-spacer" />
-        <div className="rx-tm-colpick" onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="ghost" icon="settings" onClick={() => setColsOpen((o) => !o)}>
-            Columns
-          </Button>
-          {colsOpen && (
-            <div className="rx-tm-menu rx-tm-colmenu">
-              {ALL_COLS.map((id) => (
-                <label key={id} className="rx-tm-check">
-                  <input type="checkbox" checked={v.columns.includes(id)} onChange={() => set({ columns: v.columns.includes(id) ? v.columns.filter((c) => c !== id) : ALL_COLS.filter((c) => c === id || v.columns.includes(c)) })} />
-                  {columns(v, tm.uptime).find((c) => c.id === id)!.label} <span className="hx-faint">{columns(v, tm.uptime).find((c) => c.id === id)!.title?.split(":")[0]}</span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-        <Button size="sm" variant="ghost" icon="info" onClick={() => setDetails((d) => !d)} kbd="⏎">
-          Properties
-        </Button>
-        <Button size="sm" variant="secondary" icon="flash" disabled={!targets.length} onClick={() => ask.signal(targets)} kbd="K">
-          Signal
-        </Button>
-        <Button size="sm" variant="danger" icon="close" disabled={!targets.length} onClick={() => ask.send(targets, 15)} kbd="DEL">
-          End task{targets.length > 1 ? ` (${targets.length})` : ""}
-        </Button>
-      </div>
+    <div data-component="ProcessesPage" className="relative flex min-h-0 flex-1 flex-col" ref={rootRef} onKeyDown={onKeyDown} onClick={() => (setMenu(null), setColsOpen(false))}>
+      <ProcToolbar
+        v={v}
+        set={set}
+        uptime={tm.uptime}
+        searchRef={searchRef}
+        onSearchDone={() => tableRef.current?.focus()}
+        colsOpen={colsOpen}
+        onCols={() => setColsOpen((o) => !o)}
+        targets={targets}
+        ask={ask}
+        onDetails={() => setDetails((d) => !d)}
+      />
 
-      <div className={["rx-tm-split", details && proc && "has-details"].filter(Boolean).join(" ")}>
-        <div className="rx-tm-table" ref={tableRef} tabIndex={0} role="treegrid" aria-label="Processes" style={{ "--rx-tm-grid": grid } as CSSProperties}>
-          <div className="rx-tm-head" role="row">
+      <div className={cx("grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)]", details && proc && "grid-cols-[minmax(0,1fr)_380px]")}>
+        <div className="group/table min-h-0 overflow-auto tabular-nums outline-none" ref={tableRef} tabIndex={0} role="treegrid" aria-label="Processes" style={{ "--rx-tm-grid": grid } as CSSProperties}>
+          <TableHead>
             <HeadCell label="Name" active={v.sort === "name"} desc={v.desc} onClick={() => sortBy("name")} top={`${sum.tasks} tasks`} />
             {cols.map((c) => (
               <HeadCell
@@ -316,7 +199,7 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
                 top={c.id === "cpu" ? `${Math.round(sum.cpu)}%` : c.id === "mem" ? `${Math.round((sum.memUsed / MACHINE.memTotal) * 100)}%` : c.id === "disk" ? fmtRate(sum.read + sum.write) : undefined}
               />
             ))}
-          </div>
+          </TableHead>
           {rows.map((r) => (
             <ProcRow
               key={r.key}
@@ -337,10 +220,10 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
             />
           ))}
           {rows.length === 0 && (
-            <div className="rx-tm-empty">
+            <div className="flex flex-col items-center gap-1.5 px-5 py-[60px] text-overlay1">
               <Icon name="search" size={28} />
               <b>No processes match “{v.query}”</b>
-              <span className="hx-faint">{v.hideKernel && "Kernel threads are hidden. "}Esc clears the search.</span>
+              <span className="text-overlay1">{v.hideKernel && "Kernel threads are hidden. "}Esc clears the search.</span>
             </div>
           )}
         </div>
@@ -360,10 +243,13 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
         )}
       </div>
 
-      <footer className="rx-tm-hints hx-faint">
+      <footer className="flex flex-none items-center gap-3.5 overflow-hidden border-t border-surface0 px-2.5 py-[5px] text-[11px] whitespace-nowrap text-overlay1">
         {tagged.size > 0 && (
-          <span className="rx-tm-tagged">
-            {tagged.size} tagged · actions apply to tagged <button type="button" onClick={() => setTagged(new Set())}>clear (u)</button>
+          <span className="text-yellow">
+            {tagged.size} tagged · actions apply to tagged{" "}
+            <button type="button" className="unbutton cursor-pointer px-1 text-yellow underline" onClick={() => setTagged(new Set())}>
+              clear (u)
+            </button>
           </span>
         )}
         <span>↑↓ move · ←→ fold · SPACE tag · DEL end · ⇧DEL kill · K signal · N / [ ] nice · ⏎ details · T tree · G group · C club · / search · ⇧F10 menu</span>
@@ -388,120 +274,111 @@ export function ProcessesPage({ tm, dispatch, ask, view: initialView, focus, det
   );
 }
 
+interface ProcToolbarProps {
+  v: ProcView;
+  set: (patch: Partial<ProcView>) => void;
+  uptime: number;
+  searchRef: RefObject<HTMLInputElement | null>;
+  /** Enter / Esc in the search box hands focus back to the table. */
+  onSearchDone: () => void;
+  colsOpen: boolean;
+  onCols: () => void;
+  targets: number[];
+  ask: Ask;
+  onDetails: () => void;
+}
+
+/** Search, view mode, filters, memory / CPU scale, columns and the actions for the selection. */
+function ProcToolbar({ v, set, uptime, searchRef, onSearchDone, colsOpen, onCols, targets, ask, onDetails }: ProcToolbarProps) {
+  return (
+  <div data-component="ProcToolbar" className={toolbar}>
+    <label className={search}>
+      <Icon name="search" size={14} />
+      <input ref={searchRef} value={v.query} placeholder="Name, PID, user, command…  ( / )" onChange={(e) => set({ query: e.target.value })} onKeyDown={(e) => {
+        if (e.key === "Escape" || e.key === "Enter") {
+          if (e.key === "Escape") set({ query: "" });
+          onSearchDone();
+        }
+      }} />
+    </label>
+    <div className={seg} role="radiogroup" aria-label="View">
+      {(["tree", "list", "group"] as const).map((m) => (
+        <button key={m} type="button" role="radio" aria-checked={v.mode === m} className={segButton} onClick={() => set({ mode: m })} title={m === "tree" ? "Process tree (t / F5)" : m === "list" ? "Flat list (t)" : "Grouped (g)"}>
+          {m === "tree" ? "Tree" : m === "list" ? "List" : "Grouped"}
+        </button>
+      ))}
+    </div>
+    {v.mode === "group" && (
+      <select className={select} value={v.groupBy} onChange={(e) => set({ groupBy: e.target.value as GroupBy })} aria-label="Group by">
+        <option value="app">by app</option>
+        <option value="name">by name</option>
+        <option value="user">by user</option>
+        <option value="unit">by systemd unit</option>
+      </select>
+    )}
+    <Chip on={v.club} disabled={v.mode === "group"} onClick={() => set({ club: !v.club })} title="Club children: each row shows itself plus all its descendants (c)">
+      Σ Club children
+    </Chip>
+    <Chip on={!v.hideKernel} onClick={() => set({ hideKernel: !v.hideKernel })} title="Show kernel threads (K)">
+      Kernel threads
+    </Chip>
+    <Chip on={v.onlyMine} onClick={() => set({ onlyMine: !v.onlyMine })} title={`Only ${ME}'s processes`}>
+      Only mine
+    </Chip>
+    <select className={select} value={v.metric} onChange={(e) => set({ metric: e.target.value as MemMetric })} title={METRIC_HELP[v.metric]} aria-label="Memory metric">
+      <option value="pss">Memory: PSS</option>
+      <option value="uss">Memory: USS</option>
+      <option value="rss">Memory: RSS</option>
+    </select>
+    <select className={select} value={v.cpuScale} onChange={(e) => set({ cpuScale: e.target.value as ProcView["cpuScale"] })} aria-label="CPU scale">
+      <option value="total">CPU: % of total</option>
+      <option value="core">CPU: % of a core</option>
+    </select>
+    <span className="flex-1" />
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      <Button size="sm" variant="ghost" icon="settings" onClick={() => onCols()}>
+        Columns
+      </Button>
+      {colsOpen && (
+        <div data-component="ColumnPicker" className={cx(menuCls, "top-[30px] right-0 max-h-[420px] gap-0.5 overflow-auto px-2 py-1.5")}>
+          {ALL_COLS.map((id) => (
+            <label key={id} className={cx(check, "py-[3px]")}>
+              <input type="checkbox" checked={v.columns.includes(id)} onChange={() => set({ columns: v.columns.includes(id) ? v.columns.filter((c) => c !== id) : ALL_COLS.filter((c) => c === id || v.columns.includes(c)) })} />
+              {columns(v, uptime).find((c) => c.id === id)!.label} <span className="text-overlay1">{columns(v, uptime).find((c) => c.id === id)!.title?.split(":")[0]}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+    <Button size="sm" variant="ghost" icon="info" onClick={() => onDetails()} kbd="⏎">
+      Properties
+    </Button>
+    <Button size="sm" variant="secondary" icon="flash" disabled={!targets.length} onClick={() => ask.signal(targets)} kbd="K">
+      Signal
+    </Button>
+    <Button size="sm" variant="danger" icon="close" disabled={!targets.length} onClick={() => ask.send(targets, 15)} kbd="DEL">
+      End task{targets.length > 1 ? ` (${targets.length})` : ""}
+    </Button>
+  </div>
+  );
+}
+
 function Chip({ on, disabled, onClick, title, children }: { on: boolean; disabled?: boolean; onClick: () => void; title?: string; children: ReactNode }) {
   return (
-    <button type="button" className={["rx-tm-chip", on && "is-on"].filter(Boolean).join(" ")} aria-pressed={on} disabled={disabled} onClick={onClick} title={title}>
-      <i />
+    <button
+      type="button"
+      data-component="Chip"
+      className={cx(
+        "unbutton inline-flex h-[26px] cursor-pointer items-center gap-1.5 border border-surface0 px-2.5 whitespace-nowrap disabled:cursor-default disabled:opacity-40",
+        on && "border-mauve/60 text-text",
+      )}
+      aria-pressed={on}
+      disabled={disabled}
+      onClick={onClick}
+      title={title}
+    >
+      <i className={cx("size-2", on ? "bg-mauve" : "shadow-[inset_0_0_0_1px_var(--hx-overlay0)]")} />
       {children}
     </button>
   );
 }
-
-function HeadCell({ label, title, right, active, desc, onClick, top }: { label: string; title?: string; right?: boolean; active: boolean; desc: boolean; onClick?: () => void; top?: string }) {
-  return (
-    <button type="button" role="columnheader" aria-sort={active ? (desc ? "descending" : "ascending") : undefined} className={["rx-tm-th", right && "is-right", active && "is-sorted", !onClick && "is-static"].filter(Boolean).join(" ")} onClick={onClick} title={title} tabIndex={-1}>
-      {top && <b>{top}</b>}
-      <span>
-        {label}
-        {active && <Icon name={desc ? "down" : "up"} size={11} />}
-      </span>
-    </button>
-  );
-}
-
-/** Stable ref: React calls it only when a row becomes the selected one, so ticks don't fight the user's scrolling. */
-const scrollIntoView = (el: HTMLDivElement | null) => el?.scrollIntoView({ block: "nearest" });
-
-function ProcRow({ r, v, cols, selected, tagged, onSelect, onToggle, onMenu, onOpen }: { r: Row; v: ProcView; cols: Col[]; selected: boolean; tagged: boolean; onSelect: () => void; onToggle: () => void; onMenu: (e: MouseEvent) => void; onOpen: () => void }) {
-  const p = r.proc;
-  const badge =
-    r.kind === "group" ? (r.count > 1 ? `(${r.count})` : "")
-    : v.club && r.count > 1 ? `Σ ${r.count}`
-    : !r.expanded && r.hasChildren ? `+${r.count - 1}`
-    : "";
-  return (
-    <div
-      ref={selected ? scrollIntoView : undefined}
-      role="row"
-      aria-selected={selected}
-      aria-expanded={r.hasChildren ? r.expanded : undefined}
-      aria-level={r.depth + 1}
-      className={["rx-tm-row", selected && "is-sel", tagged && "is-tagged", !r.match && "is-context", r.kind === "group" && "is-group", p && `is-${p.state}`].filter(Boolean).join(" ")}
-      onMouseDown={onSelect}
-      onDoubleClick={() => (r.hasChildren ? onToggle() : onOpen())}
-      onContextMenu={onMenu}
-    >
-      <div className="rx-tm-name" role="gridcell">
-        {v.mode === "tree" &&
-          r.guides.map((line, i) => <i key={i} className={["rx-tm-guide", line && "is-line"].filter(Boolean).join(" ")} />)}
-        {r.depth > 0 && <i className={["rx-tm-guide", "is-branch", r.last && "is-last"].filter(Boolean).join(" ")} />}
-        <button
-          type="button"
-          tabIndex={-1}
-          className="rx-tm-caret"
-          style={{ visibility: r.hasChildren ? undefined : "hidden" }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={onToggle}
-          aria-label={r.expanded ? "Collapse" : "Expand"}
-        >
-          <Icon name={r.expanded ? "down" : "chevronRight"} size={11} />
-        </button>
-        <Icon name={r.icon ?? (p?.kernel ? "cpu" : p?.user === "root" ? "settings" : "terminal")} size={14} className="rx-tm-icon" />
-        <span className="rx-tm-label">{r.label}</span>
-        {p?.state === "Z" && <span className="rx-tm-tag rx-tm-tag--red">defunct</span>}
-        {p?.state === "T" && <span className="rx-tm-tag rx-tm-tag--yellow">stopped</span>}
-        {badge && <span className="rx-tm-count" title={v.club ? "Includes child processes" : undefined}>{badge}</span>}
-      </div>
-      {cols.map((c) => {
-        const h = c.heat?.(r) ?? 0;
-        return (
-          <div key={c.id} role="gridcell" className={["rx-tm-cell", c.right && "is-right", h > 0.02 && "is-heat"].filter(Boolean).join(" ")} style={h > 0.02 ? ({ "--h": h.toFixed(2) } as CSSProperties) : undefined}>
-            {c.cell(r, p)}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function ContextMenu({ x, y, row, targets, tagged, ask, onClose, onToggle, onTag, onParent, onDetails }: {
-  x: number; y: number; row: Row; targets: number[]; tagged: boolean; ask: Ask; onClose: () => void;
-  onToggle?: () => void; onTag: () => void; onParent?: () => void; onDetails: () => void;
-}) {
-  const p = row.proc;
-  const n = targets.length;
-  const what = tagged ? `${n} tagged` : n > 1 ? `${n} processes` : "";
-  const item = (label: ReactNode, run: () => void, o: { kbd?: string; icon?: IconName; danger?: boolean; disabled?: boolean } = {}) => (
-    <button type="button" role="menuitem" className={o.danger ? "is-danger" : undefined} disabled={o.disabled} onClick={() => (onClose(), run())}>
-      <Icon name={o.icon ?? "minus"} size={13} />
-      <span>{label}</span>
-      {o.kbd && <kbd className="hx-kbd">{o.kbd}</kbd>}
-    </button>
-  );
-  const stopped = p?.state === "T";
-  const copy = (text: string) => void navigator.clipboard?.writeText(text);
-  return (
-    <div className="rx-tm-menu rx-tm-ctx" role="menu" style={{ left: x, top: y }} onClick={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()}>
-      <header>
-        {row.label}
-        {p && <span className="hx-faint"> · PID {p.pid}</span>}
-        {what && <span className="hx-faint"> · {what}</span>}
-      </header>
-      {item("End task", () => ask.send(targets, 15), { kbd: "DEL", icon: "close", danger: true })}
-      {item("Kill", () => ask.send(targets, 9), { kbd: "⇧DEL", icon: "flash", danger: true })}
-      {item("Kill process tree", () => ask.send(targets, 9, true), { icon: "branch", danger: true, disabled: !row.hasChildren && !(p && row.count > 1) && row.kind !== "group" })}
-      <hr />
-      {stopped ? item("Resume (SIGCONT)", () => ask.send(targets, 18), { icon: "play" }) : item("Suspend (SIGSTOP)", () => ask.send(targets, 19), { icon: "pause" })}
-      {item("Send signal…", () => ask.signal(targets), { kbd: "K", icon: "flash" })}
-      {item("Change priority…", () => p && ask.renice(p.pid), { kbd: "N", icon: "gauge", disabled: !p })}
-      <hr />
-      {onToggle && item(row.expanded ? "Collapse" : "Expand", onToggle, { kbd: row.expanded ? "←" : "→", icon: row.expanded ? "up" : "down" })}
-      {item(tagged && row.pids.every((pid) => targets.includes(pid)) ? "Untag" : "Tag", onTag, { kbd: "SPACE", icon: "check" })}
-      {onParent && item("Go to parent", onParent, { kbd: "P", icon: "up" })}
-      {p && item("Copy PID", () => copy(String(p.pid)), { icon: "note" })}
-      {p && item("Copy command line", () => copy(p.cmd), { icon: "code" })}
-      {item("Properties", onDetails, { kbd: "⏎", icon: "info" })}
-    </div>
-  );
-}
-

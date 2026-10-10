@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button, Icon, IconButton, Wallpaper } from "../ui";
-import "./shell.css";
+import { Button, Corners, Icon, IconButton, cx } from "../ui";
+import { BlurredWallpaper, PasswordField, UserAvatar } from "./password-field";
 
 export interface GreeterUser {
   name: string;
@@ -37,46 +37,48 @@ export function Greeter({
   const [pw, setPw] = useState("");
   const u = users[user] ?? users[0]!;
   return (
-    <div className={["rx-greet", className].filter(Boolean).join(" ")} style={{ width, height }}>
-      <Wallpaper variant="image" className="rx-lock-wall" />
-      <div className="rx-lock-scrim" />
-      <header className="rx-greet-top">
-        <Icon name="arch" size={16} className="hx-mauve" />
+    <div data-component="Greeter" className={cx("kit-type relative max-w-full overflow-hidden bg-crust text-text", className)} style={{ width, height }}>
+      <BlurredWallpaper />
+      <header className="absolute inset-x-0 top-0 flex h-(--hx-bar-height) items-center gap-3 bg-bar-ground px-4 text-[12px] shadow-[0_1px_0_var(--hx-surface0)]">
+        <Icon name="arch" size={16} className="text-mauve" />
         <b>{hostname}</b>
-        <span className="hx-faint">Arch Linux · greetd</span>
-        <span className="hx-spacer" />
+        <span className="text-overlay1">Arch Linux · greetd</span>
+        <span className="flex-1" />
         <span>{now.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}</span>
         <b>
           {String(now.getHours()).padStart(2, "0")}:{String(now.getMinutes()).padStart(2, "0")}
         </b>
       </header>
       <form
-        className="rx-greet-card"
+        data-component="GreeterCard"
+        className="absolute top-1/2 left-1/2 flex w-[440px] -translate-1/2 flex-col items-center gap-3.5 bg-mantle/92 px-[30px] pt-7 pb-[30px] shadow-popup ring ring-surface0 [--hx-acc:var(--hx-mauve)]"
         onSubmit={(e) => {
           e.preventDefault();
           onLogin?.(u.name, sessions[session]!);
         }}
       >
-        <i className="hx-corner tl" />
-        <i className="hx-corner tr" />
-        <i className="hx-corner bl" />
-        <i className="hx-corner br" />
-        <div className="rx-greet-users" role="radiogroup" aria-label="user">
+        <Corners />
+        <div className="flex items-end gap-[18px]" role="radiogroup" aria-label="user">
           {users.map((x, i) => (
-            <button key={x.name} type="button" className={i === user ? "is-active" : undefined} onClick={() => setUser(i)} aria-checked={i === user} role="radio">
-              <span className="rx-lock-avatar">
-                <Icon name="account" size={i === user ? 34 : 22} />
-              </span>
+            <button
+              key={x.name}
+              type="button"
+              className={cx("unbutton flex cursor-pointer flex-col items-center gap-1.5 font-hx text-[11px]", i === user ? "text-text" : "text-overlay1")}
+              onClick={() => setUser(i)}
+              aria-checked={i === user}
+              role="radio"
+            >
+              <UserAvatar active={i === user} size={i === user ? 72 : 40} iconSize={i === user ? 34 : 22} />
               <span>{x.name}</span>
             </button>
           ))}
         </div>
-        <div className="rx-greet-name">{u.full ?? u.name}</div>
-        <label className="rx-greet-row">
-          <span className="hx-caps">session</span>
+        <div className="text-[16px] font-bold">{u.full ?? u.name}</div>
+        <label className="flex w-full items-center justify-between">
+          <span className="caps">session</span>
           <button
             type="button"
-            className="rx-greet-select"
+            className="unbutton inline-flex h-[30px] cursor-pointer items-center gap-2.5 bg-surface0 px-2 font-hx text-[12px] text-text hover:bg-surface1 [&_svg]:text-mauve"
             onClick={() => setSession((s) => (s + 1) % sessions.length)}
             title="cycle sessions"
           >
@@ -85,18 +87,12 @@ export function Greeter({
             <Icon name="chevronRight" size={14} />
           </button>
         </label>
-        <label className="rx-lock-field is-idle rx-greet-pw">
-          <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} aria-label="password" autoComplete="off" />
-          <span className="rx-lock-dots" aria-hidden>
-            {pw ? Array.from(pw, (_, i) => <i key={i} />) : <em>password</em>}
-          </span>
-          <Icon name="lock" size={16} className="rx-lock-icon" />
-        </label>
+        <PasswordField className="w-full" value={pw} onChange={(e) => setPw(e.target.value)} aria-label="password" autoComplete="off" />
         <Button variant="primary" size="lg" block icon="chevronRight" kbd="⏎">
           Log in
         </Button>
       </form>
-      <footer className="rx-greet-power">
+      <footer className="absolute right-[18px] bottom-[18px] flex gap-2">
         <IconButton icon="suspend" label="Suspend" variant="outline" accent="sky" onClick={() => onPower?.("suspend")} />
         <IconButton icon="reboot" label="Reboot" variant="outline" accent="peach" onClick={() => onPower?.("reboot")} />
         <IconButton icon="power" label="Shut down" variant="outline" accent="red" onClick={() => onPower?.("shutdown")} />

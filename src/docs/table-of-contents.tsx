@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import "./toc.css";
+import { cx } from "../ui";
+
+// Renders on Storybook's light docs theme, so it uses Latte colours rather than the --hx-* tokens.
+// Storybook's docs CSS is unlayered and styles bare elements (a, summary, span…), so these utilities are `!important`.
+const link = "text-inherit! no-underline! border-b! border-[rgba(127,127,127,.35)]! hover:text-[#8839ef]! hover:border-current!";
 
 interface Entry {
   id: string;
@@ -59,21 +63,21 @@ function build(entries: Entry[]): Node {
 
 const count = (n: Node): number => (n.docs || n.stories.length ? 1 : 0) + [...n.children.values()].reduce((s, c) => s + count(c), 0);
 
-function Leaf({ node }: { node: Node }) {
+function TocLeaf({ node }: { node: Node }) {
   const target = node.docs ?? node.stories[0];
   return (
-    <li className="rx-toc-leaf">
+    <li data-component="TocLeaf" className="grid grid-cols-[minmax(170px,max-content)_1fr] gap-3 py-0.5">
       {target ? (
-        <a href={href(node.docs ? "docs" : "story", target.id)} target="_top">
+        <a className={cx(link, "font-semibold!")} href={href(node.docs ? "docs" : "story", target.id)} target="_top">
           {node.name}
         </a>
       ) : (
         node.name
       )}
       {node.stories.length > 0 && (
-        <span className="rx-toc-stories">
+        <span className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12.5px] text-[#5c5f77]">
           {node.stories.map((s) => (
-            <a key={s.id} href={href("story", s.id)} target="_top">
+            <a key={s.id} className={link} href={href("story", s.id)} target="_top">
               {s.name}
             </a>
           ))}
@@ -83,26 +87,35 @@ function Leaf({ node }: { node: Node }) {
   );
 }
 
-function Branch({ node, depth }: { node: Node; depth: number }) {
+function TocBranch({ node, depth }: { node: Node; depth: number }) {
   const kids = [...node.children.values()].sort((a, b) => subRank(a.name) - subRank(b.name) || a.name.localeCompare(b.name));
   const leaves = kids.filter((k) => k.children.size === 0);
   const branches = kids.filter((k) => k.children.size > 0);
   return (
-    <details open={depth < 2} className={`rx-toc-branch rx-toc-d${depth}`}>
-      <summary>
-        <span className="rx-toc-name">{node.name}</span>
-        <span className="rx-toc-count">{count(node)}</span>
-        {NOTES[node.path] && <span className="rx-toc-note">{NOTES[node.path]}</span>}
+    <details
+      open={depth < 2}
+      data-component="TocBranch"
+      className={cx("m-0", depth === 0 && "border-t border-[rgba(127,127,127,.25)]", depth > 0 && "ml-[1.4em]")}
+    >
+      <summary
+        className={
+          "flex cursor-pointer list-none flex-wrap items-baseline gap-x-2.5 gap-y-1 py-1.5 [&::-webkit-details-marker]:hidden " +
+          "before:w-[1em] before:text-[#8839ef] before:transition-transform before:duration-150 before:content-['▸'] [[open]>&]:before:rotate-90"
+        }
+      >
+        <span className={cx(depth === 0 && "text-[18px]! font-bold!", depth === 1 && "text-[15px]! font-bold!")}>{node.name}</span>
+        <span className="bg-[rgba(136,57,239,.12)] px-1.5 text-[11px] text-[#8839ef]">{count(node)}</span>
+        {NOTES[node.path] && <span className="ml-[1em] basis-full text-[13px] text-[#6c6f85]">{NOTES[node.path]}</span>}
       </summary>
       {leaves.length > 0 && (
-        <ul className="rx-toc-leaves">
+        <ul className="m-0 mb-2.5 ml-[1.4em] grid list-none gap-1 p-0">
           {leaves.map((l) => (
-            <Leaf key={l.path} node={l} />
+            <TocLeaf key={l.path} node={l} />
           ))}
         </ul>
       )}
       {branches.map((b) => (
-        <Branch key={b.path} node={b} depth={depth + 1} />
+        <TocBranch key={b.path} node={b} depth={depth + 1} />
       ))}
     </details>
   );
@@ -129,12 +142,12 @@ export function TableOfContents({ order }: { order: string[] }) {
   const components = count(tree);
   const stories = entries.filter((e) => e.type === "story").length;
   return (
-    <nav className="rx-toc" aria-label="Table of contents">
-      <p className="rx-toc-sum">
+    <nav data-component="TableOfContents" className="text-[14px] leading-normal" aria-label="Table of contents">
+      <p className="mt-0 mb-4 text-[#6c6f85]">
         {sections.length} sections · {components} components · {stories} stories
       </p>
       {sections.map((s) => (
-        <Branch key={s.path} node={s} depth={0} />
+        <TocBranch key={s.path} node={s} depth={0} />
       ))}
     </nav>
   );

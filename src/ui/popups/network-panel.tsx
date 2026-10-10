@@ -1,5 +1,6 @@
 import { Graph } from "../data/graph";
-import { Stat } from "../data/stat";
+import { KeyValueList } from "../data/key-value-list";
+import { Stat, StatGrid } from "../data/stat";
 import { Icon } from "../foundations/icon";
 import { bytes, rate } from "../lib";
 import { Panel } from "./panel";
@@ -17,9 +18,17 @@ export function NetworkPanel({ data, paused, className }: NetworkPanelProps) {
   const sim = useSystemStats(paused || !!data);
   const n = data ?? sim.net;
   return (
-    <Panel className={className} icon="ethernet" accent="sapphire" title="Ethernet" subtitle={`${n.iface} · 2.5 Gb/s full duplex`} live={!paused}>
+    <Panel
+      data-component="NetworkPanel"
+      className={className}
+      icon="ethernet"
+      accent="sapphire"
+      title="Ethernet"
+      subtitle={`${n.iface} · 2.5 Gb/s full duplex`}
+      live={!paused}
+    >
       <PanelSection>
-        <div className="hx-stats">
+        <StatGrid>
           <Stat
             label={
               <>
@@ -40,7 +49,7 @@ export function NetworkPanel({ data, paused, className }: NetworkPanelProps) {
             value={rate(n.tx)}
             accent="pink"
           />
-        </div>
+        </StatGrid>
         <Graph
           height={110}
           format={(v) => rate(v)}
@@ -51,7 +60,7 @@ export function NetworkPanel({ data, paused, className }: NetworkPanelProps) {
         />
       </PanelSection>
       <PanelSection>
-        <dl className="hx-kv">
+        <KeyValueList>
           <dt>address</dt>
           <dd>{n.ip}</dd>
           <dt>gateway</dt>
@@ -60,17 +69,17 @@ export function NetworkPanel({ data, paused, className }: NetworkPanelProps) {
           <dd>{n.dns}</dd>
           <dt>session</dt>
           <dd>
-            <span className="hx-sapphire">
+            <span className="text-sapphire">
               {"↓ "}
               {bytes(n.rxTotal)}
             </span>
             {"  "}
-            <span className="hx-pink">
+            <span className="text-pink">
               {"↑ "}
               {bytes(n.txTotal)}
             </span>
           </dd>
-        </dl>
+        </KeyValueList>
       </PanelSection>
     </Panel>
   );

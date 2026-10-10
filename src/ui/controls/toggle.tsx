@@ -31,16 +31,30 @@ export function Toggle({ checked, defaultChecked = false, onChange, accent, labe
       aria-checked={on}
       disabled={disabled}
       onClick={flip}
-      className="hx-toggle"
+      data-component="ToggleSwitch"
+      className={cx(
+        "unbutton relative h-5 w-9 flex-none cursor-pointer bg-surface1 transition-[background-color] duration-(--hx-med)",
+        "after:absolute after:top-[3px] after:left-[3px] after:size-[14px] after:bg-overlay1",
+        "after:transition-[translate,background-color] after:duration-(--hx-med) after:ease-overshot",
+        "aria-checked:bg-acc aria-checked:after:translate-x-4 aria-checked:after:bg-crust disabled:cursor-default disabled:opacity-40",
+      )}
       style={{ ["--hx-acc" as string]: accentVar(accent) }}
     />
   );
-  if (!label) return <span className={className}>{sw}</span>;
+  if (!label)
+    return (
+      <span data-component="Toggle" className={className}>
+        {sw}
+      </span>
+    );
   return (
-    <label className={cx("hx-toggle-row", disabled && "is-disabled", className)}>
-      <span className="hx-toggle-text">
-        <span className="hx-toggle-label">{label}</span>
-        {description && <span className="hx-toggle-desc">{description}</span>}
+    <label
+      data-component="Toggle"
+      className={cx("kit-type flex cursor-pointer items-center gap-4 py-1.5 text-text", disabled && "cursor-default opacity-50", className)}
+    >
+      <span className="flex flex-1 flex-col gap-0.5">
+        <span className="text-[12.5px]">{label}</span>
+        {description && <span className="text-[11px] text-overlay1">{description}</span>}
       </span>
       {sw}
     </label>

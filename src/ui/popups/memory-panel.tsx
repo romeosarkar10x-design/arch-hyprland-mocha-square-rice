@@ -1,11 +1,11 @@
 import { Meter } from "../data/meter";
 import { StackBar } from "../data/stack-bar";
-import { Stat } from "../data/stat";
+import { Stat, StatGrid } from "../data/stat";
 import { Icon } from "../foundations/icon";
 import { bytes } from "../lib";
 import { Panel } from "./panel";
 import { PanelSection } from "./panel-section";
-import { useSystemStats, type MemStats } from "../stats";
+import { useSystemStats, type MemProcess, type MemStats } from "../stats";
 
 export interface MemoryPanelProps {
   data?: MemStats;
@@ -18,9 +18,9 @@ export function MemoryPanel({ data, paused, className }: MemoryPanelProps) {
   const sim = useSystemStats(paused || !!data);
   const m = data ?? sim.mem;
   const pct = (m.used / m.total) * 100;
-  const topMax = Math.max(...m.top.map((p) => p.pss));
   return (
     <Panel
+      data-component="MemoryPanel"
       className={className}
       icon="memory"
       accent="mauve"
@@ -29,11 +29,11 @@ export function MemoryPanel({ data, paused, className }: MemoryPanelProps) {
       live={!paused}
     >
       <PanelSection>
-        <div className="hx-stats">
+        <StatGrid>
           <Stat label="used" value={(m.used / 1024 ** 3).toFixed(1)} hint="GiB" accent="mauve" />
           <Stat label="cached" value={(m.cached / 1024 ** 3).toFixed(1)} hint="GiB" accent="blue" />
           <Stat label="available" value={((m.total - m.used) / 1024 ** 3).toFixed(1)} hint="GiB" />
-        </div>
+        </StatGrid>
         <StackBar
           total={m.total}
           format={(v) => bytes(v)}
@@ -51,7 +51,7 @@ export function MemoryPanel({ data, paused, className }: MemoryPanelProps) {
           readout={
             <>
               <b>{bytes(m.swapUsed)}</b>{" "}
-              <span className="hx-faint">
+              <span className="text-overlay1">
                 {"/ "}
                 {bytes(m.swapTotal, 0)}
               </span>
@@ -59,20 +59,31 @@ export function MemoryPanel({ data, paused, className }: MemoryPanelProps) {
           }
         />
       </PanelSection>
-      <PanelSection label="top processes" aside={<span className="hx-faint">pss</span>}>
-        <div className="hx-procs">
-          {m.top.map((p) => (
-            <div key={p.name} className="hx-proc">
-              <Icon name={p.icon} className="hx-proc-icon" />
-              <span className="hx-proc-name">{p.name}</span>
-              <span className="hx-proc-bar">
-                <i style={{ width: `${(p.pss / topMax) * 100}%` }} />
-              </span>
-              <span className="hx-proc-val">{bytes(p.pss)}</span>
-            </div>
-          ))}
-        </div>
+      <PanelSection label="top processes" aside={<span className="text-overlay1">pss</span>}>
+        <ProcessList procs={m.top} />
       </PanelSection>
     </Panel>
+  );
+}
+
+/** Heaviest processes with a bar scaled to the largest. */
+function ProcessList({ procs }: { procs: MemProcess[] }) {
+  const max = Math.max(...procs.map((p) => p.pss));
+  return (
+    <div data-component="ProcessList" className="flex flex-col">
+      {procs.map((p) => (
+        <div
+          key={p.name}
+          className="grid grid-cols-[18px_1fr_110px_70px] items-center gap-2.5 border-surface0 py-[5px] text-[12px] not-first:border-t not-first:border-dashed"
+        >
+          <Icon name={p.icon} className="text-[15px] text-subtext0" />
+          <span>{p.name}</span>
+          <span className="relative h-1 bg-surface0">
+            <i className="absolute inset-y-0 left-0 bg-mauve transition-[width] duration-(--hx-slow) ease-hx" style={{ width: `${(p.pss / max) * 100}%` }} />
+          </span>
+          <span className="text-right text-subtext0">{bytes(p.pss)}</span>
+        </div>
+      ))}
+    </div>
   );
 }

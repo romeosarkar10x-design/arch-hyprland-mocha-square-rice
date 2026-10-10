@@ -10,7 +10,7 @@ export interface ToastStackProps {
 /** Column of toasts, 8px apart; the Desktop pins it top-right under the bar. */
 export function ToastStack({ children, className, style }: ToastStackProps) {
   return (
-    <div className={cx("hx-toasts", className)} style={style}>
+    <div data-component="ToastStack" className={cx("flex flex-col gap-2", className)} style={style}>
       {children}
     </div>
   );

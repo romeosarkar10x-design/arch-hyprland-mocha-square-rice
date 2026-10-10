@@ -57,54 +57,37 @@ export function MediaPlayer({
     setInnerPlay(!isPlaying);
     onPlayPause?.(!isPlaying);
   };
-  const pct = (pos / track.length) * 100;
+  const full = variant === "full";
   return (
-    <div className={cx("hx-media", `hx-media--${variant}`, !isPlaying && "is-paused", className)}>
-      <Cover track={track} spinning={isPlaying} />
-      <div className="hx-media-main">
-        <div className="hx-media-player">
+    <div
+      data-component="MediaPlayer"
+      className={cx(
+        "kit-type grid items-center gap-x-3.5 gap-y-3 text-text",
+        full ? "grid-cols-[84px_1fr] grid-rows-[auto_auto]" : "grid-cols-[48px_1fr_auto] grid-rows-[auto]",
+        className,
+      )}
+    >
+      <MediaCover track={track} spinning={isPlaying} className={full ? undefined : "size-12"} />
+      <div className="min-w-0">
+        <div className="flex items-center gap-1.5 text-[10.5px] tracking-[.04em] text-green">
           <Icon name={playerIcon} /> {player}
-          {!isPlaying && <span className="hx-faint">{" · paused"}</span>}
+          {!isPlaying && <span className="text-overlay1">{" · paused"}</span>}
         </div>
-        <div className="hx-media-title" title={track.title}>
+        <div className={cx("mt-[3px] truncate text-[14px] font-bold", !isPlaying && "text-subtext0")} title={track.title}>
           {track.title}
         </div>
-        <div className="hx-media-artist">
+        <div className="truncate text-[12px] text-subtext0">
           {track.artist}
           {track.album && (
-            <span className="hx-faint">
+            <span className="text-overlay1">
               {" — "}
               {track.album}
             </span>
           )}
         </div>
-        {variant === "full" && (
-          <>
-            <div
-              className="hx-scrub"
-              role="slider"
-              aria-label="Position"
-              aria-valuenow={Math.round(pos)}
-              aria-valuemin={0}
-              aria-valuemax={track.length}
-              tabIndex={0}
-              onClick={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                setPos(Math.round(((e.clientX - r.left) / r.width) * track.length));
-              }}
-            >
-              <i className="hx-scrub-rail" />
-              <i className="hx-scrub-fill" style={{ width: `${pct}%` }} />
-              <i className="hx-scrub-thumb" style={{ left: `${pct}%` }} />
-            </div>
-            <div className="hx-media-times">
-              <span>{fmt(pos)}</span>
-              <span>-{fmt(track.length - pos)}</span>
-            </div>
-          </>
-        )}
+        {full && <Scrubber pos={pos} length={track.length} onSeek={setPos} />}
       </div>
-      <div className="hx-transport">
+      <div className={cx("flex items-center justify-center gap-1.5", full ? "col-span-full" : "col-auto")}>
         {variant === "full" && (
           <IconButton icon="shuffle" label="Shuffle" size="sm" active={shuffle} accent="green" onClick={() => setShuffle(!shuffle)} />
         )}
@@ -126,18 +109,54 @@ export function MediaPlayer({
   );
 }
 
-function Cover({ track, spinning }: { track: Track; spinning: boolean }) {
-  if (track.artUrl) return <img className="hx-cover" src={track.artUrl} alt="" />;
+/** Seek bar plus elapsed / remaining times. */
+function Scrubber({ pos, length, onSeek }: { pos: number; length: number; onSeek: (s: number) => void }) {
+  const pct = (pos / length) * 100;
+  return (
+    <div data-component="Scrubber">
+      <div
+        className="relative mt-2 h-3.5 cursor-pointer"
+        role="slider"
+        aria-label="Position"
+        aria-valuenow={Math.round(pos)}
+        aria-valuemin={0}
+        aria-valuemax={length}
+        tabIndex={0}
+        onClick={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          onSeek(Math.round(((e.clientX - r.left) / r.width) * length));
+        }}
+      >
+        <i className="absolute inset-x-0 top-1.5 h-0.5 bg-surface1" />
+        <i className="absolute top-1.5 left-0 h-0.5 bg-green transition-[width] duration-1000 ease-linear" style={{ width: `${pct}%` }} />
+        <i className="absolute top-[3px] -ml-1 size-2 bg-green transition-[left] duration-1000 ease-linear" style={{ left: `${pct}%` }} />
+      </div>
+      <div className="flex justify-between text-[10.5px] text-overlay1">
+        <span>{fmt(pos)}</span>
+        <span>-{fmt(length - pos)}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Square album cover: `artUrl`, or a generated one from the track's two accents. */
+export function MediaCover({ track, spinning, className }: { track: Track; spinning?: boolean; className?: string }) {
+  if (track.artUrl) return <img data-component="MediaCover" className={cx("block size-21 object-cover", className)} src={track.artUrl} alt="" />;
   const [a, b] = track.art ?? ["mauve", "peach"];
   return (
     <div
-      className={cx("hx-cover", "hx-cover--gen", spinning && "is-spinning")}
+      data-component="MediaCover"
+      className={cx(
+        "relative block size-21 overflow-hidden",
+        "bg-[linear-gradient(135deg,var(--hx-a),color-mix(in_srgb,var(--hx-a)_30%,var(--hx-crust))_60%,var(--hx-b))]",
+        className,
+      )}
       style={{ ["--hx-a" as string]: accentVar(a), ["--hx-b" as string]: accentVar(b) }}
       aria-hidden
     >
-      <i />
-      <i />
-      <i />
+      <i className={cx("absolute inset-[18%] inset-ring-2 inset-ring-crust/55", spinning && "animate-turn")} />
+      <i className="absolute inset-[34%] bg-(--hx-b)/70" />
+      <i className="absolute inset-x-0 bottom-0 h-[22%] bg-crust/60" />
     </div>
   );
 }

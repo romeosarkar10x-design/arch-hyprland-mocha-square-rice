@@ -1,5 +1,6 @@
 import { type CSSProperties } from "react";
 import { icons, type IconName } from "../icons";
+import { cx } from "../lib";
 
 export interface IconProps {
   /** Icon to draw, from the `icons` table. */
@@ -18,7 +19,8 @@ export interface IconProps {
 export function Icon({ name, size = "1em", color, label, className, style }: IconProps) {
   return (
     <svg
-      className={"hx-icon" + (className ? " " + className : "")}
+      data-component="Icon"
+      className={cx("inline-block flex-none align-[-0.14em]", className)}
       viewBox="0 0 24 24"
       width={size}
       height={size}

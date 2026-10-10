@@ -27,7 +27,7 @@ export const Mocha: Story = { args: { palette: MOCHA } };
 
 function FromWallpaper({ wallpaper }: { wallpaper: string }) {
   const { theme } = useWallpaperTheme(wallpaper);
-  if (!theme) return <span className="hx-faint">extracting…</span>;
+  if (!theme) return <span className="text-overlay1">extracting…</span>;
   return (
     <ThemeProvider palette={theme.palette}>
       <div style={{ display: "grid", gap: 14, maxWidth: 900 }}>
@@ -45,7 +45,7 @@ export const FromWallpapers: Story = {
     <div style={{ display: "grid", gap: 32 }}>
       {WALLPAPER_IDS.map((id) => (
         <section key={id}>
-          <h3 className="hx-caps" style={{ margin: "0 0 10px" }}>
+          <h3 className="caps" style={{ margin: "0 0 10px" }}>
             {id}
           </h3>
           <FromWallpaper wallpaper={id} />

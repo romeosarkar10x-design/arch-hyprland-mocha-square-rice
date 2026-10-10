@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import "./shell.css";
+import { cx } from "../ui";
 
 export const demoCommands = [
   "ghostty", "google-chrome-stable", "firefox", "code", "nvim", "yazi", "btop", "pavucontrol", "spotify-launcher",
@@ -33,11 +33,15 @@ export function Dmenu({ items = demoCommands, prompt = "run", query: initial = "
     if (item) onSelect?.(item);
   };
   return (
-    <div className={["rx-dmenu", vertical && "is-vertical", className].filter(Boolean).join(" ")} style={{ width }}>
-      <div className="rx-dmenu-line">
-        <span className="rx-dmenu-prompt">{prompt}</span>
+    <div
+      data-component="Dmenu"
+      className={cx("kit-type max-w-full bg-crust text-[13px] text-text shadow-[0_1px_0_var(--hx-surface0)]", className)}
+      style={{ width }}
+    >
+      <div className="flex h-(--hx-bar-height) items-stretch">
+        <span className="flex items-center bg-mauve px-3.5 font-bold text-crust">{prompt}</span>
         <input
-          className="rx-dmenu-in"
+          className={cx("uninput px-3 caret-mauve", vertical ? "w-auto flex-1" : "w-[244px]")}
           value={query}
           aria-label={prompt}
           autoFocus={autoFocus}
@@ -55,25 +59,30 @@ export function Dmenu({ items = demoCommands, prompt = "run", query: initial = "
             e.preventDefault();
           }}
         />
-        {!vertical && (
-          <ul className="rx-dmenu-items">
-            {matches.map((m, i) => (
-              <li key={m} className={i === sel ? "is-active" : undefined} onClick={() => pick(i)}>
-                {m}
-              </li>
-            ))}
-          </ul>
-        )}
+        {!vertical && <DmenuItems items={matches} selected={sel} onPick={pick} />}
       </div>
-      {vertical && (
-        <ul className="rx-dmenu-items">
-          {matches.slice(0, lines).map((m, i) => (
-            <li key={m} className={i === sel ? "is-active" : undefined} onClick={() => pick(i)}>
-              {m}
-            </li>
-          ))}
-        </ul>
-      )}
+      {vertical && <DmenuItems items={matches.slice(0, lines)} selected={sel} onPick={pick} vertical />}
     </div>
+  );
+}
+
+function DmenuItems({ items, selected, onPick, vertical }: { items: string[]; selected: number; onPick: (i: number) => void; vertical?: boolean }) {
+  return (
+    <ul data-component="DmenuItems" className={cx("m-0 flex list-none overflow-hidden p-0", vertical && "flex-col border-t border-surface0")}>
+      {items.map((m, i) => (
+        <li
+          key={m}
+          className={cx(
+            "flex cursor-pointer items-center px-3 whitespace-nowrap text-subtext0 hover:text-text",
+            vertical && "h-7",
+            i === selected &&
+              cx("bg-surface0 text-mauve hover:text-mauve", vertical ? "shadow-[inset_2px_0_0_var(--hx-mauve)]" : "shadow-[inset_0_-2px_0_var(--hx-mauve)]"),
+          )}
+          onClick={() => onPick(i)}
+        >
+          {m}
+        </li>
+      ))}
+    </ul>
   );
 }

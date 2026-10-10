@@ -1,311 +1,18 @@
 import { useEffect, useReducer, useRef, useState, type AnimationEvent, type CSSProperties, type KeyboardEvent } from "react";
-import { Icon, Wallpaper, Workspaces } from "../ui";
+import { Icon, Wallpaper, Workspaces, cx } from "../ui";
 import { Dmenu } from "../shell/dmenu";
 import { comboFromEvent, KeystrokeVisualizer, pushStroke, type Stroke } from "../shell/keystroke-visualizer";
 import { Osd } from "../shell/osd";
 import { ScaleToFit } from "../theme/theme-generator";
 import { AppContent, APPS, type AppId } from "./apps";
 import { ANIMATIONS, CURVES, cssColour, LOOK, resolveAnim, type AnimLeaf, type Bezier, type HyprLook } from "./config";
-import { insert, layout, leaves, neighbour, remove, resize, swap, type Direction, type Rect, type Tree } from "./dwindle";
-import "./hypr.css";
+import type { Rect } from "./dwindle";
+import {
+  BAR, DEFAULT_LAYOUT, H, SPECIAL, TOURS, W, bindFor, curWs, focused, initialState, parseCombo, rectsOf, reduce,
+  type Action, type Geo, type Layout, type State, type Step, type Win, type WsKey,
+} from "./compositor-state";
 
-const W = 1920, H = 1080, BAR = 34;
-const SPECIAL = "special";
-type WsKey = string; // "1".."10" | "special"
-
-interface Win {
-  id: string;
-  app: AppId;
-  ws: WsKey;
-  /** Set while floating. */
-  float?: Rect;
-  /** Set while playing the close animation: where it was. */
-  closing?: Rect;
-}
-
-interface State {
-  wins: Record<string, Win>;
-  trees: Record<WsKey, Tree | null>;
-  focus: Record<WsKey, string | null>;
-  active: number;
-  special: boolean;
-  /** The workspace sliding out, while a switch animates. */
-  slide: { from: number; dir: 1 | -1; n: number } | null;
-  preselect: "d" | "r" | null;
-  launcher: boolean;
-  osd: { kind: "volume" | "mic"; value: number; muted: boolean; n: number } | null;
-  volume: number;
-  muted: boolean;
-  mic: boolean;
-  notice: { text: string; n: number } | null;
-  /** The window just opened: only it plays the pop-in (not windows remounted by a workspace switch). */
-  opened: string | null;
-  seq: number;
-}
-
-interface Geo {
-  area: Rect;
-  gapsIn: number;
-  resizeStep: number;
-}
-
-type Action =
-  | { type: "open"; app: AppId }
-  | { type: "close" }
-  | { type: "reap"; id: string }
-  | { type: "focusDir"; dir: Direction }
-  | { type: "swapDir"; dir: Direction }
-  | { type: "resize"; dir: Direction }
-  | { type: "preselect"; side: "d" | "r" }
-  | { type: "workspace"; n: number }
-  | { type: "moveTo"; ws: WsKey }
-  | { type: "toggleSpecial" }
-  | { type: "toggleFloat" }
-  | { type: "launcher"; open: boolean }
-  | { type: "slideDone"; n: number }
-  | { type: "media"; key: "up" | "down" | "mute" | "mic" }
-  | { type: "notice"; text: string }
-  | { type: "focusWin"; id: string }
-  | { type: "reset"; state: State };
-
-const DIRS: Record<string, Direction> = { H: "left", J: "down", K: "up", L: "right" };
-
-const curWs = (s: State): WsKey => (s.special ? SPECIAL : String(s.active));
-const focused = (s: State) => s.focus[curWs(s)] ?? null;
-
-function rectsOf(s: State, ws: WsKey, g: Geo): Map<string, Rect> {
-  const rects = layout(s.trees[ws] ?? null, specialArea(ws, g.area), g.gapsIn);
-  for (const w of Object.values(s.wins)) if (w.ws === ws && w.float && !w.closing) rects.set(w.id, w.float);
-  return rects;
-}
-
-/** The scratchpad sits inset from the screen edges, like Hyprland draws special workspaces. */
-const specialArea = (ws: WsKey, a: Rect): Rect => (ws === SPECIAL ? { x: a.x + 120, y: a.y + 70, w: a.w - 240, h: a.h - 140 } : a);
-
-function detach(s: State, id: string, g: Geo): State {
-  const w = s.wins[id]!;
-  const tree = remove(s.trees[w.ws] ?? null, id);
-  const rest = [...leaves(tree), ...Object.values(s.wins).filter((x) => x.ws === w.ws && x.float && x.id !== id && !x.closing).map((x) => x.id)];
-  // Focus goes to the window that took its place, like Hyprland's fallback.
-  const before = rectsOf(s, w.ws, g).get(id);
-  const after = layout(tree, specialArea(w.ws, g.area), g.gapsIn);
-  let next: string | null = rest.at(-1) ?? null;
-  if (before) {
-    for (const [other, r] of after) if (r.x <= before.x + before.w / 2 && r.x + r.w >= before.x + before.w / 2 && r.y <= before.y + before.h / 2 && r.y + r.h >= before.y + before.h / 2) next = other;
-  }
-  return { ...s, trees: { ...s.trees, [w.ws]: tree }, focus: { ...s.focus, [w.ws]: s.focus[w.ws] === id ? next : s.focus[w.ws]! } };
-}
-
-function attach(s: State, id: string, ws: WsKey, g: Geo): State {
-  const tree = insert(s.trees[ws] ?? null, s.focus[ws] ?? null, id, specialArea(ws, g.area), g.gapsIn, s.preselect);
-  return { ...s, preselect: null, trees: { ...s.trees, [ws]: tree }, focus: { ...s.focus, [ws]: id }, wins: { ...s.wins, [id]: { ...s.wins[id]!, ws, float: undefined } } };
-}
-
-function goTo(s: State, n: number): State {
-  if (n === s.active) return { ...s, special: false };
-  return { ...s, special: false, opened: null, active: n, slide: { from: s.active, dir: n > s.active ? 1 : -1, n: s.seq + 1 }, seq: s.seq + 1 };
-}
-
-function reduce(s: State, a: Action, g: Geo): State {
-  const f = focused(s);
-  switch (a.type) {
-    case "open": {
-      const id = `w${s.seq + 1}`;
-      const withWin = { ...s, seq: s.seq + 1, launcher: false, opened: id, wins: { ...s.wins, [id]: { id, app: a.app, ws: curWs(s) } } };
-      return attach(withWin, id, curWs(s), g);
-    }
-    case "close": {
-      if (!f) return s;
-      const r = rectsOf(s, curWs(s), g).get(f)!;
-      const next = detach(s, f, g);
-      return { ...next, wins: { ...next.wins, [f]: { ...next.wins[f]!, closing: r, float: undefined } } };
-    }
-    case "reap": {
-      const wins = { ...s.wins };
-      delete wins[a.id];
-      return { ...s, wins };
-    }
-    case "focusDir": {
-      if (!f) return s;
-      const to = neighbour(rectsOf(s, curWs(s), g), f, a.dir);
-      return to ? { ...s, focus: { ...s.focus, [curWs(s)]: to } } : s;
-    }
-    case "focusWin":
-      return { ...s, focus: { ...s.focus, [s.wins[a.id]!.ws]: a.id } };
-    case "swapDir": {
-      if (!f || s.wins[f]!.float) return s;
-      const ws = curWs(s);
-      const to = neighbour(layout(s.trees[ws] ?? null, specialArea(ws, g.area), g.gapsIn), f, a.dir);
-      return to ? { ...s, trees: { ...s.trees, [ws]: swap(s.trees[ws] ?? null, f, to) } } : s;
-    }
-    case "resize": {
-      if (!f) return s;
-      const ws = curWs(s), step = g.resizeStep;
-      const dx = a.dir === "left" ? -step : a.dir === "right" ? step : 0;
-      const dy = a.dir === "up" ? -step : a.dir === "down" ? step : 0;
-      const w = s.wins[f]!;
-      if (w.float) {
-        const r = w.float;
-        return { ...s, wins: { ...s.wins, [f]: { ...w, float: { ...r, w: Math.max(240, r.w + dx), h: Math.max(160, r.h + dy) } } } };
-      }
-      return { ...s, trees: { ...s.trees, [ws]: resize(s.trees[ws] ?? null, f, dx, dy, specialArea(ws, g.area), g.gapsIn) } };
-    }
-    case "preselect":
-      return { ...s, preselect: s.preselect === a.side ? null : a.side };
-    case "workspace":
-      return goTo(s, a.n);
-    case "moveTo": {
-      if (!f) return a.ws === SPECIAL ? s : goTo(s, Number(a.ws));
-      if (a.ws === curWs(s)) return s;
-      const moved = attach({ ...detach(s, f, g), preselect: null }, f, a.ws, g);
-      return a.ws === SPECIAL ? { ...moved, special: true } : goTo(moved, Number(a.ws));
-    }
-    case "toggleSpecial":
-      return { ...s, special: !s.special };
-    case "toggleFloat": {
-      if (!f) return s;
-      const w = s.wins[f]!, ws = curWs(s);
-      if (w.float) return attach({ ...s, wins: { ...s.wins, [f]: { ...w, float: undefined } } }, f, ws, g);
-      const r = rectsOf(s, ws, g).get(f)!;
-      const fw = Math.min(r.w, g.area.w * 0.5), fh = Math.min(Math.max(r.h, 420), g.area.h * 0.6);
-      const next = detach(s, f, g);
-      const float = { x: g.area.x + (g.area.w - fw) / 2, y: g.area.y + (g.area.h - fh) / 2, w: fw, h: fh };
-      return { ...next, focus: { ...next.focus, [ws]: f }, wins: { ...next.wins, [f]: { ...w, float } } };
-    }
-    case "launcher":
-      return { ...s, launcher: a.open };
-    case "slideDone":
-      return s.slide?.n === a.n ? { ...s, slide: null } : s;
-    case "media": {
-      if (a.key === "mic") return { ...s, mic: !s.mic, osd: { kind: "mic", value: 100, muted: s.mic, n: s.seq + 1 }, seq: s.seq + 1 };
-      const muted = a.key === "mute" ? !s.muted : false;
-      const volume = a.key === "up" ? Math.min(100, s.volume + 5) : a.key === "down" ? Math.max(0, s.volume - 5) : s.volume;
-      return { ...s, volume, muted, osd: { kind: "volume", value: volume, muted, n: s.seq + 1 }, seq: s.seq + 1 };
-    }
-    case "notice":
-      return { ...s, notice: { text: a.text, n: s.seq + 1 }, seq: s.seq + 1 };
-    case "reset":
-      return a.state;
-  }
-}
-
-export type Layout = Partial<Record<number | "special", AppId[]>>;
-
-export const DEFAULT_LAYOUT: Layout = { 1: ["fastfetch", "nvim", "btop"], 2: ["firefox", "yazi"], 4: ["dolphin"], special: ["ghostty"] };
-
-function initialState(windows: Layout, active: number, g: Geo): State {
-  let s: State = {
-    wins: {}, trees: {}, focus: {}, active, special: false, slide: null, preselect: null, launcher: false,
-    osd: null, volume: 45, muted: false, mic: true, notice: null, opened: null, seq: 0,
-  };
-  for (const [ws, apps] of Object.entries(windows)) {
-    for (const app of apps ?? []) {
-      const id = `w${s.seq + 1}`;
-      s = attach({ ...s, seq: s.seq + 1, wins: { ...s.wins, [id]: { id, app, ws } } }, id, ws, g);
-    }
-  }
-  return s;
-}
-
-// ───────── keymap (from hyprland.lua) ─────────
-
-/** Map a Hyprland combo (`SUPER+SHIFT+H`) to what the config binds it to. */
-export function bindFor(combo: string[]): Action | null {
-  const mods = new Set(combo.slice(0, -1));
-  const key = combo.at(-1)!;
-  const only = (...m: string[]) => mods.size === m.length && m.every((x) => mods.has(x));
-  if (!mods.size) {
-    if (key === "VOL+" || key === "XF86AudioRaiseVolume") return { type: "media", key: "up" };
-    if (key === "VOL−" || key === "XF86AudioLowerVolume") return { type: "media", key: "down" };
-    if (key === "MUTE" || key === "XF86AudioMute") return { type: "media", key: "mute" };
-    if (key === "XF86AudioMicMute") return { type: "media", key: "mic" };
-    return null;
-  }
-  if (only("SUPER")) {
-    if (key === "RETURN") return { type: "open", app: "ghostty" };
-    if (key === "X") return { type: "close" };
-    if (key === "M") return { type: "notice", text: "hl.dsp.exit() — would log out of Hyprland" };
-    if (key === "E") return { type: "open", app: "dolphin" };
-    if (key === "V") return { type: "toggleFloat" };
-    if (key === "SPACE") return { type: "launcher", open: true };
-    if (key === "O") return { type: "preselect", side: "d" };
-    if (key === "U") return { type: "preselect", side: "r" };
-    if (key === "S") return { type: "toggleSpecial" };
-    if (DIRS[key]) return { type: "focusDir", dir: DIRS[key] };
-    if (/^\d$/.test(key)) return { type: "workspace", n: Number(key) || 10 };
-  }
-  if (only("SUPER", "SHIFT")) {
-    if (DIRS[key]) return { type: "swapDir", dir: DIRS[key] };
-    if (/^\d$/.test(key)) return { type: "moveTo", ws: String(Number(key) || 10) };
-    if (key === "S") return { type: "moveTo", ws: SPECIAL };
-  }
-  if (only("SUPER", "ALT") && DIRS[key]) return { type: "resize", dir: DIRS[key] };
-  return null;
-}
-
-// ───────── scripted tours ─────────
-
-export interface Step {
-  /** A combo as Hyprland writes it: `SUPER+SHIFT+H`. */
-  keys?: string;
-  /** Pick this app in the open launcher. */
-  launch?: AppId;
-  /** Pause after this step, ms (before time scaling). */
-  wait?: number;
-  /** Caption shown while this step plays. */
-  say?: string;
-}
-
-const k = (keys: string, wait = 900, say?: string): Step => ({ keys, wait, say });
-
-export const TOURS: Record<string, Step[]> = {
-  tiling: [
-    k("SUPER+RETURN", 1100, "Open terminals: dwindle splits the focused window along its longer side"),
-    k("SUPER+RETURN", 1100),
-    k("SUPER+H", 700, "Move focus with SUPER + h j k l"),
-    k("SUPER+K", 700),
-    k("SUPER+L", 700),
-    k("SUPER+J", 900),
-    k("SUPER+SHIFT+H", 1000, "Swap windows with SUPER + SHIFT + h j k l"),
-    k("SUPER+SHIFT+L", 1000),
-    k("SUPER+ALT+L", 260, "Resize with SUPER + ALT + h j k l (repeats while held)"),
-    k("SUPER+ALT+L", 260),
-    k("SUPER+ALT+L", 260),
-    k("SUPER+ALT+L", 700),
-    k("SUPER+ALT+J", 260),
-    k("SUPER+ALT+J", 900),
-    k("SUPER+O", 600, "Preselect: the next window opens below"),
-    k("SUPER+RETURN", 1100),
-    k("SUPER+V", 1200, "Float it, then tile it again"),
-    k("SUPER+V", 1000),
-    k("SUPER+X", 700, "Close with SUPER + X"),
-    k("SUPER+X", 700),
-    k("SUPER+X", 1200),
-  ],
-  workspaces: [
-    k("SUPER+2", 1100, "Switch workspaces: slide, easeOutQuint, 300 ms"),
-    k("SUPER+3", 900),
-    k("SUPER+RETURN", 900, "An empty workspace gets a fresh terminal"),
-    k("SUPER+1", 1100),
-    k("SUPER+SHIFT+3", 1300, "Send the focused window to workspace 3 (focus follows)"),
-    k("SUPER+4", 1000),
-    k("SUPER+1", 1000),
-    k("SUPER+S", 1300, "Scratchpad: special workspace slides in vertically"),
-    k("SUPER+S", 1000),
-    k("SUPER+SHIFT+S", 1300, "Stash the focused window in the scratchpad"),
-    k("SUPER+S", 1100),
-    k("SUPER+SPACE", 900, "Launcher (wofi)"),
-    { launch: "firefox", wait: 1100 },
-    k("SUPER+E", 1200, "File manager"),
-    k("XF86AudioRaiseVolume", 250, "Media keys show an OSD"),
-    k("XF86AudioRaiseVolume", 250),
-    k("XF86AudioRaiseVolume", 900),
-    k("XF86AudioMute", 1300),
-  ],
-};
-TOURS.everything = [...TOURS.tiling!, ...TOURS.workspaces!];
-
-const parseCombo = (keys: string) => keys.split("+");
+export { DEFAULT_LAYOUT, TOURS, bindFor, type Layout, type Step } from "./compositor-state";
 
 // ───────── component ─────────
 
@@ -467,82 +174,73 @@ export function Compositor({
       const r = w.closing ?? rects.get(w.id);
       if (!r) return null;
       const isFocused = w.id === fwin && key === curWs(state);
-      const app = APPS[w.app];
       return (
-        <div
+        <HyprWindow
           key={w.id}
-          className={["rx-hw", w.id === state.opened && "is-new", isFocused && "is-focused", w.closing && "is-closing", w.float && "is-float"].filter(Boolean).join(" ")}
-          style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
-          onMouseDown={() => !w.closing && dispatch({ type: "focusWin", id: w.id })}
-          onAnimationEnd={(e: AnimationEvent<HTMLDivElement>) => {
-            if (e.target === e.currentTarget && w.closing) dispatch({ type: "reap", id: w.id });
-          }}
-        >
-          <div className="rx-hw-blur" />
-          <div className="rx-hw-body" title={`${app.cls} — ${app.title}`}>
-            <AppContent app={w.app} />
-          </div>
-          <div className="rx-hw-dim" />
-          <div className="rx-hw-edge rx-hw-edge--off" />
-          <div className="rx-hw-edge rx-hw-edge--on" />
-          {isFocused && state.preselect && <div className={`rx-hw-pre rx-hw-pre--${state.preselect}`} />}
-        </div>
+          win={w}
+          rect={r}
+          focused={isFocused}
+          opened={w.id === state.opened}
+          preselect={isFocused ? state.preselect : null}
+          onFocus={() => !w.closing && dispatch({ type: "focusWin", id: w.id })}
+          onClosed={() => dispatch({ type: "reap", id: w.id })}
+        />
       );
     });
   };
 
-  const wsList = Array.from({ length: 10 }, (_, i) => i + 1);
-  // Like waybar's hyprland/workspaces: only workspaces with windows, plus the focused one even when empty.
-  const occupied = wsList.filter((n) => n === state.active || Object.values(state.wins).some((w) => w.ws === String(n) && !w.closing));
   const step = state.slide;
+  const layer = "absolute z-30 animate-[rx-layer-in_var(--rx-hw-layer)_both]";
 
   return (
     <div
       ref={root}
       tabIndex={0}
-      className={["rx-comp", className].filter(Boolean).join(" ")}
+      data-component="Compositor"
+      className={cx("relative ring ring-surface0 outline-none focus-visible:ring-2 focus-visible:ring-mauve", className)}
       onKeyDown={onKeyDown}
       aria-label="Hyprland simulator: focus and use your keybinds"
     >
       <ScaleToFit width={W} height={H}>
-        <div className="rx-hyp" style={vars}>
+        <div className="relative h-[1080px] w-[1920px] overflow-hidden bg-crust font-hx text-text select-none" style={vars}>
           <Wallpaper variant="image" />
-          <div className="rx-hyp-bar">
-            <Icon name="arch" size={16} className="hx-blue" />
-            <Workspaces
-              active={state.active}
-              workspaces={occupied.map((n) => ({ id: n, apps: [...new Set(Object.values(state.wins).filter((w) => w.ws === String(n) && !w.closing).map((w) => APPS[w.app].icon))] }))}
-              showApps
-              onSelect={(n) => dispatch({ type: "workspace", n })}
-            />
-            <span className="rx-hyp-title">{fwin ? APPS[state.wins[fwin]!.app].title : ""}</span>
-            <span className="hx-spacer" />
-            {state.preselect && <span className="rx-hyp-chip">preselect {state.preselect === "d" ? "↓" : "→"}</span>}
-            {state.special && <span className="rx-hyp-chip">special:magic</span>}
-            <span className="rx-hyp-chip">
-              <Icon name={state.muted ? "volumeOff" : "volumeHigh"} size={14} /> {state.muted ? "muted" : `${state.volume}%`}
-            </span>
-            <span className="rx-hyp-clock">21:41</span>
-          </div>
-          <div className="rx-hyp-stage">
+          <HyprBar state={state} onWorkspace={(n) => dispatch({ type: "workspace", n })} />
+          <div className="absolute inset-0 overflow-hidden">
             {step && (
               <div
                 key={`out${step.n}`}
-                className="rx-hyp-ws rx-hyp-ws--out"
+                className="pointer-events-none absolute inset-0 animate-[rx-ws-out_var(--rx-hw-ws)_both]"
                 style={{ "--rx-dir": step.dir } as CSSProperties}
                 onAnimationEnd={(e) => e.target === e.currentTarget && dispatch({ type: "slideDone", n: step.n })}
               >
                 {renderWs(String(step.from))}
               </div>
             )}
-            <div key={`in${state.active}`} className={["rx-hyp-ws", step && "rx-hyp-ws--in"].filter(Boolean).join(" ")} style={{ "--rx-dir": step?.dir ?? 1 } as CSSProperties}>
+            <div
+              key={`in${state.active}`}
+              className={cx("absolute inset-0", step && "animate-[rx-ws-in_var(--rx-hw-ws)_both]")}
+              style={{ "--rx-dir": step?.dir ?? 1 } as CSSProperties}
+            >
               {renderWs(String(state.active))}
             </div>
-            <div className={["rx-hyp-special-dim", state.special && "is-on"].filter(Boolean).join(" ")} />
-            <div className={["rx-hyp-ws rx-hyp-special", state.special && "is-on"].filter(Boolean).join(" ")}>{renderWs(SPECIAL)}</div>
+            <div
+              className={cx(
+                "pointer-events-none absolute inset-0 z-8 bg-black [transition:opacity_var(--rx-hw-special)]",
+                state.special ? "opacity-(--rx-hw-special-dim)" : "opacity-0",
+              )}
+            />
+            {/* The scratchpad slides down from above; `transform` (not `translate`) so the transition runs. */}
+            <div
+              className={cx(
+                "absolute inset-0 z-9 [transition:transform_var(--rx-hw-special)]",
+                state.special ? "pointer-events-auto [transform:none]" : "pointer-events-none [transform:translateY(-105%)]",
+              )}
+            >
+              {renderWs(SPECIAL)}
+            </div>
           </div>
           {state.launcher && (
-            <div className="rx-hyp-layer rx-hyp-launch">
+            <div className={cx(layer, "top-[22%] left-1/2 -translate-x-1/2 shadow-popup")}>
               <Dmenu
                 lines={8}
                 prompt="drun"
@@ -557,19 +255,135 @@ export function Compositor({
             </div>
           )}
           {state.osd && (
-            <div key={state.osd.n} className="rx-hyp-layer rx-hyp-osd">
+            <div
+              key={state.osd.n}
+              className={cx(layer, "bottom-24 left-1/2 -translate-x-1/2 animate-[rx-layer-in_var(--rx-hw-layer)_both,rx-layer-out_.4s_linear_1.4s_forwards]")}
+            >
               <Osd kind={state.osd.kind} value={state.osd.value} muted={state.osd.muted} />
             </div>
           )}
           {state.notice && (
-            <div key={state.notice.n} className="rx-hyp-layer rx-hyp-notice">
-              <Icon name="logout" size={18} className="hx-red" /> {state.notice.text}
+            <div
+              key={state.notice.n}
+              className={cx(
+                layer,
+                "top-[70px] left-1/2 flex -translate-x-1/2 items-center gap-2.5 border-l-3 border-red bg-mantle px-[18px] py-3 text-[14px] shadow-popup",
+                "animate-[rx-layer-in_var(--rx-hw-layer)_both,rx-layer-out_.4s_linear_2.2s_forwards]",
+              )}
+            >
+              <Icon name="logout" size={18} className="text-red" /> {state.notice.text}
             </div>
           )}
-          {captions && caption && playing && <div className="rx-hyp-caption">{caption}</div>}
-          {showKeys && <KeystrokeVisualizer strokes={strokes} className="rx-hyp-keys" placeholder={modifier === "implied" ? "click here, then h j k l, ⏎, 1–9 … (SUPER is implied)" : "click here, then use your binds"} />}
+          {captions && caption && playing && (
+            <div className="absolute bottom-6 left-6 z-40 max-w-[900px] animate-[hx-fade_.3s_both] border-l-3 border-mauve bg-crust/86 px-4 py-2.5 text-[18px] backdrop-blur-[10px]">
+              {caption}
+            </div>
+          )}
+          {showKeys && (
+            <KeystrokeVisualizer
+              strokes={strokes}
+              className="absolute right-6 bottom-6 z-40 [zoom:1.35]"
+              placeholder={modifier === "implied" ? "click here, then h j k l, ⏎, 1–9 … (SUPER is implied)" : "click here, then use your binds"}
+            />
+          )}
         </div>
       </ScaleToFit>
+    </div>
+  );
+}
+
+/** The waybar layer: workspaces, focused title, preselect / scratchpad / volume chips, clock. */
+function HyprBar({ state, onWorkspace }: { state: State; onWorkspace: (n: number) => void }) {
+  const fwin = focused(state);
+  const wsList = Array.from({ length: 10 }, (_, i) => i + 1);
+  // Like waybar's hyprland/workspaces: only workspaces with windows, plus the focused one even when empty.
+  const occupied = wsList.filter((n) => n === state.active || Object.values(state.wins).some((w) => w.ws === String(n) && !w.closing));
+  const chip = "inline-flex h-6 items-center gap-1.5 bg-surface0 px-2.5";
+  return (
+    <div
+      data-component="HyprBar"
+      className="absolute inset-x-0 top-0 z-20 flex h-[35px] items-center gap-3 border-b border-surface0 bg-crust/78 px-2.5 text-[12.5px] backdrop-blur-[14px]"
+    >
+      <Icon name="arch" size={16} className="text-blue" />
+      <Workspaces
+        active={state.active}
+        workspaces={occupied.map((n) => ({ id: n, apps: [...new Set(Object.values(state.wins).filter((w) => w.ws === String(n) && !w.closing).map((w) => APPS[w.app].icon))] }))}
+        showApps
+        onSelect={onWorkspace}
+      />
+      <span className="max-w-[520px] truncate text-subtext0">{fwin ? APPS[state.wins[fwin]!.app].title : ""}</span>
+      <span className="flex-1" />
+      {state.preselect && <span className={chip}>preselect {state.preselect === "d" ? "↓" : "→"}</span>}
+      {state.special && <span className={chip}>special:magic</span>}
+      <span className={chip}>
+        <Icon name={state.muted ? "volumeOff" : "volumeHigh"} size={14} /> {state.muted ? "muted" : `${state.volume}%`}
+      </span>
+      <span className="px-1.5 font-bold">21:41</span>
+    </div>
+  );
+}
+
+interface HyprWindowProps {
+  win: Win;
+  rect: Rect;
+  focused: boolean;
+  /** Just opened: play the pop-in. */
+  opened: boolean;
+  preselect: "d" | "r" | null;
+  onFocus: () => void;
+  /** The close animation finished. */
+  onClosed: () => void;
+}
+
+// Blur, body and dim sit inside the border; the border itself is two masked edges that cross-fade on focus.
+const inner = "absolute inset-(--rx-hw-border) rounded-[max(0px,calc(var(--rx-hw-radius)_-_var(--rx-hw-border)))]";
+const edge =
+  "pointer-events-none absolute inset-0 rounded-[var(--rx-hw-radius)] p-(--rx-hw-border) [mask:linear-gradient(#000_0_0)_content-box_exclude,linear-gradient(#000_0_0)]";
+
+/** One client, decorated from the --rx-hw-* look variables (border, rounding, shadow, blur, opacity, dim). */
+function HyprWindow({ win: w, rect: r, focused: on, opened, preselect, onFocus, onClosed }: HyprWindowProps) {
+  const app = APPS[w.app];
+  const fade = cx("[transition:opacity_var(--rx-hw-fade-t)]", on ? "opacity-(--rx-hw-opacity-on)" : "opacity-(--rx-hw-opacity)");
+  return (
+    <div
+      data-component="HyprWindow"
+      className={cx(
+        "absolute rounded-[var(--rx-hw-radius)]",
+        "[transition:left_var(--rx-hw-move),top_var(--rx-hw-move),width_var(--rx-hw-move),height_var(--rx-hw-move),box-shadow_var(--rx-hw-border-t)]",
+        on ? "z-2 [box-shadow:var(--rx-hw-shadow)]" : "[box-shadow:var(--rx-hw-shadow-off)]",
+        w.float && (on ? "z-4" : "z-3"),
+        opened && "animate-[rx-hw-in_var(--rx-hw-in)_both]",
+        w.closing && "pointer-events-none z-1 animate-[rx-hw-out_var(--rx-hw-out)_forwards]",
+      )}
+      style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
+      onMouseDown={onFocus}
+      onAnimationEnd={(e: AnimationEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget && w.closing) onClosed();
+      }}
+    >
+      <div className={cx(inner, fade, "bg-base/82 [backdrop-filter:var(--rx-hw-blur)]")} />
+      <div className={cx(inner, fade, "overflow-hidden")} title={`${app.cls} — ${app.title}`}>
+        <AppContent app={w.app} />
+      </div>
+      <div
+        className={cx(inner, "pointer-events-none bg-black [transition:opacity_var(--rx-hw-dim-t)]", on ? "opacity-0" : "opacity-(--rx-hw-dim)")}
+      />
+      <div className={cx(edge, "bg-(--rx-hw-inactive)")} />
+      <div
+        className={cx(
+          edge,
+          "bg-[linear-gradient(var(--rx-hw-angle),var(--rx-hw-stops))] [animation:var(--rx-hw-angle-anim)] [transition:opacity_var(--rx-hw-border-t)] [--rx-hw-angle:var(--rx-hw-angle-0)]",
+          on ? "opacity-100" : "opacity-0",
+        )}
+      />
+      {preselect && (
+        <div
+          className={cx(
+            "pointer-events-none absolute animate-[hx-fade_.2s_both] bg-mauve/14 outline-2 -outline-offset-8 outline-mauve outline-dashed",
+            preselect === "d" ? "inset-x-0 top-1/2 bottom-0" : "inset-y-0 right-0 left-1/2",
+          )}
+        />
+      )}
     </div>
   );
 }

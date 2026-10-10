@@ -66,7 +66,8 @@ export function PowerMenu({ actions = defaultPowerActions, holdMs = 900, onActio
   };
   return (
     <div
-      className={cx("hx-power", className)}
+      data-component="PowerMenu"
+      className={cx("kit-type focus-ring w-fit text-text outline-none", className)}
       tabIndex={-1}
       onKeyDown={(e) => {
         const a = actions.find((x) => x.key.toLowerCase() === e.key.toLowerCase());
@@ -74,28 +75,19 @@ export function PowerMenu({ actions = defaultPowerActions, holdMs = 900, onActio
       }}
       onKeyUp={cancel}
     >
-      <div className="hx-power-grid" style={{ gridTemplateColumns: `repeat(${actions.length}, minmax(112px, 1fr))` }}>
-        {actions.map((a) => {
-          const p = hold?.id === a.id ? progress : fired === a.id ? 1 : 0;
-          return (
-            <button
-              key={a.id}
-              type="button"
-              className={cx("hx-pw", p > 0 && "is-filling", fired === a.id && "is-fired")}
-              style={{ ["--hx-acc" as string]: accentVar(a.accent), ["--hx-hold" as string]: p }}
-              onPointerDown={() => start(a)}
-              onPointerUp={cancel}
-              onPointerLeave={cancel}
-            >
-              <Kbd>{a.key}</Kbd>
-              <Icon name={a.icon} className="hx-pw-icon" />
-              <span className="hx-pw-label">{a.label}</span>
-              {a.confirm && <span className="hx-pw-hint">hold</span>}
-            </button>
-          );
-        })}
+      <div className="grid gap-px bg-surface0 shadow-popup ring ring-surface0" style={{ gridTemplateColumns: `repeat(${actions.length}, minmax(112px, 1fr))` }}>
+        {actions.map((a) => (
+          <PowerTile
+            key={a.id}
+            action={a}
+            fill={hold?.id === a.id ? progress : fired === a.id ? 1 : 0}
+            fired={fired === a.id}
+            onPress={() => start(a)}
+            onRelease={cancel}
+          />
+        ))}
       </div>
-      <div className="hx-power-foot">
+      <div className="flex justify-between gap-[18px] px-0.5 pt-2.5 text-[11px] text-overlay1">
         {footer ?? (
           <>
             <span>romeo@archlinux</span>
@@ -104,5 +96,46 @@ export function PowerMenu({ actions = defaultPowerActions, holdMs = 900, onActio
         )}
       </div>
     </div>
+  );
+}
+
+interface PowerTileProps {
+  action: PowerAction;
+  /** Hold progress 0–1; the accent fills the tile from the bottom. */
+  fill: number;
+  fired: boolean;
+  onPress: () => void;
+  onRelease: () => void;
+}
+
+function PowerTile({ action: a, fill, fired, onPress, onRelease }: PowerTileProps) {
+  const lit = fill > 0 || fired;
+  return (
+    <button
+      type="button"
+      data-component="PowerTile"
+      className={cx(
+        "unbutton group/pw relative flex h-[120px] w-full min-w-[112px] cursor-pointer flex-col items-center justify-center gap-2.5 overflow-hidden bg-mantle text-text",
+        "transition-[background-color] hover:bg-base",
+        "before:absolute before:inset-0 before:origin-bottom before:scale-y-(--hx-hold) before:bg-acc",
+        "after:absolute after:inset-x-0 after:top-0 after:h-0.5 after:scale-x-0 after:bg-acc after:transition-[scale] after:duration-(--hx-med) after:ease-hx hover:after:scale-x-100",
+        fired && "animate-flash",
+      )}
+      style={{ ["--hx-acc" as string]: accentVar(a.accent), ["--hx-hold" as string]: fill }}
+      onPointerDown={onPress}
+      onPointerUp={onRelease}
+      onPointerLeave={onRelease}
+    >
+      <Kbd className="absolute top-[7px] right-[7px]">{a.key}</Kbd>
+      <Icon
+        name={a.icon}
+        className={cx(
+          "relative text-[30px] transition-[color,translate] duration-(--hx-med) ease-overshot group-hover/pw:-translate-y-0.5",
+          lit ? "text-crust" : "text-acc",
+        )}
+      />
+      <span className={cx("relative text-[12px]", lit && "text-crust")}>{a.label}</span>
+      {a.confirm && <span className="absolute bottom-[7px] text-[9px] tracking-[.16em] text-overlay0 uppercase">hold</span>}
+    </button>
   );
 }

@@ -1,15 +1,14 @@
 import { useState, type ReactNode } from "react";
-import { Button, Icon } from "../ui";
+import { Button, Icon, cx } from "../ui";
 import { terminalConfig, CONFIG_PATHS, type Emulator, type TerminalOptions } from "./exports";
 import { useCssPalette } from "./use-css-palette";
-import "./theme.css";
 
 const COMMENT = /^\s*(#|\/\/|--|\/\*)/;
 const HEX = /(#[0-9a-fA-F]{6}\b|rgba\([0-9a-fA-F]{8}\)|\b[0-9a-fA-F]{6}\b)/g;
 
 /** One line, with every colour value given a swatch. */
 function highlight(line: string): ReactNode {
-  if (COMMENT.test(line)) return <span className="hx-faint">{line}</span>;
+  if (COMMENT.test(line)) return <span className="text-overlay1">{line}</span>;
   const parts: ReactNode[] = [];
   let last = 0;
   for (const m of line.matchAll(HEX)) {
@@ -19,8 +18,8 @@ function highlight(line: string): ReactNode {
     if (!raw.startsWith("#") && !raw.startsWith("rgba(") && !/[\s=:]$/.test(line.slice(0, m.index))) continue;
     parts.push(line.slice(last, m.index));
     parts.push(
-      <span key={m.index} className="rx-cfg-hex">
-        <i style={{ background: hex }} />
+      <span key={m.index} className="whitespace-nowrap">
+        <i className="mr-[.35em] inline-block size-[.9em] align-[-.1em] shadow-[0_0_0_1px_var(--hx-surface1)]" style={{ background: hex }} />
         {raw}
       </span>,
     );
@@ -32,7 +31,7 @@ function highlight(line: string): ReactNode {
     return (
       <>
         {key[1]}
-        <span className="hx-lavender">{key[2]}</span>
+        <span className="text-lavender">{key[2]}</span>
         {line.slice(key[1]!.length + key[2]!.length)}
       </>
     );
@@ -60,15 +59,16 @@ export function ConfigFile({ file, text, maxHeight = 420, className }: ConfigFil
     });
   };
   return (
-    <figure className={["rx-cfg", className].filter(Boolean).join(" ")}>
-      <figcaption>
+    <figure data-component="ConfigFile" className={cx("m-0 bg-crust font-hx shadow-[0_0_0_1px_var(--hx-surface0)]", className)}>
+      <figcaption className="flex items-center gap-2 border-b border-surface0 py-1.5 pr-1.5 pl-3 text-[11px] text-overlay1">
         <Icon name="code" size={14} />
-        <span className="rx-cfg-file">{file}</span>
+        <span className="flex-1 truncate text-subtext0">{file}</span>
         <Button size="sm" variant="ghost" icon={copied ? "check" : "plus"} accent={copied ? "green" : "mauve"} onClick={copy}>
           {copied ? "copied" : "copy"}
         </Button>
       </figcaption>
-      <pre style={{ maxHeight }}>
+      {/* content-box, so maxHeight is the text area alone */}
+      <pre className="m-0 box-content overflow-auto px-3 py-2.5 font-hx text-[11.5px] leading-[1.6] text-text" style={{ maxHeight }}>
         {text.replace(/\n$/, "").split("\n").map((line, i) => (
           <div key={i}>{line ? highlight(line) : " "}</div>
         ))}
@@ -87,7 +87,7 @@ export interface TerminalConfigProps extends TerminalOptions {
 export function TerminalConfig({ emulator = "ghostty", maxHeight, className, ...options }: TerminalConfigProps) {
   const [ref, palette] = useCssPalette();
   return (
-    <div ref={ref}>
+    <div ref={ref} data-component="TerminalConfig">
       <ConfigFile file={CONFIG_PATHS[emulator]} text={terminalConfig[emulator](palette, options)} maxHeight={maxHeight} className={className} />
     </div>
   );

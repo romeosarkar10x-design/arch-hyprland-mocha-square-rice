@@ -57,7 +57,9 @@ export function Gauge({
   };
   return (
     <div
-      className={cx("hx-gauge", `is-${lv}`, className)}
+      data-component="Gauge"
+      data-level={lv}
+      className={cx("kit-type relative flex-none text-text", className)}
       style={{ width: size, height: size, ["--hx-g" as string]: color }}
       role="meter"
       aria-label={label}
@@ -65,7 +67,7 @@ export function Gauge({
       aria-valuemin={0}
       aria-valuemax={max}
     >
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg className="absolute inset-0 overflow-visible" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {Array.from({ length: segments }, (_, i) => {
           const a0 = start + i * each + gap / 2;
           const a1 = start + (i + 1) * each - gap / 2;
@@ -73,20 +75,24 @@ export function Gauge({
             <path
               key={i}
               d={arc(a0, a1)}
-              className={cx("hx-gauge-seg", i < lit && "is-on", i === lit - 1 && "is-head")}
+              className={cx(
+                "stroke-surface0 transition-[stroke,stroke-width] duration-(--hx-med)",
+                i < lit && "stroke-(--hx-g)",
+                i === lit - 1 && "stroke-text",
+              )}
               strokeWidth={i < lit ? 7 : 5}
               fill="none"
             />
           );
         })}
       </svg>
-      <div className="hx-gauge-val">
-        <span className="hx-gauge-num">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pt-1.5">
+        <span className="text-[27px] leading-none font-bold tracking-[-.03em] text-(--hx-g)">
           {Math.round(shown)}
-          <small>{unit}</small>
+          <small className="ml-px text-[12px] font-normal tracking-normal text-subtext0">{unit}</small>
         </span>
-        <span className="hx-gauge-cap">{label}</span>
-        {sub && <span className="hx-gauge-sub">{sub}</span>}
+        <span className="mt-1.5 text-[9.5px] tracking-[.18em] text-subtext0 uppercase">{label}</span>
+        {sub && <span className="mt-0.5 text-[10px] whitespace-nowrap text-overlay1">{sub}</span>}
       </div>
     </div>
   );

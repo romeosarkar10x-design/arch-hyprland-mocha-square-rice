@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { BluetoothMenu } from "./connections";
+import { BluetoothMenu } from "./bluetooth-menu";
 
 const meta = {
   title: "Shell/Popups/Bluetooth",

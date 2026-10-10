@@ -19,6 +19,7 @@ export function GpuPanel({ data, paused, onOpenMonitor, className }: GpuPanelPro
   const g = data ?? sim.gpu;
   return (
     <Panel
+      data-component="GpuPanel"
       className={className}
       icon="gpu"
       accent="green"
@@ -30,13 +31,13 @@ export function GpuPanel({ data, paused, onOpenMonitor, className }: GpuPanelPro
           <Button icon="chart" accent="green" onClick={onOpenMonitor}>
             nvidia-smi
           </Button>
-          <span className="hx-spacer" />
-          <span className="hx-faint hx-small">PCIe 4.0 x16</span>
+          <span className="flex-1" />
+          <span className="text-overlay1 text-sm">PCIe 4.0 x16</span>
         </>
       }
     >
       <PanelSection>
-        <div className="hx-gauges">
+        <div className="grid grid-cols-3 justify-items-center">
           <Gauge value={g.usage} label="load" accent="green" />
           <Gauge value={g.temp} max={100} unit="°" label="temp" accent="teal" warn={75} crit={85} sub={`fan ${g.fan}%`} />
           <Gauge value={g.power} max={g.powerLimit} unit="W" label="power" accent="peach" warn={70} crit={90} sub={`of ${g.powerLimit} W`} />
@@ -45,7 +46,7 @@ export function GpuPanel({ data, paused, onOpenMonitor, className }: GpuPanelPro
       <PanelSection
         label="power draw · 60 s"
         aside={
-          <span className="hx-dim">
+          <span className="text-subtext0">
             {"peak "}
             {Math.round(Math.max(...g.powerHistory))}
             {" W"}
@@ -67,7 +68,7 @@ export function GpuPanel({ data, paused, onOpenMonitor, className }: GpuPanelPro
           readout={
             <>
               <b>{(g.vramUsed / 1024).toFixed(1)}</b>{" "}
-              <span className="hx-faint">
+              <span className="text-overlay1">
                 {"/ "}
                 {(g.vramTotal / 1024).toFixed(0)}
                 {" GiB"}
@@ -83,7 +84,7 @@ export function GpuPanel({ data, paused, onOpenMonitor, className }: GpuPanelPro
           readout={
             <>
               <b>{g.clock}</b>{" "}
-              <span className="hx-faint">
+              <span className="text-overlay1">
                 {"/ "}
                 {g.maxClock}
                 {" MHz"}

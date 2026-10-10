@@ -15,9 +15,13 @@ export interface SparklineProps {
 export function Sparkline({ data, max = 100, bars = 8, height = 14, className }: SparklineProps) {
   const pts = data.slice(-bars);
   return (
-    <span className={cx("hx-spark", className)} style={{ height }} aria-hidden>
+    <span data-component="Sparkline" className={cx("ml-0.5 inline-flex items-end gap-px", className)} style={{ height }} aria-hidden>
       {pts.map((v, i) => (
-        <i key={i} style={{ height: `${Math.max(8, Math.min(100, (v / max) * 100))}%` }} />
+        <i
+          key={i}
+          className="w-0.5 bg-current opacity-45 transition-[height] duration-(--hx-slow) ease-hx last:opacity-100"
+          style={{ height: `${Math.max(8, Math.min(100, (v / max) * 100))}%` }}
+        />
       ))}
     </span>
   );

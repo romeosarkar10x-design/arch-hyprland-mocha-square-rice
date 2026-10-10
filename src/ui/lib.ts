@@ -1,13 +1,38 @@
 import { useEffect, useLayoutEffect, useRef, useState, type DependencyList } from "react";
+import { extendTailwindMerge } from "tailwind-merge";
 
 /** A Mocha colour name. Every coloured component takes one as `accent`. */
 export type Accent = "mauve" | "pink" | "yellow" | "peach" | "red" | "green" | "sky" | "sapphire" | "teal" | "blue" | "lavender" | "text";
 
 export type Level = "ok" | "warn" | "crit";
 
+// Teach tailwind-merge the kit's theme names that don't look like stock Tailwind ones.
+const twMerge = extendTailwindMerge({
+  extend: {
+    theme: {
+      text: ["display"],
+      shadow: ["popup", "window"],
+      animate: ["blink", "slide", "drop", "pop", "fade", "timer", "caret", "grow", "turn", "flash"],
+      ease: ["hx", "overshot"],
+    },
+  },
+});
+
+/** Join class names; later Tailwind utilities win over earlier conflicting ones (so `className` overrides). */
 export function cx(...parts: (string | false | null | undefined)[]) {
-  return parts.filter(Boolean).join(" ");
+  return twMerge(parts.filter(Boolean).join(" "));
 }
+
+/**
+ * `data-component` names every rendered component so it can be found from the DOM inspector.
+ * A component whose root is another kit component passes its own name down; the root then
+ * lists both, outermost first ("CpuPanel Panel"), so `[data-component~="Panel"]` still matches.
+ */
+export interface ComponentTag {
+  "data-component"?: string;
+}
+
+export const componentName = (own: string, outer: string | undefined) => (outer ? `${outer} ${own}` : own);
 
 export const accentVar = (a: string | undefined, fallback = "mauve") => `var(--hx-${a ?? fallback})`;
 

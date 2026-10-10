@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Icon, Shortcut, type IconName } from "../ui";
-import "./shell.css";
+import { Icon, Shortcut, cx, type IconName } from "../ui";
 
 export interface Keybind {
   keys: string[];
@@ -81,35 +80,50 @@ export function KeybindCheatsheet({ groups = defaultKeybinds, query: initial = "
     .map((g) => ({ ...g, binds: g.binds.filter((b) => !q || `${b.action} ${b.keys.join(" ")} ${b.dispatch ?? ""}`.toLowerCase().includes(q)) }))
     .filter((g) => g.binds.length);
   return (
-    <div className={["rx-keys", className].filter(Boolean).join(" ")} style={{ width }}>
-      <header className="rx-keys-head">
-        <Icon name="keyboard" size={20} className="hx-mauve" />
+    <div
+      data-component="KeybindCheatsheet"
+      className={cx("kit-type max-w-full bg-mantle/96 text-text shadow-popup ring ring-surface0", className)}
+      style={{ width }}
+    >
+      <header className="flex items-center gap-3 border-b border-surface0 px-4 py-3 text-[14px]">
+        <Icon name="keyboard" size={20} className="text-mauve" />
         <b>Keybinds</b>
-        <label className="rx-clip-search rx-keys-search">
+        <label className="flex h-[30px] flex-1 items-center gap-2.5 px-2.5 text-mauve inset-ring inset-ring-surface1">
           <Icon name="search" size={14} />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="filter…" />
+          <input
+            className="uninput h-full flex-1 text-[12px] text-text placeholder:text-overlay0"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="filter…"
+          />
         </label>
-        <span className="hx-faint">~/.config/hypr/hyprland.lua</span>
+        <span className="text-[11px] text-overlay1">~/.config/hypr/hyprland.lua</span>
       </header>
-      <div className="rx-keys-cols">
+      <div className="columns-[3_300px] gap-x-7 px-[18px] pt-1.5 pb-[18px]">
         {shown.map((g) => (
-          <section key={g.title}>
-            <h3 className="hx-caps">
-              <Icon name={g.icon} size={12} /> {g.title}
-            </h3>
-            {g.binds.map((b) => (
-              <div key={b.action} className="rx-keys-row">
-                <span>
-                  {b.action}
-                  {showDispatch && b.dispatch && <small className="hx-faint">{b.dispatch}</small>}
-                </span>
-                <Shortcut keys={b.keys} />
-              </div>
-            ))}
-          </section>
+          <KeybindSection key={g.title} group={g} showDispatch={showDispatch} />
         ))}
-        {shown.length === 0 && <p className="hx-faint">no bind matches “{query}”</p>}
+        {shown.length === 0 && <p className="text-overlay1">no bind matches “{query}”</p>}
       </div>
     </div>
+  );
+}
+
+function KeybindSection({ group: g, showDispatch }: { group: KeybindGroup; showDispatch: boolean }) {
+  return (
+    <section data-component="KeybindSection" className="break-inside-avoid pt-3">
+      <h3 className="caps m-0 mb-1.5 text-mauve">
+        <Icon name={g.icon} size={12} /> {g.title}
+      </h3>
+      {g.binds.map((b) => (
+        <div key={b.action} className="flex min-h-[30px] items-center justify-between gap-3 border-b border-surface0/60 py-[3px] text-[12px]">
+          <span className="flex min-w-0 flex-col">
+            {b.action}
+            {showDispatch && b.dispatch && <small className="truncate text-[10px] text-overlay1">{b.dispatch}</small>}
+          </span>
+          <Shortcut keys={b.keys} />
+        </div>
+      ))}
+    </section>
   );
 }

@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { Icon, Kbd } from "../ui";
-import "./shell.css";
+import { Icon, Kbd, cx } from "../ui";
 
 export interface Stroke {
   id: number;
@@ -77,26 +76,50 @@ export interface KeystrokeVisualizerProps {
 /** A small on-screen window showing the keys being pressed, one combo after another left to right (newest on the right), for screencasts and demos. */
 export function KeystrokeVisualizer({ strokes, linger = 2400, titled = true, placeholder = "press some keys…", className, style }: KeystrokeVisualizerProps) {
   return (
-    <div className={["rx-ksv", className].filter(Boolean).join(" ")} style={{ "--rx-ksv-linger": `${linger}ms`, ...style } as CSSProperties} aria-live="polite">
+    <div
+      data-component="KeystrokeVisualizer"
+      className={cx(
+        "inline-flex w-[420px] max-w-full flex-col border-t-2 border-mauve bg-crust/88 font-hx text-text shadow-popup ring ring-surface0 backdrop-blur-[12px]",
+        className,
+      )}
+      style={{ "--rx-ksv-linger": `${linger}ms`, ...style } as CSSProperties}
+      aria-live="polite"
+    >
       {titled && (
-        <header className="rx-ksv-head">
+        <header className="flex items-center gap-1.5 border-b border-surface0 px-2.5 py-1 text-[10.5px] tracking-[.08em] text-overlay1 uppercase">
           <Icon name="keyboard" size={12} /> keys
         </header>
       )}
-      <div className="rx-ksv-list">
-        {strokes.length === 0 && <span className="rx-ksv-none hx-faint">{placeholder}</span>}
-        {strokes.map((s) => (
-          <span key={`${s.id}:${s.count}`} className="rx-ksv-combo">
-            {s.keys.map((k, i) => (
-              <span key={i} className="rx-ksv-key">
-                {i > 0 && <i>+</i>}
-                <Kbd>{k}</Kbd>
-              </span>
-            ))}
-            {s.count > 1 && <b className="rx-ksv-count">×{s.count}</b>}
-          </span>
+      {/* One row, newest on the right; older combos overflow off the left edge. */}
+      <div className="flex min-h-16 flex-row flex-nowrap items-center justify-end gap-2.5 overflow-hidden p-2.5">
+        {strokes.length === 0 && <span className="mr-auto text-[12px] whitespace-nowrap text-overlay1">{placeholder}</span>}
+        {strokes.map((s, i) => (
+          <StrokeCombo key={`${s.id}:${s.count}`} stroke={s} latest={i === strokes.length - 1} />
         ))}
       </div>
     </div>
+  );
+}
+
+/** One combo; the latest stays bright, older ones fade after `--rx-ksv-linger`. */
+function StrokeCombo({ stroke: s, latest }: { stroke: Stroke; latest: boolean }) {
+  return (
+    <span
+      data-component="StrokeCombo"
+      className={cx(
+        "inline-flex items-center gap-1 whitespace-nowrap",
+        latest
+          ? "animate-[rx-ksv-in_.14s_var(--hx-ease-overshot)_both]"
+          : "animate-[rx-ksv-in_.14s_var(--hx-ease-overshot)_both,rx-ksv-out_.5s_ease-in_var(--rx-ksv-linger)_forwards]",
+      )}
+    >
+      {s.keys.map((k, i) => (
+        <span key={i} className="inline-flex items-center gap-1">
+          {i > 0 && <i className="text-[11px] text-overlay0 not-italic">+</i>}
+          <Kbd className={latest ? "text-text shadow-[inset_0_-2px_0_var(--hx-mauve)]" : undefined}>{k}</Kbd>
+        </span>
+      ))}
+      {s.count > 1 && <b className="text-[11px] text-mauve">×{s.count}</b>}
+    </span>
   );
 }

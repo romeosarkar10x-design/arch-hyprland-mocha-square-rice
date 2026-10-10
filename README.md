@@ -44,11 +44,20 @@ Data components (`Meter`, `Gauge`, `CoreGrid`, `BarSegment level`) colour by thr
 
 `CpuPanel`, `GpuPanel`, `MemoryPanel`, `NetworkPanel`, `AudioPanel` and `Desktop` simulate a live system (Ryzen 9 9900X, RTX 3090 Ti, 30.5 GiB) when given no `data`. Pass `data` (shape from `initialStats()`) to show fixed numbers, or `paused` to freeze. `ClockPanel` takes `now` to pin the time.
 
-## Tokens and utility classes
+## Styling: Tailwind on `--hx-*` tokens
 
-- CSS vars are `--hx-*`: palette (`--hx-crust` … `--hx-lavender`), `--hx-font`, `--hx-text-xs…display`, `--hx-space-1…5`, `--hx-bar-height` (34px), `--hx-shadow-popup`.
-- Utility classes: `hx-stats` (grid of `Stat` cells), `hx-caps` (small tracked uppercase label), `hx-dim` / `hx-faint` (muted text), `hx-small`, `hx-spacer` (flex filler), colour classes `hx-<accent>` (e.g. `hx-green`).
+- Components are styled with **Tailwind CSS v4** utilities. There is no per-component CSS; `src/ui/hyprland-ui.css` holds the tokens, the Tailwind theme and a few custom utilities.
+- CSS vars are `--hx-*`: palette (`--hx-crust` … `--hx-lavender`), `--hx-font`, `--hx-text-xs…display`, `--hx-space-1…5`, `--hx-bar-height` (34px), `--hx-shadow-popup`. The Tailwind theme maps onto them (`@theme inline`), so `<ThemeProvider>` overrides still retheme everything.
+- Theme names: colours `crust mantle base surface0-2 overlay0-1 subtext0 text` and the accents (`text-green`, `bg-surface0`, `border-mauve/60`…), plus `acc` (the component's `--hx-acc`); `font-hx`; text sizes `text-xs sm md lg xl display`; `shadow-popup` / `shadow-window`; easings `ease-hx` / `ease-overshot`. Tailwind's default colours, fonts, radii and shadows are removed.
+- Custom utilities: `caps` (small tracked uppercase label), `kit-type` (font, tabular numerals), `focus-ring` (lavender ring on focused descendants), `unbutton` / `uninput` (strip native chrome), `wallpaper-image`.
+- Muted text is `text-subtext0` (dim) or `text-overlay1` (faint); use `flex-1` as a spacer and `StatGrid` for a grid of `Stat`s.
+- No preflight: everything is `box-sizing: border-box` with `border: 0 solid`, but browser defaults (margins, headings, lists) are otherwise kept.
+- Merge classes with `cx` (tailwind-merge, configured for the custom theme) so a `className` prop overrides the component's own utilities.
 - Never add `border-radius`. Separate with 1px `--hx-surface0` hairlines, not shadows.
+
+## Finding a component in the UI
+
+Every component's root carries `data-component="Name"` (sub-parts too: `PanelHeader`, `LauncherRow`, `ProcRow`…). When a component renders another as its root, both names are listed, outer first (`data-component="CpuPanel Panel"`), so select with `[data-component~="Panel"]`. Inspect any element and read the nearest `data-component` up the tree.
 
 ## Composition
 
@@ -63,12 +72,13 @@ The kit lives in `src/ui/`, plain TypeScript + React:
 - `src/ui/index.ts` — the entry point. Import components from here; it also pulls in the fonts and `hyprland-ui.css`.
 - `src/ui/<group>/<name>.tsx` — one component per file (kebab-case, e.g. `panel-section.tsx`) with its exported `<Name>Props`, next to `<name>.stories.tsx`. Groups: `foundations`, `controls`, `data`, `bar`, `popups`, `overlays`, `desktop`.
 - `src/ui/lib.ts` (`Accent`, `cx`, `level`, `bytes`, canvas and timer hooks), `src/ui/icons.ts` (`icons`, `IconName`), `src/ui/stats.ts` (the simulated system behind the live panels).
-- `src/ui/hyprland-ui.css` — tokens and every component's styles.
+- `src/ui/hyprland-ui.css` — Tailwind entry: tokens, the `@theme` mapping, custom utilities and keyframes.
+- `src/rice.css` — scrollbars and the keyframes the rice (shell, terminal, Hyprland, task manager) animates with.
 - `font/` — asiLonoM `@font-face` files.
 
 ## Tokens
 
-63 CSS custom properties, declared at the top of `src/ui/hyprland-ui.css`.
+CSS custom properties, declared in `:root` in `src/ui/hyprland-ui.css`.
 
 - **color** (12): `--hx-surface0`, `--hx-surface1`, `--hx-surface2`, …
 - **spacing** (7): `--hx-gap-in`, `--hx-gap-out`, `--hx-space-1`, …
@@ -119,7 +129,8 @@ The kit lives in `src/ui/`, plain TypeScript + React:
 - `Meter` — Segmented cell meter with a caption row. Reads like an LED bar.
 - `Sparkline` — Tiny bar sparkline that inherits the text colour. Sits inside bar segments.
 - `StackBar` — Proportional stacked bar with a legend, e.g. RAM used / cached / free.
-- `Stat` — Labelled figure: caps label over a large mono value. Used in grids of 24.
+- `KeyValueList` — Two-column `dl` of labels and values (polkit details, tooltips).
+- `Stat` — Labelled figure: caps label over a large mono value. Used in grids of 2–4 via `StatGrid`.
 - `Visualizer` — cava-style spectrum on canvas with falling peak caps and a bass-to-treble gradient.
 
 ### foundations

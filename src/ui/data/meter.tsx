@@ -27,16 +27,19 @@ export function Meter({ value, label, readout, accent = "mauve", cells = 32, pea
   const pk = peak != null ? Math.min(cells - 1, Math.round((clamp(peak) / 100) * cells) - 1) : -1;
   const color = levels ? levelVar(level(v), accentVar(accent)) : accentVar(accent);
   return (
-    <div className={cx("hx-meter", className)} style={{ ["--hx-m" as string]: color }}>
+    <div data-component="Meter" className={cx("kit-type flex flex-col gap-1.5 text-text", className)} style={{ ["--hx-m" as string]: color }}>
       {(label != null || readout != null) && (
-        <div className="hx-meter-top">
-          <span className="hx-meter-label">{label}</span>
-          <span className="hx-meter-readout">{readout ?? `${Math.round(v)}%`}</span>
+        <div className="flex items-baseline justify-between text-[12px]">
+          <span className="text-subtext0">{label}</span>
+          <span className="[&_b]:font-semibold [&_b]:text-text">{readout ?? `${Math.round(v)}%`}</span>
         </div>
       )}
-      <div className="hx-meter-cells" style={{ gridTemplateColumns: `repeat(${cells}, 1fr)`, height }}>
+      <div className="grid gap-0.5" style={{ gridTemplateColumns: `repeat(${cells}, 1fr)`, height }}>
         {Array.from({ length: cells }, (_, i) => (
-          <i key={i} className={cx(i < lit && "is-on", i === pk && i >= lit && "is-peak")} />
+          <i
+            key={i}
+            className={cx("bg-surface0 transition-[background-color] duration-(--hx-med)", i < lit && "bg-(--hx-m)", i === pk && i >= lit && "bg-text")}
+          />
         ))}
       </div>
     </div>

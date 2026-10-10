@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { accents } from "../storybook";
-import { Stat } from "./stat";
+import { Stat, StatGrid } from "./stat";
 
 const meta = {
   title: "Data/Stat",
@@ -20,20 +20,20 @@ export const Playground: Story = {};
 export const Grid: Story = {
   ...fixed,
   render: () => (
-    <div className="hx-stats" style={{ width: 420 }}>
+    <StatGrid style={{ width: 420 }}>
       <Stat label="used" value="9.4" hint="GiB" accent="mauve" />
       <Stat label="cached" value="4.6" hint="GiB" accent="blue" />
       <Stat label="available" value="21.1" hint="GiB" />
-    </div>
+    </StatGrid>
   ),
 };
 
 export const Rates: Story = {
   ...fixed,
   render: () => (
-    <div className="hx-stats" style={{ width: 320 }}>
+    <StatGrid style={{ width: 320 }}>
       <Stat label="down" value="2.4 MiB/s" accent="sapphire" />
       <Stat label="up" value="312 KiB/s" accent="pink" />
-    </div>
+    </StatGrid>
   ),
 };

@@ -1,9 +1,9 @@
 import { ConfigFile } from "../theme/config-file";
+import { cx } from "../ui";
 import type { Slot } from "../theme/palette";
 import { useCssPalette } from "../theme/use-css-palette";
 import { Compositor, type Layout } from "./compositor";
 import { ANIMATIONS, hyprlandLua, LOOK, type ColourRef, type HyprLook } from "./config";
-import "./hypr.css";
 
 export interface WindowLookProps {
   gapsIn?: number;
@@ -62,7 +62,11 @@ export function WindowLook({ showConfig = true, rotateBorder = true, windows = L
   const animations = { ...ANIMATIONS, borderangle: { ...ANIMATIONS.borderangle!, enabled: rotateBorder } };
   const [ref, palette] = useCssPalette();
   return (
-    <div ref={ref} className={["rx-look", showConfig && "has-config"].filter(Boolean).join(" ")}>
+    <div
+      ref={ref}
+      data-component="WindowLook"
+      className={cx("grid gap-4", showConfig && "items-start min-[1101px]:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]")}
+    >
       <Compositor look={look} animations={animations} windows={windows} showKeys={false} />
       {showConfig && <ConfigFile file="~/.config/hypr/look.lua" text={hyprlandLua(look, palette, animations)} maxHeight={640} />}
     </div>

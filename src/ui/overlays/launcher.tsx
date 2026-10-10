@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "../foundations/icon";
 import { IconTile } from "../foundations/icon-tile";
+import { Corners } from "../popups/panel";
 import { Kbd } from "../foundations/kbd";
 import type { IconName } from "../icons";
 import { cx, type Accent } from "../lib";
@@ -99,15 +100,17 @@ export function Launcher({
   );
   useEffect(() => setSel(0), [q]);
   return (
-    <div className={cx("hx-launch", className)} style={{ width }}>
-      <i className="hx-corner tl" />
-      <i className="hx-corner tr" />
-      <i className="hx-corner bl" />
-      <i className="hx-corner br" />
-      <div className="hx-launch-in">
-        <Icon name="search" />
+    <div
+      data-component="Launcher"
+      className={cx("kit-type focus-ring relative bg-mantle text-text shadow-popup ring ring-surface0 [--hx-acc:var(--hx-mauve)]", className)}
+      style={{ width }}
+    >
+      <Corners />
+      <div data-component="LauncherSearch" className="flex h-14 items-center gap-3 border-b border-surface0 px-4 text-[16px]">
+        <Icon name="search" className="text-[20px] text-mauve" />
         <input
           ref={input}
+          className="flex-1 appearance-none border-0 bg-transparent p-0 font-hx text-[16px] text-text caret-mauve placeholder:text-overlay0"
           value={q}
           placeholder={placeholder}
           spellCheck={false}
@@ -126,58 +129,86 @@ export function Launcher({
             if (e.key === "Escape") onClose?.();
           }}
         />
-        <span className="hx-launch-count">{results.length}</span>
+        <span className="bg-surface0 px-1.5 py-0.5 text-[11px] text-overlay1">{results.length}</span>
       </div>
-      <div className="hx-launch-list" role="listbox">
-        {results.length === 0 && (
-          <div className="hx-launch-empty">
-            <span>
-              {"no match for "}
-              <b>"{q}"</b>
-            </span>
-            <span className="hx-faint">
-              {"press "}
-              <Kbd>↵</Kbd>
-              {" to run it as a command"}
-            </span>
-          </div>
-        )}
+      <div className="max-h-[340px] overflow-auto p-1.5" role="listbox">
+        {results.length === 0 && <LauncherEmpty query={q} />}
         {results.map(({ it, hits }, i) => (
-          <div
-            key={it.id}
-            role="option"
-            aria-selected={i === sel}
-            className={cx("hx-launch-row", i === sel && "is-selected")}
-            onMouseEnter={() => setSel(i)}
-            onClick={() => onLaunch?.(it)}
-          >
-            <IconTile icon={it.icon} accent={it.accent} size={30} />
-            <span className="hx-launch-name">{highlight(it.name, hits)}</span>
-            <span className="hx-launch-detail">{it.detail}</span>
-            <Kbd>↵</Kbd>
-          </div>
+          <LauncherRow key={it.id} item={it} hits={hits} selected={i === sel} onHover={() => setSel(i)} onLaunch={() => onLaunch?.(it)} />
         ))}
       </div>
-      <div className="hx-launch-foot">
-        <span>
-          <Kbd>↑</Kbd>
-          <Kbd>↓</Kbd>
-          {" move"}
-        </span>
-        <span>
-          <Kbd>↵</Kbd>
-          {" open"}
-        </span>
-        <span>
-          <Kbd>esc</Kbd>
-          {" close"}
-        </span>
-        <span className="hx-spacer" />
-        <span>
-          <Kbd>SUPER</Kbd>
-          <Kbd>R</Kbd>
-        </span>
-      </div>
+      <LauncherFooter />
+    </div>
+  );
+}
+
+interface LauncherRowProps {
+  item: LauncherItem;
+  hits: number[];
+  selected: boolean;
+  onHover: () => void;
+  onLaunch: () => void;
+}
+
+function LauncherRow({ item, hits, selected, onHover, onLaunch }: LauncherRowProps) {
+  return (
+    <div
+      data-component="LauncherRow"
+      role="option"
+      aria-selected={selected}
+      className={cx(
+        "relative flex cursor-pointer items-center gap-3 px-2.5 py-1.5",
+        selected && "bg-surface0 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-mauve",
+      )}
+      onMouseEnter={onHover}
+      onClick={onLaunch}
+    >
+      <IconTile icon={item.icon} accent={item.accent} size={30} />
+      <span className="flex-1 text-[13.5px]">{highlight(item.name, hits)}</span>
+      <span className="text-[11px] text-overlay1">{item.detail}</span>
+      <Kbd className={selected ? undefined : "invisible"}>↵</Kbd>
+    </div>
+  );
+}
+
+function LauncherEmpty({ query }: { query: string }) {
+  return (
+    <div data-component="LauncherEmpty" className="flex flex-col items-center gap-2.5 p-[30px] text-[13px]">
+      <span>
+        {"no match for "}
+        <b>"{query}"</b>
+      </span>
+      <span className="text-overlay1">
+        {"press "}
+        <Kbd>↵</Kbd>
+        {" to run it as a command"}
+      </span>
+    </div>
+  );
+}
+
+function LauncherFooter() {
+  const hint = "inline-flex items-center gap-1";
+  return (
+    <div data-component="LauncherFooter" className="flex items-center gap-4 border-t border-surface0 bg-crust px-4 py-2 text-[11px] text-overlay1">
+      <span className={hint}>
+        <Kbd>↑</Kbd>
+        <Kbd>↓</Kbd>
+        {" move"}
+      </span>
+      <span className={hint}>
+        <Kbd>↵</Kbd>
+        {" open"}
+      </span>
+      <span className={hint}>
+        <Kbd>esc</Kbd>
+        {" close"}
+      </span>
+      <span className="flex-1" />
+      <span className={hint}>
+        <Kbd>SUPER</Kbd>
+        <Kbd>R</Kbd>
+      </span>
     </div>
   );
 }
@@ -185,5 +216,13 @@ export function Launcher({
 function highlight(text: string, hits: number[]) {
   if (!hits.length) return text;
   const set = new Set(hits);
-  return Array.from(text).map((ch, i) => (set.has(i) ? <mark key={i}>{ch}</mark> : <Fragment key={i}>{ch}</Fragment>));
+  return Array.from(text).map((ch, i) =>
+    set.has(i) ? (
+      <mark key={i} className="bg-transparent font-bold text-mauve underline decoration-1 underline-offset-[3px]">
+        {ch}
+      </mark>
+    ) : (
+      <Fragment key={i}>{ch}</Fragment>
+    ),
+  );
 }

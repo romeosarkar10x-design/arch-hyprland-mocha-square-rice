@@ -22,7 +22,7 @@ export const Tones: Story = {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
       {(["crust", "mantle", "base"] as const).map((t) => (
         <Surface key={t} tone={t} padding={16}>
-          <span className="hx-caps">{t}</span>
+          <span className="caps">{t}</span>
           <div style={{ marginTop: 8 }}>
             <Button icon="settings">action</Button>
           </div>

@@ -58,15 +58,27 @@ export function Slider({
   };
   const pct = (v / max) * 100;
   return (
-    <div className={cx("hx-slider", muted && "is-muted", className)} style={{ ["--hx-acc" as string]: accentVar(accent) }}>
+    <div
+      data-component="Slider"
+      className={cx("kit-type flex items-center gap-2.5 text-text", className)}
+      style={{ ["--hx-acc" as string]: accentVar(accent) }}
+    >
       {icon && (
-        <button type="button" className="hx-slider-icon" onClick={onIconClick} aria-label={label ? `${label} toggle` : "toggle"}>
+        <button
+          type="button"
+          className={cx(
+            "unbutton grid size-7 flex-none cursor-pointer place-items-center text-[17px] transition-[background-color]",
+            muted ? "bg-surface0 text-overlay1" : "bg-acc/14 text-acc hover:bg-acc/26",
+          )}
+          onClick={onIconClick}
+          aria-label={label ? `${label} toggle` : "toggle"}
+        >
           <Icon name={icon} />
         </button>
       )}
       <div
         ref={ref}
-        className={cx("hx-slider-track", drag && "is-drag")}
+        className="group/track relative h-6 flex-1 cursor-pointer touch-none"
         role="slider"
         tabIndex={0}
         aria-label={label}
@@ -92,18 +104,31 @@ export function Slider({
           }
         }}
       >
-        <i className="hx-slider-rail" />
-        <i className="hx-slider-fill" style={{ width: `${pct}%` }} />
+        <i className="absolute inset-x-0 top-[9px] h-1.5 bg-surface0" />
+        <i
+          className={cx(
+            "absolute top-[9px] left-0 h-1.5",
+            muted ? "bg-surface2" : "bg-[repeating-linear-gradient(90deg,var(--hx-acc)_0_6px,color-mix(in_srgb,var(--hx-acc)_75%,transparent)_6px_8px)]",
+          )}
+          style={{ width: `${pct}%` }}
+        />
         {ticks > 0 && (
-          <span className="hx-slider-ticks">
+          <span className="pointer-events-none absolute inset-x-0 top-[19px] flex h-1 justify-between">
             {Array.from({ length: ticks }, (_, i) => (
-              <i key={i} />
+              <i key={i} className="w-px bg-surface1" />
             ))}
           </span>
         )}
-        <i className="hx-slider-thumb" style={{ left: `${pct}%` }} />
+        <i
+          className={cx(
+            "absolute top-1 -ml-1 h-4 w-2 bg-text shadow-[0_0_0_3px_var(--hx-mantle)] transition-[scale,background-color]",
+            "group-hover/track:scale-y-[1.2] group-hover/track:bg-acc",
+            drag && "scale-y-[1.2] bg-acc",
+          )}
+          style={{ left: `${pct}%` }}
+        />
       </div>
-      {showValue && <span className="hx-slider-value">{format(v)}</span>}
+      {showValue && <span className={cx("min-w-[38px] text-right text-[12px]", muted ? "text-overlay1" : "text-acc")}>{format(v)}</span>}
     </div>
   );
 }

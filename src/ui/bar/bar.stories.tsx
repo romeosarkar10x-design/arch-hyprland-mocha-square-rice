@@ -75,7 +75,7 @@ export const Full: Story = {
               64%
             </BarSegment>
             <BarSegment icon="coffeeOff" divider dim label="Caffeine" />
-            <BarSegment divider className="hx-tray" label="Tray">
+            <BarSegment divider variant="tray" label="Tray">
               <Icon name="chat" /> <Icon name="steam" /> <Icon name="bluetooth" />
             </BarSegment>
             <BarSegment variant="power" icon="power" label="Power" />

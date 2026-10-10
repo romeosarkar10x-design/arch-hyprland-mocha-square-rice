@@ -79,5 +79,9 @@ export function ThemeProvider({ wallpaper, palette, vibrancy = "balanced", scope
   }, [scope, key]);
 
   if (scope === "global") return <>{children}</>;
-  return <div style={{ display: "contents", ...(vars as CSSProperties) }}>{children}</div>;
+  return (
+    <div data-component="ThemeProvider" style={{ display: "contents", ...(vars as CSSProperties) }}>
+      {children}
+    </div>
+  );
 }

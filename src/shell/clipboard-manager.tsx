@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { Icon, Kbd, type IconName } from "../ui";
-import "./shell.css";
+import { Icon, Kbd, cx, type IconName } from "../ui";
 
 export interface ClipEntry {
   id: number;
@@ -46,10 +45,15 @@ export function ClipboardManager({ entries = demoClips, query: initialQuery = ""
   const current = shown[Math.min(sel, shown.length - 1)];
 
   return (
-    <div className={["rx-clip", className].filter(Boolean).join(" ")} style={{ width }}>
-      <label className="rx-clip-search">
+    <div
+      data-component="ClipboardManager"
+      className={cx("kit-type max-w-full border-t-2 border-mauve bg-mantle text-text shadow-popup ring ring-surface0", className)}
+      style={{ width }}
+    >
+      <label className="flex h-[47px] items-center gap-2.5 border-b border-surface0 px-4 text-mauve">
         <Icon name="search" size={16} />
         <input
+          className="uninput h-full flex-1 text-[14px] text-text placeholder:text-overlay0"
           value={query}
           placeholder="Search clipboard…"
           onChange={(e) => {
@@ -65,33 +69,51 @@ export function ClipboardManager({ entries = demoClips, query: initialQuery = ""
             e.preventDefault();
           }}
         />
-        <span className="hx-faint">{shown.length}</span>
+        <span className="text-overlay1">{shown.length}</span>
       </label>
-      <ul className="rx-clip-list" role="listbox">
+      <ul className="m-0 max-h-[360px] list-none overflow-auto p-1.5" role="listbox">
         {shown.map((e, i) => (
-          <li
-            key={e.id}
-            role="option"
-            aria-selected={e === current}
-            className={e === current ? "is-active" : undefined}
-            onMouseEnter={() => setSel(i)}
-            onClick={() => onPaste?.(e)}
-          >
-            {e.kind === "colour" ? <i className="rx-clip-colour" style={{ background: e.value }} /> : <Icon name={ICONS[e.kind]} size={16} />}
-            <span className={`rx-clip-value rx-clip--${e.kind}`}>{e.value}</span>
-            {e.pinned && <Icon name="check" size={12} className="hx-mauve" label="pinned" />}
-            <span className="hx-faint">{e.age}</span>
-          </li>
+          <ClipRow key={e.id} entry={e} active={e === current} onHover={() => setSel(i)} onPick={() => onPaste?.(e)} />
         ))}
-        {shown.length === 0 && <li className="rx-clip-none hx-faint">nothing matches “{query}”</li>}
+        {shown.length === 0 && <li className={cx(row, "cursor-default justify-center text-overlay1")}>nothing matches “{query}”</li>}
       </ul>
-      <footer className="rx-clip-foot">
+      <footer className="flex items-center gap-3.5 border-t border-surface0 bg-crust px-3.5 py-2 text-[11px] text-subtext0 *:inline-flex *:items-center *:gap-1">
         <span><Kbd>⏎</Kbd> paste</span>
         <span><Kbd>DEL</Kbd> delete</span>
         <span><Kbd>CTRL</Kbd><Kbd>P</Kbd> pin</span>
-        <span className="hx-spacer" />
-        <span className="hx-faint">cliphist · {items.length} entries</span>
+        <span className="flex-1" />
+        <span className="text-overlay1">cliphist · {items.length} entries</span>
       </footer>
     </div>
+  );
+}
+
+const row = "flex h-9 cursor-pointer items-center gap-3 px-2.5 text-[12.5px] text-subtext0";
+
+const valueStyle: Partial<Record<ClipEntry["kind"], string>> = {
+  code: "before:text-green before:content-['$_']",
+  url: "text-blue underline decoration-surface2",
+  image: "italic",
+};
+
+function ClipRow({ entry: e, active, onHover, onPick }: { entry: ClipEntry; active: boolean; onHover: () => void; onPick: () => void }) {
+  return (
+    <li
+      data-component="ClipRow"
+      role="option"
+      aria-selected={active}
+      className={cx(row, active && "bg-mauve/12 text-text shadow-[inset_2px_0_0_var(--hx-mauve)]")}
+      onMouseEnter={onHover}
+      onClick={onPick}
+    >
+      {e.kind === "colour" ? (
+        <i className="size-4 flex-none ring ring-surface1" style={{ background: e.value }} />
+      ) : (
+        <Icon name={ICONS[e.kind]} size={16} className={active ? "text-mauve" : undefined} />
+      )}
+      <span className={cx("flex-1 truncate", valueStyle[e.kind])}>{e.value}</span>
+      {e.pinned && <Icon name="check" size={12} className="text-mauve" label="pinned" />}
+      <span className="text-overlay1">{e.age}</span>
+    </li>
   );
 }

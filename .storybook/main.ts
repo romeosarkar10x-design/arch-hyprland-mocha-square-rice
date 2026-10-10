@@ -5,6 +5,11 @@ const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(ts|tsx)"],
   addons: ["@storybook/addon-docs"],
   framework: { name: "@storybook/react-vite", options: {} },
+  async viteFinal(vite) {
+    const { default: tailwindcss } = await import("@tailwindcss/vite");
+    vite.plugins = [...(vite.plugins ?? []), tailwindcss()];
+    return vite;
+  },
 };
 
 export default config;

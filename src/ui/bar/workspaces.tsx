@@ -16,14 +16,17 @@ export interface WorkspacesProps {
   onSelect?: (id: number) => void;
   /** Show app icons after the number. */
   showApps?: boolean;
+  /** Hide empty workspaces unless focused (waybar's hyprland/workspaces default). */
+  hideEmpty?: boolean;
   className?: string;
 }
 
 /** Hyprland workspace strip with app icons. Focused = surface1 block + mauve top strip; urgent blinks red. Wheel cycles. */
-export function Workspaces({ workspaces, active, onSelect, showApps = true, className }: WorkspacesProps) {
+export function Workspaces({ workspaces, active, onSelect, showApps = true, hideEmpty = true, className }: WorkspacesProps) {
   return (
     <nav
-      className={cx("hx-ws", className)}
+      data-component="Workspaces"
+      className={cx("kit-type mr-1 flex flex-none items-stretch text-text", className)}
       aria-label="Workspaces"
       onWheel={(e) => {
         if (!onSelect) return;
@@ -35,17 +38,26 @@ export function Workspaces({ workspaces, active, onSelect, showApps = true, clas
     >
       {workspaces.map((w) => {
         const has = (w.apps?.length ?? 0) > 0;
+        const focused = w.id === active;
         return (
           <button
             key={w.id}
             type="button"
-            aria-current={w.id === active ? "true" : undefined}
-            className={cx("hx-ws-btn", has && "has-apps", w.id === active && "is-active", w.urgent && "is-urgent")}
+            aria-current={focused ? "true" : undefined}
+            className={cx(
+              "unbutton relative flex cursor-pointer items-center gap-[7px] bg-transparent px-2.5 text-overlay0",
+              "transition-[color,background-color] hover:bg-surface0 hover:text-text",
+              has && "text-subtext0",
+              focused &&
+                "bg-surface1 font-bold text-mauve hover:bg-surface1 hover:text-mauve before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:animate-grow before:bg-mauve",
+              w.urgent && "animate-blink bg-red text-crust hover:bg-red hover:text-crust",
+              hideEmpty && !has && !focused && "hidden",
+            )}
             onClick={() => onSelect?.(w.id)}
           >
-            <span className="hx-ws-num">{w.id % 10}</span>
+            <span>{w.id % 10}</span>
             {showApps && has && (
-              <span className="hx-ws-apps">
+              <span className="flex gap-[5px] text-[15px]">
                 {w.apps?.map((a, i) => (
                   <Icon key={i} name={a} />
                 ))}

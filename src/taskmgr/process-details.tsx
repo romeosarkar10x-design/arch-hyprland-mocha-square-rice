@@ -1,4 +1,5 @@
-import { Button, Graph, Icon, IconButton, StackBar } from "../ui";
+import type { ReactNode } from "react";
+import { Button, Graph, Icon, IconButton, StackBar, cx } from "../ui";
 import type { Ask } from "./dialogs";
 import { MACHINE } from "./demo";
 import {
@@ -18,6 +19,20 @@ import {
   type Proc,
 } from "./procs";
 import type { TM } from "./store";
+import { count, link, state, tag } from "./styles";
+
+const kv = "m-0 grid grid-cols-[76px_1fr] gap-x-2.5 gap-y-1 [&_dd]:m-0 [&_dd]:min-w-0 [&_dd]:[overflow-wrap:anywhere] [&_dt]:text-overlay1";
+const list = "m-0 flex list-none flex-col gap-1 p-0";
+
+/** One titled block of the panel. */
+function DetailsSection({ title, children }: { title: ReactNode; children: ReactNode }) {
+  return (
+    <section data-component="DetailsSection" className="flex flex-col gap-2 border-b border-surface0 px-3.5 py-3 [&_p]:m-0 [&_p]:text-[11.5px] [&_p]:leading-normal">
+      <h4 className="caps m-0">{title}</h4>
+      {children}
+    </section>
+  );
+}
 
 export interface ProcessDetailsProps {
   proc: Proc;
@@ -39,20 +54,24 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
   const handlers = Object.entries(p.handlers ?? {});
   const stopped = p.state === "T";
   return (
-    <aside className="rx-tm-details" aria-label={`${p.name} properties`}>
-      <header>
+    <aside
+      data-component="ProcessDetails"
+      className="flex min-h-0 animate-[rx-tm-slide_var(--hx-med)_var(--hx-ease)_both] flex-col overflow-auto border-l border-surface0 bg-mantle"
+      aria-label={`${p.name} properties`}
+    >
+      <header className="sticky top-0 z-1 flex items-center gap-2.5 border-b border-surface0 bg-mantle py-2.5 pr-2.5 pl-3.5">
         <Icon name={p.icon ?? (p.kernel ? "cpu" : "terminal")} size={22} />
-        <div>
-          <b>{p.name}</b>
-          <span className="hx-faint">
+        <div className="flex min-w-0 flex-col">
+          <b className="truncate text-[14px]">{p.name}</b>
+          <span className="text-overlay1">
             PID {p.pid} · {appOf(byPid, p)}
           </span>
         </div>
-        <span className="hx-spacer" />
+        <span className="flex-1" />
         <IconButton icon="close" label="Close (Esc)" size="sm" onClick={onClose} />
       </header>
 
-      <div className="rx-tm-details-actions">
+      <div className="flex flex-wrap gap-1.5 border-b border-surface0 px-3.5 py-2.5">
         <Button size="sm" variant="danger" icon="close" onClick={() => ask.send([p.pid], 15)}>
           End
         </Button>
@@ -70,31 +89,29 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
         </Button>
       </div>
 
-      <section>
-        <h4 className="hx-caps">Live</h4>
-        <div className="rx-tm-details-graphs">
+      <DetailsSection title="Live">
+        <div className="grid gap-2.5 *:flex *:flex-col *:gap-1 *:text-[11.5px]">
           <div>
-            <span className="hx-faint">CPU {fmtCpu(p.cpu / MACHINE.threads)}% of total</span>
+            <span className="text-overlay1">CPU {fmtCpu(p.cpu / MACHINE.threads)}% of total</span>
             <Graph series={[{ label: "cpu", data: h.cpu, accent: "sky" }]} height={64} gridLines={2} format={(x) => `${fmtCpu(x)}%`} />
           </div>
           <div>
-            <span className="hx-faint">Memory (PSS) {fmtKiB(p.pss)}</span>
+            <span className="text-overlay1">Memory (PSS) {fmtKiB(p.pss)}</span>
             <Graph series={[{ label: "pss", data: h.mem, accent: "mauve" }]} height={64} gridLines={2} format={fmtKiB} />
           </div>
         </div>
-      </section>
+      </DetailsSection>
 
-      <section>
-        <h4 className="hx-caps">Process</h4>
-        <dl className="rx-tm-kv">
+      <DetailsSection title="Process">
+        <dl className={kv}>
           <dt>State</dt>
           <dd>
-            <span className={`rx-tm-state rx-tm-state--${p.state}`}>{p.state}</span> {STATE_LABEL[p.state]}
+            <span className={state(p.state)}>{p.state}</span> {STATE_LABEL[p.state]}
           </dd>
           <dt>User</dt>
           <dd>{p.user}</dd>
           <dt>Parent</dt>
-          <dd>{byPid.get(p.ppid) ? <button type="button" className="rx-tm-link" onClick={() => onSelect(p.ppid)}>{byPid.get(p.ppid)!.name} ({p.ppid})</button> : p.ppid}</dd>
+          <dd>{byPid.get(p.ppid) ? <button type="button" className={link} onClick={() => onSelect(p.ppid)}>{byPid.get(p.ppid)!.name} ({p.ppid})</button> : p.ppid}</dd>
           <dt>Started</dt>
           <dd>{fmtDuration(tm.uptime - p.start)} ago</dd>
           <dt>CPU time</dt>
@@ -114,18 +131,17 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
           {p.cwd && (
             <>
               <dt>cwd</dt>
-              <dd className="rx-tm-mono">{p.cwd}</dd>
+              <dd className="font-hx">{p.cwd}</dd>
             </>
           )}
           <dt>cgroup</dt>
-          <dd className="rx-tm-mono">/{p.unit}</dd>
+          <dd className="font-hx">/{p.unit}</dd>
         </dl>
-        <pre className="rx-tm-cmdline">{p.state === "Z" ? "(zombie: no command line)" : p.cmd}</pre>
-      </section>
+        <pre className="m-0 bg-crust px-2.5 py-2 font-[inherit] text-[11.5px] break-all whitespace-pre-wrap text-green">{p.state === "Z" ? "(zombie: no command line)" : p.cmd}</pre>
+      </DetailsSection>
 
       {!p.kernel && p.state !== "Z" && (
-        <section>
-          <h4 className="hx-caps">Memory</h4>
+        <DetailsSection title="Memory">
           <StackBar
             total={rss(p) + p.swap}
             format={fmtKiB}
@@ -135,7 +151,7 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
               ...(p.swap ? [{ label: "swap", value: p.swap, accent: "peach" as const }] : []),
             ]}
           />
-          <dl className="rx-tm-kv rx-tm-kv--3">
+          <dl className={cx(kv, "grid-cols-[repeat(4,auto_1fr)]")}>
             <dt>USS</dt>
             <dd>{fmtKiB(p.uss)}</dd>
             <dt>PSS</dt>
@@ -145,62 +161,57 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
             <dt>Virtual</dt>
             <dd>{fmtKiB(p.vsz)}</dd>
           </dl>
-          <p className="hx-faint">Ending it frees about {fmtKiB(p.uss)} (its private pages); shared libraries stay loaded for other processes.</p>
-        </section>
+          <p className="text-overlay1">Ending it frees about {fmtKiB(p.uss)} (its private pages); shared libraries stay loaded for other processes.</p>
+        </DetailsSection>
       )}
 
-      <section>
-        <h4 className="hx-caps">Ancestry</h4>
-        <ol className="rx-tm-chain">
-          {chain.map((a) => (
-            <li key={a.pid}>
-              <button type="button" className="rx-tm-link" onClick={() => onSelect(a.pid)}>
-                {a.name} <span className="hx-faint">{a.pid}</span>
+      <DetailsSection title="Ancestry">
+        <ol className="m-0 flex list-none flex-col gap-[3px] p-0">
+          {chain.map((a, i) => (
+            <li key={a.pid} className={chainItem(i)}>
+              <button type="button" className={link} onClick={() => onSelect(a.pid)}>
+                {a.name} <span className="text-overlay1">{a.pid}</span>
               </button>
             </li>
           ))}
-          <li>
+          <li className={chainItem(chain.length)}>
             <b>
-              {p.name} <span className="hx-faint">{p.pid}</span>
+              {p.name} <span className="text-overlay1">{p.pid}</span>
             </b>
           </li>
         </ol>
-      </section>
+      </DetailsSection>
 
       {kids.length > 0 && (
-        <section>
-          <h4 className="hx-caps">
-            Children · {kids.length} direct, {all.length} total
-          </h4>
-          <p className="hx-faint">
+        <DetailsSection title={`Children · ${kids.length} direct, ${all.length} total`}>
+          <p className="text-overlay1">
             Whole tree: {fmtCpu(tree.cpu / MACHINE.threads)}% CPU · {fmtKiB(tree.mem)} {metric.toUpperCase()} · {tree.threads} threads
           </p>
-          <ul className="rx-tm-kids">
+          <ul className={list}>
             {kids.map((c) => {
               const t = totals([c, ...descendants(tm.procs, c.pid)], metric);
               return (
-                <li key={c.pid}>
-                  <button type="button" className="rx-tm-link" onClick={() => onSelect(c.pid)}>{c.name}</button>
-                  <span className="hx-faint">{c.pid}</span>
-                  <span className="hx-spacer" />
+                <li key={c.pid} className="flex items-center gap-2 tabular-nums">
+                  <button type="button" className={link} onClick={() => onSelect(c.pid)}>{c.name}</button>
+                  <span className="text-overlay1">{c.pid}</span>
+                  <span className="flex-1" />
                   <span>{fmtCpu(t.cpu / MACHINE.threads)}%</span>
                   <span>{fmtKiB(t.mem)}</span>
-                  {t.count > 1 && <span className="rx-tm-count">Σ {t.count}</span>}
+                  {t.count > 1 && <span className={count}>Σ {t.count}</span>}
                 </li>
               );
             })}
           </ul>
-        </section>
+        </DetailsSection>
       )}
 
-      <section>
-        <h4 className="hx-caps">Signal handling</h4>
-        <ul className="rx-tm-handlers">
+      <DetailsSection title="Signal handling">
+        <ul className={cx(list, "*:grid *:grid-cols-[82px_1fr_auto] *:items-baseline *:gap-2 *:text-[11.5px] [&_b]:text-mauve")}>
           {handlers.map(([num, hd]) => (
             <li key={num}>
               <b>{signalByNum(Number(num))?.name ?? `signal ${num}`}</b>
               <span>{hd!.note}</span>
-              {!hd!.exit && <span className="rx-tm-tag">survives</span>}
+              {!hd!.exit && <span className={tag()}>survives</span>}
             </li>
           ))}
           {p.withParent && (
@@ -215,9 +226,18 @@ export function ProcessDetails({ proc: p, tm, metric, ask, onSelect, onClose }: 
               <span>Adopts orphaned descendants instead of PID 1.</span>
             </li>
           )}
-          {!handlers.length && !p.withParent && !p.subreaper && <li className="hx-faint">Default dispositions: SIGTERM / SIGINT / SIGHUP end it.</li>}
+          {!handlers.length && !p.withParent && !p.subreaper && <li className="text-overlay1">Default dispositions: SIGTERM / SIGINT / SIGHUP end it.</li>}
         </ul>
-      </section>
+      </DetailsSection>
     </aside>
+  );
+}
+
+/** `•` for the root, then `└` stepping in 10px a level (capped at five). */
+function chainItem(i: number) {
+  return cx(
+    "relative pl-4 before:absolute before:left-0.5 before:text-surface2",
+    i === 0 ? "before:content-['•']" : "before:content-['└']",
+    ["", "ml-2.5", "ml-5", "ml-[30px]", "ml-10"][i] ?? "ml-[50px]",
   );
 }

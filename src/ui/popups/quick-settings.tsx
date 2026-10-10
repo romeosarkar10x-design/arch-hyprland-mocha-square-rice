@@ -40,45 +40,59 @@ export interface QuickSettingsProps {
 export function QuickSettings({ tiles = DEFAULT_TILES, columns = 3, onToggle, bare, className }: QuickSettingsProps) {
   const [state, setState] = useState(() => Object.fromEntries(tiles.map((t) => [t.id, !!t.on])));
   const grid = (
-    <div className={cx("hx-qs", className)} style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
-      {tiles.map((t) => {
-        const on = state[t.id];
-        return (
-          <button
-            key={t.id}
-            type="button"
-            aria-pressed={on}
-            className={cx("hx-qs-tile", on && "is-on")}
-            style={{ ["--hx-acc" as string]: accentVar(t.accent) }}
-            onClick={() => {
-              setState({ ...state, [t.id]: !on });
-              onToggle?.(t.id, !on);
-            }}
-          >
-            <Icon name={t.icon} className="hx-qs-icon" />
-            <span className="hx-qs-label">{t.label}</span>
-            <span className="hx-qs-detail">
-              {on
-                ? t.detail === "off" || t.detail === "idle allowed"
-                  ? "on"
-                  : t.detail
-                : t.detail === "off" || t.detail === "idle allowed"
-                  ? t.detail
-                  : "off"}
-            </span>
-          </button>
-        );
-      })}
+    <div
+      data-component="QuickSettingsGrid"
+      className={cx("kit-type grid gap-px bg-surface0 text-text", className)}
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+    >
+      {tiles.map((t) => (
+        <QuickTileButton
+          key={t.id}
+          tile={t}
+          on={!!state[t.id]}
+          onClick={() => {
+            const on = !state[t.id];
+            setState({ ...state, [t.id]: on });
+            onToggle?.(t.id, on);
+          }}
+        />
+      ))}
     </div>
   );
   if (bare) return grid;
   return (
-    <Panel width={400} icon="settings" accent="lavender" title="Quick settings" subtitle="romeo@archlinux · up 3h 12m">
+    <Panel data-component="QuickSettings" width={400} icon="settings" accent="lavender" title="Quick settings" subtitle="romeo@archlinux · up 3h 12m">
       <PanelSection flush>{grid}</PanelSection>
       <PanelSection>
         <Slider label="Brightness" icon="sun" defaultValue={72} accent="peach" ticks={0} />
         <Slider label="Volume" icon="volumeMedium" defaultValue={64} accent="yellow" ticks={0} />
       </PanelSection>
     </Panel>
+  );
+}
+
+/** One toggle tile; floods with its accent when on. */
+function QuickTileButton({ tile: t, on, onClick }: { tile: QuickTile; on: boolean; onClick: () => void }) {
+  // "off" / "idle allowed" describe the off state, so they read "on" when toggled; any other detail describes the on state.
+  const offDetail = t.detail === "off" || t.detail === "idle allowed";
+  return (
+    <button
+      type="button"
+      data-component="QuickTileButton"
+      aria-pressed={on}
+      className={cx(
+        "unbutton flex min-h-[84px] cursor-pointer flex-col gap-0.5 bg-mantle p-3 text-left text-text",
+        "transition-[background-color,color] duration-(--hx-med) hover:bg-base",
+        on && "bg-acc text-crust hover:bg-[color-mix(in_srgb,var(--hx-acc)_85%,white)]",
+      )}
+      style={{ ["--hx-acc" as string]: accentVar(t.accent) }}
+      onClick={onClick}
+    >
+      <Icon name={t.icon} className={cx("mb-auto text-[20px] transition-colors duration-(--hx-med)", on ? "text-crust" : "text-acc")} />
+      <span className="mt-2.5 text-[12px] font-bold">{t.label}</span>
+      <span className={cx("text-[10.5px]", on ? "text-crust opacity-70" : "text-overlay1")}>
+        {on ? (offDetail ? "on" : t.detail) : offDetail ? t.detail : "off"}
+      </span>
+    </button>
   );
 }

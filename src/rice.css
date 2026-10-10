@@ -16,7 +16,6 @@
 }
 
 /* shell */
-@keyframes hx-pop-up { from { opacity: 0; transform: translateY(10px); } }
 @keyframes rx-shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 @keyframes rx-flash { 30% { background: color-mix(in srgb, white 45%, transparent); } }
 @keyframes rx-rice-slide { from { opacity: 0; transform: translateX(24px); } }

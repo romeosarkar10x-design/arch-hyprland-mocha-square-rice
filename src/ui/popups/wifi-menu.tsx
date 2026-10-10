@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Button, Icon, KeyValueList, Panel, PanelSection, Toggle, cx } from "../ui";
+import { Button } from "../controls/button";
+import { Toggle } from "../controls/toggle";
+import { KeyValueList } from "../data/key-value-list";
+import { Icon } from "../foundations/icon";
+import { cx } from "../lib";
 import { NetList, NetRowLabel, Scanning, SignalBars, netRow } from "./net-list";
+import { Panel } from "./panel";
+import { PanelSection } from "./panel-section";
 
 export interface WifiNetwork {
   ssid: string;
@@ -30,13 +36,7 @@ export interface WifiMenuProps {
 export function WifiMenu({ networks = demoNetworks, connected: initial = "home-5G", enabled: initialOn = true, onConnect, className }: WifiMenuProps) {
   const [on, setOn] = useState(initialOn);
   const [connected, setConnected] = useState(initial);
-  const [asking, setAsking] = useState<string | null>(null);
   const current = networks.find((n) => n.ssid === connected);
-  const connect = (n: WifiNetwork, password?: string) => {
-    setConnected(n.ssid);
-    setAsking(null);
-    onConnect?.(n.ssid, password);
-  };
   return (
     <Panel
       data-component="WifiMenu"
@@ -59,8 +59,49 @@ export function WifiMenu({ networks = demoNetworks, connected: initial = "home-5
         </>
       }
     >
-      {on && current && (
-        <PanelSection label="connection">
+      {on && (
+        <WifiNetworks
+          networks={networks}
+          connected={connected}
+          onConnect={(ssid, pw) => {
+            setConnected(ssid);
+            onConnect?.(ssid, pw);
+          }}
+          onDisconnect={() => setConnected(null)}
+        />
+      )}
+    </Panel>
+  );
+}
+
+export interface WifiNetworksProps {
+  networks?: WifiNetwork[];
+  connected?: string | null;
+  onConnect?: (ssid: string, password?: string) => void;
+  onDisconnect?: () => void;
+}
+
+/** The body of the Wi-Fi picker (connection details + nearby networks), as PanelSections for any Panel. */
+export function WifiNetworks({ networks = demoNetworks, connected, onConnect, onDisconnect }: WifiNetworksProps) {
+  const [asking, setAsking] = useState<string | null>(null);
+  const current = networks.find((n) => n.ssid === connected);
+  const connect = (n: WifiNetwork, password?: string) => {
+    setAsking(null);
+    onConnect?.(n.ssid, password);
+  };
+  return (
+    <>
+      {current && (
+        <PanelSection
+          label="connection"
+          aside={
+            onDisconnect && (
+              <Button size="sm" variant="ghost" accent="sapphire" onClick={onDisconnect}>
+                Disconnect
+              </Button>
+            )
+          }
+        >
           <KeyValueList>
             <dt>ip</dt>
             <dd>192.168.1.42/24</dd>
@@ -73,23 +114,21 @@ export function WifiMenu({ networks = demoNetworks, connected: initial = "home-5
           </KeyValueList>
         </PanelSection>
       )}
-      {on && (
-        <PanelSection label="networks" aside={<Scanning />} flush>
-          <NetList>
-            {networks.map((n) => (
-              <WifiRow
-                key={n.ssid}
-                network={n}
-                connected={n.ssid === connected}
-                asking={asking === n.ssid}
-                onClick={() => (n.ssid === connected ? null : n.secure && !n.known ? setAsking(n.ssid) : connect(n))}
-                onPassword={(pw) => connect(n, pw)}
-              />
-            ))}
-          </NetList>
-        </PanelSection>
-      )}
-    </Panel>
+      <PanelSection label="networks" aside={<Scanning />} flush>
+        <NetList>
+          {networks.map((n) => (
+            <WifiRow
+              key={n.ssid}
+              network={n}
+              connected={n.ssid === connected}
+              asking={asking === n.ssid}
+              onClick={() => (n.ssid === connected ? null : n.secure && !n.known ? setAsking(n.ssid) : connect(n))}
+              onPassword={(pw) => connect(n, pw)}
+            />
+          ))}
+        </NetList>
+      </PanelSection>
+    </>
   );
 }
 

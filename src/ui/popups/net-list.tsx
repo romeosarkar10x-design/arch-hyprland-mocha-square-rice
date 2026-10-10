@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cx } from "../ui";
+import { cx } from "../lib";
 
 /** Four signal bars, `level` 0-4 lit. */
 export function SignalBars({ level }: { level: number }) {

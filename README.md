@@ -91,6 +91,7 @@ CSS custom properties, declared in `:root` in `src/ui/hyprland-ui.css`.
 
 ### popups
 - `AudioPanel` — PipeWire popup: output volume, live spectrum, now playing, output device picker and mic level.
+- `BluetoothMenu` — bluetoothctl / blueman panel: paired devices with battery, nearby devices to pair. `BluetoothDevices` is its reusable body.
 - `Calendar` — Monday-first month grid with ISO weeks, event dots, month paging and a selectable day.
 - `ClockPanel` — Clock popup: huge time with seconds, date line, world clocks, month calendar and the agenda.
 - `CpuPanel` — CPU popup: load / temperature / power gauges, 60 s history, per-core heatmap, clock meter.
@@ -100,7 +101,8 @@ CSS custom properties, declared in `:root` in `src/ui/hyprland-ui.css`.
 - `NetworkPanel` — Network popup: mirrored down/up traffic graph, rates, addresses and session totals.
 - `Panel` — Popup shell for every rich bar dropdown. Mantle body, hairline frame,
 - `PanelSection` — A divided block inside a Panel.
-- `QuickSettings` — Toggle tiles for desktop modes (caffeine, DND, night light...), plus brightness and volume sliders.
+- `QuickSettings` — Android-style control centre behind the bar's settings icon: brightness / volume (with mute) sliders over toggle tiles. A tile's chevron, long press or right click opens its page: Wi-Fi, Bluetooth, Night light (redshift temperature, dimming, schedule) and Sound.
+- `WifiMenu` — NetworkManager Wi-Fi picker: connection details, nearby networks, inline password. `WifiNetworks` is its reusable body.
 
 ### bar
 - `Bar` — The top panel (Waybar). 34px crust strip with a 2px surface0 underline.
@@ -142,6 +144,7 @@ CSS custom properties, declared in `:root` in `src/ui/hyprland-ui.css`.
 - `Unit` — Dim unit suffix inside a bar readout, e.g. UnitW/Unit.
 
 ### overlays
+- `Osd` — swayosd-style on-screen display for volume, brightness, mic, caps lock and layout. The Desktop shows it bottom-centre when the volume changes.
 - `Launcher` — App launcher (replaces wofi): fuzzy search with highlighted hits, arrow-key selection, Enter to launch.
 - `PowerMenu` — Session menu. Safe actions fire on click or their key reboot and shutdown
 - `Toast` — Notification card (mako/swaync replacement) with countdown line, actions and slide-in.

@@ -28,15 +28,12 @@ export const Modules: Story = {
         2.4 MiB
       </BarSegment>
       <BarSegment icon="cpu" accent="sky" divider spark={[12, 18, 30, 22, 41, 37, 25, 19]}>
-        19% 52° 61
-        <Unit>W</Unit>
+        19%
       </BarSegment>
       <BarSegment icon="memory" accent="mauve" divider>
         31%
       </BarSegment>
-      <BarSegment icon="volumeMedium" accent="yellow" divider>
-        64%
-      </BarSegment>
+      <BarSegment icon="settings" divider label="Quick settings" />
     </div>
   ),
 };
@@ -57,9 +54,7 @@ export const States: Story = {
       <BarSegment icon="gpu" accent="green" divider open>
         open
       </BarSegment>
-      <BarSegment icon="volumeOff" accent="yellow" divider dim>
-        muted
-      </BarSegment>
+      <BarSegment icon="coffeeOff" divider dim label="Caffeine (off)" />
     </div>
   ),
 };

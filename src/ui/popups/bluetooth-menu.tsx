@@ -1,6 +1,13 @@
 import { useState } from "react";
-import { Button, Icon, IconButton, Meter, Panel, PanelSection, Toggle, type IconName } from "../ui";
+import { Button } from "../controls/button";
+import { IconButton } from "../controls/icon-button";
+import { Toggle } from "../controls/toggle";
+import { Meter } from "../data/meter";
+import { Icon } from "../foundations/icon";
+import { type IconName } from "../icons";
 import { NetList, NetRowLabel, Scanning, netRow } from "./net-list";
+import { Panel } from "./panel";
+import { PanelSection } from "./panel-section";
 
 export interface BluetoothDevice {
   name: string;
@@ -19,6 +26,10 @@ export const demoDevices: BluetoothDevice[] = [
   { name: "JBL Flip 6", icon: "speaker", kind: "speaker" },
 ];
 
+/** Connect / disconnect / pair `name`; pairing happens on first connect. */
+export const toggleDevice = (list: BluetoothDevice[], name: string) =>
+  list.map((d) => (d.name === name ? { ...d, connected: !d.connected, paired: true } : d));
+
 export interface BluetoothMenuProps {
   devices?: BluetoothDevice[];
   enabled?: boolean;
@@ -29,9 +40,6 @@ export interface BluetoothMenuProps {
 export function BluetoothMenu({ devices = demoDevices, enabled: initialOn = true, className }: BluetoothMenuProps) {
   const [on, setOn] = useState(initialOn);
   const [list, setList] = useState(devices);
-  const toggle = (name: string) => setList((xs) => xs.map((d) => (d.name === name ? { ...d, connected: !d.connected, paired: true } : d)));
-  const paired = list.filter((d) => d.paired);
-  const nearby = list.filter((d) => !d.paired);
   return (
     <Panel
       data-component="BluetoothMenu"
@@ -52,25 +60,38 @@ export function BluetoothMenu({ devices = demoDevices, enabled: initialOn = true
         </>
       }
     >
-      {on && (
-        <>
-          <PanelSection label="paired" flush>
-            <NetList>
-              {paired.map((d) => (
-                <DeviceRow key={d.name} device={d} onToggle={() => toggle(d.name)} />
-              ))}
-            </NetList>
-          </PanelSection>
-          <PanelSection label="nearby" aside={<Scanning />} flush>
-            <NetList>
-              {nearby.map((d) => (
-                <DeviceRow key={d.name} device={d} onToggle={() => toggle(d.name)} />
-              ))}
-            </NetList>
-          </PanelSection>
-        </>
-      )}
+      {on && <BluetoothDevices devices={list} onToggle={(name) => setList((xs) => toggleDevice(xs, name))} />}
     </Panel>
+  );
+}
+
+export interface BluetoothDevicesProps {
+  devices?: BluetoothDevice[];
+  /** Connect, disconnect or pair the named device. */
+  onToggle?: (name: string) => void;
+}
+
+/** The body of the Bluetooth panel (paired + nearby lists), as PanelSections for any Panel. */
+export function BluetoothDevices({ devices = demoDevices, onToggle }: BluetoothDevicesProps) {
+  const paired = devices.filter((d) => d.paired);
+  const nearby = devices.filter((d) => !d.paired);
+  return (
+    <>
+      <PanelSection label="paired" flush>
+        <NetList>
+          {paired.map((d) => (
+            <DeviceRow key={d.name} device={d} onToggle={() => onToggle?.(d.name)} />
+          ))}
+        </NetList>
+      </PanelSection>
+      <PanelSection label="nearby" aside={<Scanning />} flush>
+        <NetList>
+          {nearby.map((d) => (
+            <DeviceRow key={d.name} device={d} onToggle={() => onToggle?.(d.name)} />
+          ))}
+        </NetList>
+      </PanelSection>
+    </>
   );
 }
 

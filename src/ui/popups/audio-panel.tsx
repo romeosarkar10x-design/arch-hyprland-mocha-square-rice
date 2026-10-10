@@ -9,7 +9,7 @@ import { Panel } from "./panel";
 import { PanelSection } from "./panel-section";
 import type { IconName } from "../icons";
 
-const DEFAULT_OUTPUTS: AudioDevice[] = [
+export const demoOutputs: AudioDevice[] = [
   { id: "hd650", name: "Sennheiser HD 650", detail: "Schiit Modi+ · USB · 48 kHz", icon: "headphones" },
   { id: "monitors", name: "Studio monitors", detail: "GA102 · HDMI · 48 kHz", icon: "speaker" },
   { id: "dp", name: "LG 27GP950", detail: "DisplayPort · 48 kHz", icon: "monitor" },
@@ -38,7 +38,7 @@ export interface AudioPanelProps {
 
 /** PipeWire popup: output volume slider with mute, live spectrum, now playing, output device picker, mic level. */
 export function AudioPanel({
-  outputs = DEFAULT_OUTPUTS,
+  outputs = demoOutputs,
   output,
   volume = 64,
   muted = false,
@@ -95,7 +95,7 @@ export function AudioPanel({
         <MediaPlayer track={track} playing={playing} position={97} onPlayPause={setPlaying} />
       </PanelSection>
       <PanelSection label="devices">
-        <DeviceList
+        <AudioDeviceList
           devices={outputs}
           selected={sel}
           onSelect={(id) => {
@@ -121,9 +121,9 @@ export function AudioPanel({
 }
 
 /** Radio list of output devices; the selected row tints with the panel accent. */
-function DeviceList({ devices, selected, onSelect }: { devices: AudioDevice[]; selected?: string; onSelect: (id: string) => void }) {
+export function AudioDeviceList({ devices, selected, onSelect }: { devices: AudioDevice[]; selected?: string; onSelect: (id: string) => void }) {
   return (
-    <div data-component="DeviceList" className="-mx-2 flex flex-col gap-0.5" role="radiogroup" aria-label="Output device">
+    <div data-component="AudioDeviceList" className="-mx-2 flex flex-col gap-0.5" role="radiogroup" aria-label="Output device">
       {devices.map((o) => {
         const on = o.id === selected;
         return (

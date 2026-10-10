@@ -27,7 +27,7 @@ export const CpuPopupOpen: Story = {
 
 export const Browser: Story = {
   ...fixed,
-  render: () => <Desktop workspace={2} openPopup="audio" notifications={false} />,
+  render: () => <Desktop workspace={2} openPopup="qs" notifications={false} />,
 };
 
 export const Launcher: Story = {

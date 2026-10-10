@@ -61,23 +61,16 @@ export const Full: Story = {
               {" 312 KiB"}
             </BarSegment>
             <BarSegment icon="cpu" accent="sky" divider spark={[12, 18, 30, 22, 41, 37, 25, 19]}>
-              19% 52° 61
-              <Unit>W</Unit>
+              19%
             </BarSegment>
             <BarSegment icon="gpu" accent="green" divider spark={[30, 42, 38, 51, 47, 44, 40, 36]}>
-              36% 58° 168
-              <Unit>W</Unit>
+              36%
             </BarSegment>
             <BarSegment icon="memory" accent="mauve" divider>
               31%
             </BarSegment>
-            <BarSegment icon="volumeMedium" accent="yellow" divider>
-              64%
-            </BarSegment>
             <BarSegment icon="coffeeOff" divider dim label="Caffeine" />
-            <BarSegment divider variant="tray" label="Tray">
-              <Icon name="chat" /> <Icon name="steam" /> <Icon name="bluetooth" />
-            </BarSegment>
+            <BarSegment icon="settings" divider label="Quick settings" />
             <BarSegment variant="power" icon="power" label="Power" />
           </>
         }
@@ -106,20 +99,16 @@ export const UnderLoad: Story = {
         right={
           <>
             <BarSegment icon="cpu" accent="sky" divider level="crit" spark={[70, 82, 88, 91, 94, 97, 95, 98]}>
-              97% 88° 162
-              <Unit>W</Unit>
+              97%
             </BarSegment>
             <BarSegment icon="gpu" accent="green" divider level="warn" open spark={[60, 72, 81, 77, 90, 85, 70, 88]}>
-              88% 79° 401
-              <Unit>W</Unit>
+              88%
             </BarSegment>
             <BarSegment icon="memory" accent="mauve" divider level="warn">
               81%
             </BarSegment>
-            <BarSegment icon="volumeOff" accent="yellow" divider dim>
-              muted
-            </BarSegment>
             <BarSegment icon="coffee" divider className="is-caffeine" label="Caffeine" />
+            <BarSegment icon="settings" divider label="Quick settings" />
             <BarSegment variant="power" icon="power" />
           </>
         }

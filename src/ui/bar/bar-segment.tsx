@@ -1,4 +1,4 @@
-import type { MouseEventHandler, ReactNode, Ref } from "react";
+import type { MouseEventHandler, PointerEventHandler, ReactNode, Ref, WheelEventHandler } from "react";
 import { Sparkline } from "../data/sparkline";
 import { Icon } from "../foundations/icon";
 import { type IconName } from "../icons";
@@ -23,6 +23,11 @@ export interface BarSegmentProps {
   /** Visually dim (e.g. muted audio, paused media). */
   dim?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
+  /** Hover in / out, e.g. to show a Tooltip. */
+  onPointerEnter?: PointerEventHandler<HTMLButtonElement>;
+  onPointerLeave?: PointerEventHandler<HTMLButtonElement>;
+  /** Scroll over the segment, e.g. volume ±2%. */
+  onWheel?: WheelEventHandler<HTMLButtonElement>;
   label?: string;
   className?: string;
   /** The Desktop anchors popups to their segment through this. */
@@ -63,6 +68,9 @@ export function BarSegment({
   variant = "plain",
   dim,
   onClick,
+  onPointerEnter,
+  onPointerLeave,
+  onWheel,
   label,
   className,
   ref,
@@ -74,6 +82,9 @@ export function BarSegment({
       aria-label={label}
       aria-expanded={open}
       onClick={onClick}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      onWheel={onWheel}
       data-component="BarSegment"
       data-variant={variant}
       className={cx(

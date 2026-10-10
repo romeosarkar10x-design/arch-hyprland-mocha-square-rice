@@ -25,7 +25,7 @@ export function PanelSection({ label, aside, children, flush, className }: Panel
       className={cx("flex flex-col gap-2.5 border-b border-surface0 px-4 py-3.5 last-of-type:border-b-0", stacking, flush && "p-0", className)}
     >
       {(label || aside) && (
-        <div className="flex items-baseline justify-between text-[11px]">
+        <div className={cx("flex items-baseline justify-between text-[11px]", flush && "px-4 pt-3.5")}>
           <span className="caps">{label}</span>
           {aside && <span>{aside}</span>}
         </div>

@@ -1,4 +1,6 @@
-import { Icon, cx, type Accent, type IconName } from "../ui";
+import { Icon } from "../foundations/icon";
+import { type IconName } from "../icons";
+import { cx, type Accent } from "../lib";
 
 export type OsdKind = "volume" | "brightness" | "mic" | "capslock" | "layout" | "keyboard-light";
 

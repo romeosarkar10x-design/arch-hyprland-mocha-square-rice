@@ -1,8 +1,7 @@
 import { useEffect, useReducer, useRef, useState, type AnimationEvent, type CSSProperties, type KeyboardEvent } from "react";
-import { Icon, Wallpaper, Workspaces, cx } from "../ui";
+import { Icon, Osd, Wallpaper, Workspaces, cx } from "../ui";
 import { Dmenu } from "../shell/dmenu";
 import { comboFromEvent, KeystrokeVisualizer, pushStroke, type Stroke } from "../shell/keystroke-visualizer";
-import { Osd } from "../shell/osd";
 import { ScaleToFit } from "../theme/theme-generator";
 import { AppContent, APPS, type AppId } from "./apps";
 import { ANIMATIONS, CURVES, cssColour, LOOK, resolveAnim, type AnimLeaf, type Bezier, type HyprLook } from "./config";

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Osd } from "./osd";
+import { Osd } from "../ui";
 import { Stage } from "./stage";
 
 const meta = {

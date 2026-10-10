@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Meter.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { Meter } from "./Meter";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Meter,
   args: { value: 42, label: "memory", readout: "12.8 / 30.5 GiB", accent: "mauve" },
   argTypes: { accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Meter>;
 
 export default meta;

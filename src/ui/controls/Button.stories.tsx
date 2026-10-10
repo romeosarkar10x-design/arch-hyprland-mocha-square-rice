@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Button.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Button } from "./Button";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Button,
   args: { icon: "settings", children: "Button" },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Button>;
 
 export default meta;

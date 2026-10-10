@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Stat.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { Stat } from "./Stat";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Stat,
   args: { label: "used", value: "9.4", hint: "GiB", accent: "mauve" },
   argTypes: { accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Stat>;
 
 export default meta;

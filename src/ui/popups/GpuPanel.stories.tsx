@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/GpuPanel.md?raw";
-import { guide } from "../storybook";
 import { initialStats } from "..";
 import { GpuPanel } from "./GpuPanel";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Shell/Popups/GpuPanel",
   component: GpuPanel,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof GpuPanel>;
 
 export default meta;

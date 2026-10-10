@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Panel.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Button, Meter, PanelSection, Stat, Toggle } from "..";
 import { Panel } from "./Panel";
 
@@ -9,7 +8,6 @@ const meta = {
   component: Panel,
   args: { icon: "cpu", accent: "sky", title: "Panel", subtitle: "subtitle", children: "Panel body" },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Panel>;
 
 export default meta;

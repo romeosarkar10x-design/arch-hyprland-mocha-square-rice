@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Slider.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Slider } from "./Slider";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Slider,
   args: { label: "Volume", icon: "volumeMedium", defaultValue: 64 },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Slider>;
 
 export default meta;

@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Wallpaper.md?raw";
-import { guide } from "../storybook";
 import { Wallpaper } from "./Wallpaper";
 
 const meta = {
   title: "Desktop/Wallpaper",
   component: Wallpaper,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Wallpaper>;
 
 export default meta;

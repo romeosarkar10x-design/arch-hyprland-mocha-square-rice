@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/CpuPanel.md?raw";
-import { guide } from "../storybook";
 import { initialStats } from "..";
 import { CpuPanel } from "./CpuPanel";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Shell/Popups/CpuPanel",
   component: CpuPanel,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof CpuPanel>;
 
 export default meta;

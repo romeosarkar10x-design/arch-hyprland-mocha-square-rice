@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Workspaces.md?raw";
-import { guide } from "../storybook";
 import { Workspaces } from "./Workspaces";
 
 const meta = {
   title: "Shell/Bar/Workspaces",
   component: Workspaces,
   args: { active: 1, workspaces: [{ id: 1, apps: ["code", "ghostty"] }, { id: 2, apps: ["chrome"] }, { id: 3 }, { id: 4 }, { id: 5 }] },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Workspaces>;
 
 export default meta;

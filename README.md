@@ -65,7 +65,6 @@ The kit lives in `src/ui/`, plain TypeScript + React:
 - `src/ui/lib.ts` (`Accent`, `cx`, `level`, `bytes`, canvas and timer hooks), `src/ui/icons.ts` (`icons`, `IconName`), `src/ui/stats.ts` (the simulated system behind the live panels).
 - `src/ui/hyprland-ui.css` — tokens and every component's styles.
 - `fonts/` — asiLonoM `@font-face` files.
-- `guidelines/docs/<Name>.md` — usage guidance per component; each story's docs page shows it.
 
 ## Tokens
 

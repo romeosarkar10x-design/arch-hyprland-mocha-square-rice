@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Desktop.md?raw";
-import { guide } from "../storybook";
 import { Desktop } from "./Desktop";
 
 const meta = {
   title: "Desktop/Desktop",
   component: Desktop,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Desktop>;
 
 export default meta;

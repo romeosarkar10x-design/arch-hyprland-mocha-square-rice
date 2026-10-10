@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Gauge.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { Gauge } from "./Gauge";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Gauge,
   args: { value: 42, label: "cpu", accent: "sky" },
   argTypes: { accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Gauge>;
 
 export default meta;

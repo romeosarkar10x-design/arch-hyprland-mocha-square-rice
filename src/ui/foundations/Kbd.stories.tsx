@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Kbd.md?raw";
-import { guide } from "../storybook";
 import { Kbd } from "./Kbd";
 
 const meta = {
   title: "Foundations/Kbd",
   component: Kbd,
   args: { children: "SUPER" },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Kbd>;
 
 export default meta;

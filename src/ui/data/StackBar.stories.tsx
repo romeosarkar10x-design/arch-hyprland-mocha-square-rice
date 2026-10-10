@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/StackBar.md?raw";
-import { guide } from "../storybook";
 import { StackBar } from "./StackBar";
 
 const meta = {
@@ -13,7 +11,6 @@ const meta = {
       { label: "cached", value: 4.6, accent: "blue" },
     ],
   },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof StackBar>;
 
 export default meta;

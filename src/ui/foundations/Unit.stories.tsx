@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Unit.md?raw";
-import { guide } from "../storybook";
 import { Bar, BarSegment } from "..";
 import { Unit } from "./Unit";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Foundations/Unit",
   component: Unit,
   args: { children: "W" },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Unit>;
 
 export default meta;

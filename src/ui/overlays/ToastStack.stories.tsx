@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/ToastStack.md?raw";
-import { guide } from "../storybook";
 import { Toast } from "..";
 import { ToastStack } from "./ToastStack";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Shell/Overlays/ToastStack",
   component: ToastStack,
   args: { children: <Toast app="Spotify" appIcon="spotify" accent="green" title="Midnight City" body="M83" /> },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof ToastStack>;
 
 export default meta;

@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Calendar.md?raw";
-import { guide } from "../storybook";
 import { Calendar } from "./Calendar";
 
 const meta = {
   title: "Shell/Popups/Calendar",
   component: Calendar,
   args: { today: new Date(2026, 9, 3) },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Calendar>;
 
 export default meta;

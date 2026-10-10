@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/CodeView.md?raw";
-import { guide } from "../storybook";
 import { CodeView } from "./CodeView";
 
 const meta = {
   title: "Apps/CodeView",
   component: CodeView,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof CodeView>;
 
 export default meta;

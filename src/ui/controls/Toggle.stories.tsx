@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Toggle.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { Toggle } from "./Toggle";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Toggle,
   args: { label: "Blur", description: "layer blur under bar and popups", defaultChecked: true },
   argTypes: { accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Toggle>;
 
 export default meta;

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/BarSegment.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Unit } from "..";
 import { BarSegment } from "./BarSegment";
 
@@ -9,7 +8,6 @@ const meta = {
   component: BarSegment,
   args: { icon: "cpu", accent: "sky", children: "19%" },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof BarSegment>;
 
 export default meta;

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/CoreGrid.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { CoreGrid } from "./CoreGrid";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: CoreGrid,
   args: { cores: [12, 40, 8, 95, 33, 61, 20, 18, 5, 72, 44, 10], columns: 6 },
   argTypes: { accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof CoreGrid>;
 
 export default meta;

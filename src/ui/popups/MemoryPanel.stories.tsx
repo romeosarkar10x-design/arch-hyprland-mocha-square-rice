@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/MemoryPanel.md?raw";
-import { guide } from "../storybook";
 import { initialStats } from "..";
 import { MemoryPanel } from "./MemoryPanel";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Shell/Popups/MemoryPanel",
   component: MemoryPanel,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof MemoryPanel>;
 
 export default meta;

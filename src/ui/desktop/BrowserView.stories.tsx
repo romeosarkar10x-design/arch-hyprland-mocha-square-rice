@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/BrowserView.md?raw";
-import { guide } from "../storybook";
 import { BrowserView } from "./BrowserView";
 
 const meta = {
   title: "Apps/BrowserView",
   component: BrowserView,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof BrowserView>;
 
 export default meta;

@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/AudioPanel.md?raw";
-import { guide } from "../storybook";
 import { AudioPanel } from "./AudioPanel";
 
 const meta = {
   title: "Shell/Popups/AudioPanel",
   component: AudioPanel,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof AudioPanel>;
 
 export default meta;

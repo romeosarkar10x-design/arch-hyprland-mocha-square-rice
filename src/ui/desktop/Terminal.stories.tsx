@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Terminal.md?raw";
-import { guide } from "../storybook";
 import { Terminal } from "./Terminal";
 
 const meta = {
   title: "Apps/Terminal",
   component: Terminal,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Terminal>;
 
 export default meta;

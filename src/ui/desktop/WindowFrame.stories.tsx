@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/WindowFrame.md?raw";
-import { guide } from "../storybook";
 import { Terminal } from "..";
 import { WindowFrame } from "./WindowFrame";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Desktop/WindowFrame",
   component: WindowFrame,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof WindowFrame>;
 
 export default meta;

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/IconTile.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { IconTile } from "./IconTile";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: IconTile,
   args: { icon: "cpu", accent: "sky" },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof IconTile>;
 
 export default meta;

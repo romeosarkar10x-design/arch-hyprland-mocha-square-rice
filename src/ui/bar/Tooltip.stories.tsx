@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Tooltip.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Tooltip } from "./Tooltip";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Tooltip,
   args: { title: "Memory", subtitle: "DDR5 · 30.5 GiB", icon: "memory", accent: "mauve" },
   argTypes: { icon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Tooltip>;
 
 export default meta;

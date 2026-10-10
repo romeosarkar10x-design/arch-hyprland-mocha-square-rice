@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Toast.md?raw";
-import { accents, guide, iconNames } from "../storybook";
+import { accents, iconNames } from "../storybook";
 import { Toast } from "./Toast";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Toast,
   args: { app: "pacman", appIcon: "package", accent: "sapphire", title: "14 updates available", body: "linux · mesa · hyprland-git" },
   argTypes: { appIcon: { control: "select", options: iconNames }, accent: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Toast>;
 
 export default meta;

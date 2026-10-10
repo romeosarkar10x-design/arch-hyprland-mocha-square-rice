@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Launcher.md?raw";
-import { guide } from "../storybook";
 import { Launcher } from "./Launcher";
 
 const meta = {
   title: "Shell/Launchers/Launcher",
   component: Launcher,
   args: { autoFocus: false },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Launcher>;
 
 export default meta;

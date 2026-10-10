@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/NetworkPanel.md?raw";
-import { guide } from "../storybook";
 import { NetworkPanel } from "./NetworkPanel";
 
 const meta = {
   title: "Shell/Popups/NetworkPanel",
   component: NetworkPanel,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof NetworkPanel>;
 
 export default meta;

@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/QuickSettings.md?raw";
-import { guide } from "../storybook";
 import { QuickSettings } from "./QuickSettings";
 
 const meta = {
   title: "Shell/Popups/QuickSettings",
   component: QuickSettings,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof QuickSettings>;
 
 export default meta;

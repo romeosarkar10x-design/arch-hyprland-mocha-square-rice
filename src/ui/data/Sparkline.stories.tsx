@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Sparkline.md?raw";
-import { guide } from "../storybook";
 import { Sparkline } from "./Sparkline";
 
 const meta = {
   title: "Data/Sparkline",
   component: Sparkline,
   args: { data: [12, 18, 30, 22, 41, 37, 25, 19] },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Sparkline>;
 
 export default meta;

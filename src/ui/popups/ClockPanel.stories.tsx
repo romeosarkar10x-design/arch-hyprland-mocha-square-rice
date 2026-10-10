@@ -1,13 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/ClockPanel.md?raw";
-import { guide } from "../storybook";
 import { ClockPanel } from "./ClockPanel";
 
 const meta = {
   title: "Shell/Popups/ClockPanel",
   component: ClockPanel,
   args: { now: new Date(2026, 9, 3, 21, 41, 7) },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof ClockPanel>;
 
 export default meta;

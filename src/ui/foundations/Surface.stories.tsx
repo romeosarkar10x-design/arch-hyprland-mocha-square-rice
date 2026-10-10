@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Surface.md?raw";
-import { guide } from "../storybook";
 import { Button, Toast } from "..";
 import { Surface } from "./Surface";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Foundations/Surface",
   component: Surface,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Surface>;
 
 export default meta;

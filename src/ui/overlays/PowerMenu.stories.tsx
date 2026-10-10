@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/PowerMenu.md?raw";
-import { guide } from "../storybook";
 import { defaultPowerActions } from "..";
 import { PowerMenu } from "./PowerMenu";
 
@@ -8,7 +6,6 @@ const meta = {
   title: "Session/PowerMenu",
   component: PowerMenu,
   args: {},
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof PowerMenu>;
 
 export default meta;

@@ -1,14 +1,11 @@
 import { Fragment } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Shortcut.md?raw";
-import { guide } from "../storybook";
 import { Shortcut } from "./Shortcut";
 
 const meta = {
   title: "Foundations/Shortcut",
   component: Shortcut,
   args: { keys: ["SUPER", "R"] },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Shortcut>;
 
 export default meta;

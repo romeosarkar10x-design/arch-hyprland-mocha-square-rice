@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/Visualizer.md?raw";
-import { accents, guide } from "../storybook";
+import { accents } from "../storybook";
 import { Visualizer } from "./Visualizer";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: Visualizer,
   args: {},
   argTypes: { from: { control: "select", options: accents }, to: { control: "select", options: accents } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof Visualizer>;
 
 export default meta;

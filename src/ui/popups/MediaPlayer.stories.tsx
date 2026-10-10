@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import md from "../../../guidelines/docs/MediaPlayer.md?raw";
-import { guide, iconNames } from "../storybook";
+import { iconNames } from "../storybook";
 import { MediaPlayer } from "./MediaPlayer";
 
 const meta = {
@@ -8,7 +7,6 @@ const meta = {
   component: MediaPlayer,
   args: { track: { title: "Midnight City", artist: "M83", album: "Hurry Up, We're Dreaming", length: 243, art: ["mauve", "peach"] } },
   argTypes: { playerIcon: { control: "select", options: iconNames } },
-  parameters: { docs: { description: { component: guide(md) } } },
 } satisfies Meta<typeof MediaPlayer>;
 
 export default meta;

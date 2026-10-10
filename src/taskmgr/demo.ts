@@ -130,7 +130,7 @@ export function demoProcs(): Proc[] {
     // Ghostty with four tabs.
     p(2010, 1102, "ghostty", { ...sess, cmd: "/usr/bin/ghostty", mib: 148, sharedMib: 96, threads: 9, cpu: 1.1, withParent: true, app: "Ghostty", icon: "ghostty", start: 40, cputime: 96 }),
     p(2031, 2010, "zsh", shell("pts/0", 41)),
-    p(2077, 2031, "nvim", job({ tty: "pts/0", start: 80, cmd: "nvim src/hypr/Compositor.tsx", mib: 38, threads: 2, cpu: 0.3, icon: "code",
+    p(2077, 2031, "nvim", job({ tty: "pts/0", start: 80, cmd: "nvim src/hypr/compositor.tsx", mib: 38, threads: 2, cpu: 0.3, icon: "code",
       handlers: { 2: { note: "Cancelled the pending command; Neovim keeps running." }, 28: { note: "Redrew for the new size." } } })),
     p(2090, 2077, "node", helper({ tty: "pts/0", start: 81, cmd: "node /usr/bin/typescript-language-server --stdio", mib: 96, threads: 11, cpu: 0.4 })),
     p(2091, 2090, "node", helper({ tty: "pts/0", start: 81, cmd: "node …/typescript/lib/tsserver.js --serverMode partialSemantic --useInferredProjectPerProjectRoot", mib: 412, threads: 7, cpu: 1.8, leak: 6 })),

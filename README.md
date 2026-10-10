@@ -61,10 +61,10 @@ Data components (`Meter`, `Gauge`, `CoreGrid`, `BarSegment level`) colour by thr
 The kit lives in `src/ui/`, plain TypeScript + React:
 
 - `src/ui/index.ts` — the entry point. Import components from here; it also pulls in the fonts and `hyprland-ui.css`.
-- `src/ui/<group>/<Name>.tsx` — one component per file with its exported `<Name>Props`, next to `<Name>.stories.tsx`. Groups: `foundations`, `controls`, `data`, `bar`, `popups`, `overlays`, `desktop`.
+- `src/ui/<group>/<name>.tsx` — one component per file (kebab-case, e.g. `panel-section.tsx`) with its exported `<Name>Props`, next to `<name>.stories.tsx`. Groups: `foundations`, `controls`, `data`, `bar`, `popups`, `overlays`, `desktop`.
 - `src/ui/lib.ts` (`Accent`, `cx`, `level`, `bytes`, canvas and timer hooks), `src/ui/icons.ts` (`icons`, `IconName`), `src/ui/stats.ts` (the simulated system behind the live panels).
 - `src/ui/hyprland-ui.css` — tokens and every component's styles.
-- `fonts/` — asiLonoM `@font-face` files.
+- `font/` — asiLonoM `@font-face` files.
 
 ## Tokens
 

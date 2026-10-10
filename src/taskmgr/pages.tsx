@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Icon, IconButton, Toggle } from "../ui";
-import { ConfigFile } from "../theme/ConfigFile";
+import { ConfigFile } from "../theme/config-file";
 import type { Ask } from "./dialogs";
 import { MACHINE, ME, STARTUP, UIDS } from "./demo";
 import { childMap, fmtCpu, fmtDuration, fmtKiB, mainPid, totals, unitProcs, unitState, type Proc, type Unit, type UnitState } from "./procs";
